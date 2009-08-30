@@ -1,0 +1,284 @@
+<?php
+
+/**
+ * @file Main file for the vertical tabs module - provides vertical tabs on the
+ * node form.
+ */
+
+/**
+ * Implementation of hook_theme().
+ */
+function vertical_tabs_theme() {
+  return array(
+    'vertical_tabs' => array(
+      'arguments' => array('form_element' => NULL),
+    ),
+    'vertical_tabs_js_css' => array(
+      'arguments' => array('js' => NULL, 'css' => NULL, 'settings' => NULL, 'form_id' => NULL),
+    ),
+  );
+}
+
+/**
+ * Add a vertical tab form element to a form.
+ *
+ * @param $form
+ *   A form array to be altered.
+ * @param $fieldsets
+ *   An array of fieldsets to use in the vertical tabs. If no array is provided,
+ *   all the fieldsets in the $form array will be used.
+ * @return
+ *   TRUE if the vertical tabs were added to the form, otherwise FALSE.
+ */
+function vertical_tabs_add_vertical_tabs(&$form, $fieldsets = NULL) {
+  // The javascript to add to the page.
+  $settings = array();
+  // Iterate through the form, finding fieldsets.
+  foreach (element_children($form) as $delta => $key) {
+    // We need to make sure that the element we have is a fieldset
+    // and the user has access to this field.
+    if ((!isset($fieldsets) || in_array($key, $fieldsets)) &&
+      (isset($form[$key]['#type']) && $form[$key]['#type'] == 'fieldset') &&
+      (!isset($form[$key]['#access']) || $form[$key]['#access'] != FALSE)) {
+      // Add the JavaScript.
+      $settings[$key] = array(
+        'name' => $form[$key]['#title'],
+        'weight' => (isset($form[$key]['#weight']) ? $form[$key]['#weight'] : 0) + (0.01 * $delta),
+        'callback' => (isset($form[$key]['#summary_callback']) ? $form[$key]['#summary_callback'] : $key),
+        'args' => (isset($form[$key]['#summary_arguments']) ? $form[$key]['#summary_arguments'] : array()),
+      );
+      // Add a class to identify the fieldset.
+      if (isset($form[$key]['#attributes']['class'])) {
+        $form[$key]['#attributes']['class'] .= ' vertical-tabs-fieldset vertical-tabs-'. $key;
+      }
+      else {
+        $form[$key]['#attributes']['class'] = 'vertical-tabs-fieldset vertical-tabs-'. $key;
+      }
+    }
+  }
+
+  // The JavaScript and CSS specific for this form.
+  if (!empty($settings)) {
+    $js = $css = array();
+
+    // Add Garland specific theming.
+    if ($GLOBALS['theme'] == 'garland') {
+      $garland_stylesheets = variable_get('color_garland_stylesheets', array());
+      if (count($garland_stylesheets) == 0 || !module_exists('color')) {
+        $css[] = drupal_get_path('module', 'vertical_tabs') .'/garland/vertical_tabs.garland.css';
+      }
+      else {
+        foreach ($garland_stylesheets as $path) {
+          if (strstr($path, 'vertical_tabs.garland.css')) {
+            $css[] = $path;
+          }
+        }
+      }
+    }
+
+    // User sort orders by the "weight" key.
+    uasort($settings, '_user_sort');
+
+    $form['vertical_tabs'] = array(
+      '#vertical_tabs_settings' => $settings,
+      '#vertical_tabs_js' => $js,
+      '#vertical_tabs_css' => $css,
+      '#form_id' => $form['form_id']['#value'],
+      '#type' => 'markup',
+      '#value' => '',
+      '#theme' => 'vertical_tabs',
+      '#attributes' => array('class' => 'vertical-tabs clear-block'),
+    );
+
+    return TRUE;
+  }
+}
+
+/**
+ * Implementation of hook_form_alter.
+ */
+function vertical_tabs_form_alter(&$form, $form_state, $form_id) {
+  // Check to see which form we are in. Since the node form's form id is not
+  // just node_form, we can't implement a function for all node forms, so we are
+  // stuck implementing the global form_alter and checking if there is the
+  // string node_form in the form id.
+  if (preg_match('/_node_form$/', $form_id)) {
+    $node_type = $form['type']['#value'];
+
+    // The $fieldsets array is a list of all supported fieldsets in core
+    // for the node form, and their JavaScript summary creators.
+    $fieldsets = vertical_tabs_fieldsets($node_type);
+
+    if (vertical_tabs_add_vertical_tabs($form, $fieldsets)) {
+      drupal_add_js(drupal_get_path('module', 'vertical_tabs') .'/vertical_tabs.node_form.js');
+      $form['vertical_tabs']['#weight'] = 100;
+    }
+  }
+
+  if ($form_id == 'node_type_form' && $form['#node_type']->type && !$form['#programmed']) {
+    $form += vertical_tabs_node_type_form($form['#node_type']->type);
+  }
+
+  // Insert the color changer into the theme settings page.
+  // TODO: We could handle other color-enabled themes other than Garland, but
+  // at the same time, these themes could simply include the CSS from
+  // vertical_tabs.garland.css in their style.css files.
+  if ($form_id == 'system_theme_settings' && $form['#parameters'][2] == 'garland' && function_exists('gd_info')) {
+    if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC) {
+      $form['#submit'][] = 'vertical_tabs_color_submit';
+    }
+  }
+}
+
+function vertical_tabs_node_type_form($node_type) {
+  module_load_include('inc', 'node', 'node.pages');
+
+  // Build a psuedo-node for a sample node form.
+  $node = (object) array(
+    'type' => $node_type,
+    'name' => '',
+    'vid' => 0,
+  );
+
+  // Build a sample node form to find fieldsets.
+  $node_form_state = array('values' => array());
+  $node_form_id = $node_type .'_node_form';
+  $args = array(
+    $node_form_id,
+    $node_form_state,
+    $node
+  );
+  $node_form = call_user_func_array('drupal_retrieve_form', $args);
+  $node_form['#post'] = $node_form_state['values'];
+  drupal_prepare_form($node_form_id, $node_form, $node_form_state);
+  uasort($node_form, 'element_sort');
+
+  // Find all fieldsets.
+  $fieldsets = array();
+  foreach (element_children($node_form) as $key) {
+    if (isset($node_form[$key]['#type']) && $node_form[$key]['#type'] == 'fieldset' && isset($node_form[$key]['#title'])) {
+      $fieldsets[$key] = $node_form[$key]['#title'];
+    }
+  }
+
+  $form = array();
+
+  $form['vertical_tabs'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Vertical tabs'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('The selected fieldsets will be rendered as vertical tabs for this content type. The tabs are rendered in the same version as the original form\'s fieldsets.'),
+  );
+  $form['vertical_tabs']['vertical_tabs_fieldsets'] = array(
+    '#type' => 'checkboxes',
+    '#options' => $fieldsets,
+    '#default_value' => vertical_tabs_fieldsets($node_type),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the theme settings page.
+ */
+function vertical_tabs_color_submit($form, &$form_state) {
+  $theme = $form_state['values']['theme'];
+  $info = $form_state['values']['info'];
+
+  // Resolve palette
+  $palette = $form_state['values']['palette'];
+  if ($form_state['values']['scheme'] != '') {
+    $scheme = explode(',', $form_state['values']['scheme']);
+    foreach ($palette as $k => $color) {
+      $palette[$k] = array_shift($scheme);
+    }
+  }
+
+  vertical_tabs_generate_stylesheet($theme, $info, $palette);
+}
+
+/**
+ * Color module support for Garland and Vertical Tabs.
+ *
+ * Most of this function is direct copy/paste from color_scheme_form_submit().
+ */
+function vertical_tabs_generate_stylesheet($theme, $info, $palette) {
+  // Current CSS files.
+  $css = variable_get('color_'. $theme .'_stylesheets', array());
+  $files = variable_get('color_'. $theme .'_files', array());
+
+  // Template file.
+  $file = 'vertical_tabs.garland.css';
+
+  // Prepare target locations for generated files.
+  $paths['color'] = file_directory_path() .'/color';
+  $paths['source'] = drupal_get_path('module', 'vertical_tabs') .'/garland/';
+  $paths['files'] = $paths['map'] = array();
+
+  if (count($css)) {
+    $paths['id'] = preg_replace('/^.*?('. $theme .'-[a-zA-Z0-9]+).*?$/', '$1', $css[0]);
+    $paths['target'] = $paths['color'] .'/'. $paths['id'] .'/';
+
+    $style = drupal_load_stylesheet($paths['source'] . $file, FALSE);
+
+    // Rewrite stylesheet with new colors.
+    $style = _color_rewrite_stylesheet($theme, $info, $paths, $palette, $style);
+    $base_file = basename($file);
+    $css[] = $paths['target'] . $base_file;
+    $files[] = $paths['target'] . $base_file;
+    _color_save_stylesheet($paths['target'] . $base_file, $style, $paths);
+
+    // Update the list of files.
+    variable_set('color_'. $theme .'_stylesheets', $css);
+    variable_set('color_'. $theme .'_files', $files);
+  }
+}
+
+/**
+ * Retrieve the default set of enabled fieldsets that support vertical tabs.
+ */
+function vertical_tabs_fieldsets($node_type) {
+  $supported = array(
+    'book',
+    'revision_information',
+    'author',
+    'options',
+    'menu',
+    'comment_settings',
+    'path',
+    'attachments',
+  );
+
+  // TODO: Make a settings page to turn on and off certain fieldsets.
+  return variable_get('vertical_tabs_fieldsets_'. $node_type, $supported);
+}
+
+/**
+ * After build function to add vertical tabs JS and CSS to the form.
+ */
+function theme_vertical_tabs(&$form_element) {
+  // Add Vertical Tabs JS and CSS.
+  theme('vertical_tabs_js_css', $form_element['#vertical_tabs_js'], $form_element['#vertical_tabs_css'], $form_element['#vertical_tabs_settings'], $form_element['#form_id']);
+
+  return '<div class="'. $form_element['#attributes']['class'] .'">&nbsp;</div>';
+}
+
+/**
+ *
+ */
+function theme_vertical_tabs_js_css($js, $css, $settings, $form_id) {
+  static $js_added = array();
+  if (!isset($js_added[$form_id])) {
+    drupal_add_js(array('verticalTabs' => $settings), 'setting');
+    drupal_add_js(drupal_get_path('module', 'vertical_tabs') .'/vertical_tabs.js');
+    drupal_add_css(drupal_get_path('module', 'vertical_tabs') .'/vertical_tabs.css');
+    foreach ($js as $path) {
+      drupal_add_js($path);
+    }
+    foreach ($css as $path) {
+      drupal_add_css($path);
+    }
+    $js_added[$form_id] = TRUE;
+  }
+}
