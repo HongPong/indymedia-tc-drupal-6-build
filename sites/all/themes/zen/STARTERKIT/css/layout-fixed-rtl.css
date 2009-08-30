@@ -1,0 +1,83 @@
+/* $Id: layout-fixed-rtl.css,v 1.3 2009/08/12 21:41:11 johnalbin Exp $ */
+
+/**
+ * @file
+ * RTL companion for the layout-fixed.css file.
+ */
+
+
+/*
+ * Body
+ */
+#skip-to-nav {
+  float: left;
+}
+
+/*
+ * Content
+ */
+#content,
+.no-sidebars #content {
+  float: right;
+  margin-left: -960px;
+  margin-right: 0; /* Negative value of #content's width + left margin. */
+}
+
+.sidebar-first #content {
+  margin-left: -960px; /* The width of #sidebar-first. */
+  margin-right: 200px; /* Negative value of #content's width + left margin. */
+}
+
+.sidebar-second #content {
+  margin-left: -760px;
+  margin-right: 0; /* Negative value of #content's width + left margin. */
+}
+
+.two-sidebars #content {
+  margin-left: -760px; /* The width of #sidebar-first */
+  margin-right: 200px; /* Negative value of #content's width + left margin. */
+}
+
+/*
+ * Navbar
+ */
+#navbar {
+  float: right;
+  margin-left: -100%;
+  margin-right: 0; /* Negative value of #navbar's width + left margin. */
+}
+
+#navbar ul /* Primary and secondary links */ {
+  text-align: right;
+}
+
+#navbar li /* A simple method to get navbar links to appear in one line. */ {
+  float: right;
+  padding: 0 0 0 10px;
+}
+
+/*
+ * First sidebar
+ */
+#sidebar-first {
+  float: right;
+  margin-left: -200px;
+  margin-right: 0; /* Negative value of #sidebar-first's width + left margin. */
+}
+
+#sidebar-first-inner {
+  margin: 0 0 0 20px;
+}
+
+/*
+ * Second sidebar
+ */
+#sidebar-second {
+  float: right;
+  margin-left: -960px; /* Width of content + sidebar-first. */
+  margin-right: 760px; /* Negative value of #sidebar-second's width + left margin. */
+}
+
+#sidebar-second-inner {
+  margin: 0 20px 0 0;
+}
