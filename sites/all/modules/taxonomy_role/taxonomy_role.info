@@ -1,0 +1,11 @@
+; $Id: taxonomy_role.info,v 1.2 2008/07/06 16:42:40 der Exp $
+name = Taxonomy Role
+description = Restricts access to vocabularies on node forms by role.
+dependencies[]  = taxonomy
+core = 6.x
+; Information added by drupal.org packaging script on 2008-07-06
+version = "6.x-1.0-beta1"
+core = "6.x"
+project = "taxonomy_role"
+datestamp = "1215363628"
+
