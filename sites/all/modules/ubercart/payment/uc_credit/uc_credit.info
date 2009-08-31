@@ -1,0 +1,15 @@
+; $Id: uc_credit.info,v 1.4.2.1 2008/11/07 21:13:23 islandusurper Exp $
+name = Credit Card
+description = Receive credit card payments through checkout.
+dependencies[] = uc_store
+dependencies[] = uc_payment
+package = Ubercart - payment
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2009-08-20
+version = "6.x-2.0-rc6"
+core = "6.x"
+project = "ubercart"
+datestamp = "1250812046"
+

@@ -1,0 +1,72 @@
+<?php
+// $Id: uc_cybersource.install,v 1.1.2.5 2009/01/19 20:31:21 islandusurper Exp $
+
+/**
+ * @file
+ * Handles installing, uninstalling, and updating CyberSource settings.
+ */
+
+/**
+ * Implementation of hook_requirements().
+ */
+function uc_cybersource_requirements($phase) {
+  $t = get_t();
+
+  $has_curl = function_exists('curl_init');
+  $has_dom = class_exists('DOMDocument');
+  $has_soap = class_exists('SoapClient');
+  $method = variable_get('uc_cybersource_method', 'post');
+
+  // Using SOAP.
+  if ($method == 'soap') {
+    $requirements['uc_cybersource_soap_and_dom'] = array(
+      'title' => $t('SOAP and DOM'),
+      'value' => $has_soap && $has_dom ? $t('Enabled') : $t('Not found'),
+    );
+    if (!$has_soap || !$has_dom) {
+      $requirements['uc_cybersource_soap_and_dom']['severity'] = REQUIREMENT_ERROR;
+      $requirements['uc_cybersource_soap_and_dom']['description'] = $t("Cybersource's SOAP Toolkit API requires the PHP <a href='!soap_url'>SOAP</a> and <a href='!dom_url'>DOM</a> libraries.", array('!soap_url' => 'http://php.net/manual/en/soap.setup.php', '!dom_url' => 'http://php.net/manual/en/dom.setup.php'));
+    }
+  }
+
+  // Using POST with cURL.
+  elseif ($method == 'post') {
+    $requirements['uc_cybersource_curl'] = array(
+      'title' => $t('cURL'),
+      'value' => $has_curl ? $t('Enabled') : $t('Not found'),
+    );
+    if (!$has_curl) {
+      $requirements['uc_cybersource_curl']['severity'] = REQUIREMENT_ERROR;
+      $requirements['uc_cybersource_curl']['description'] = $t("Cybersource's Silent Order POST requires the PHP <a href='!curl_url'>cURL</a> library.", array('!curl_url' => 'http://php.net/manual/en/curl.setup.php'));
+    }
+  }
+
+  return $requirements;
+}
+
+function uc_cybersource_uninstall() {
+  // Delete related variables all at once.
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_cybersource_%%' OR name LIKE 'cs_ship_from_%%'");
+}
+
+function uc_cybersource_update_1() {
+  // Change the variable used to define the default transaction type.
+  if (variable_get('uc_cybersource_transaction_type', 'sale') == 'sale') {
+    variable_set('uc_pg_cybersource_cc_txn_type', UC_CREDIT_AUTH_CAPTURE);
+  }
+  else {
+    variable_set('uc_pg_cybersource_cc_txn_type', UC_CREDIT_AUTH_ONLY);
+  }
+
+  variable_del('uc_cybersource_transaction_type');
+
+  // Convert the old subscription IDs to the new ones.
+  $result = db_query("SELECT order_id, data FROM {uc_orders} WHERE data LIKE '%%cybersource%%soap%%'");
+  while ($row = db_fetch_array($result)) {
+    $data = unserialize($row['data']);
+    uc_credit_log_reference($row['order_id'], $data['uc_cybersource']['soap']['subscription_id'], 'XXXX');
+  }
+
+  return array();
+}
+

@@ -1,0 +1,11 @@
+<?php
+// $Id: jamaica_388_1.cif,v 1.1.2.2 2009/07/11 21:13:31 islandusurper Exp $
+
+function jamaica_install() {
+  db_query("INSERT INTO {uc_countries} VALUES ('388', 'Jamaica', 'JM', 'JAM', 1)");
+
+   variable_set('uc_address_format_388',
+    "!company\r\n!first_name !last_name\r\n!street1\r\n!street2"
+   ."\r\n!city - !postal_code\r\n !country_name_if");
+}
+

@@ -1,0 +1,157 @@
+<?php
+// $Id: uc_payment.install,v 1.5.2.5 2009/07/08 12:56:52 islandusurper Exp $
+
+/**
+ * @file
+ * Install hooks for uc_payment.module.
+ */
+
+function uc_payment_schema() {
+  $schema = array();
+
+  $schema['uc_payment_receipts'] = array(
+    'fields' => array(
+      'receipt_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'order_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'method' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'amount' => array(
+        'type' => 'numeric',
+        'precision' => 15,
+        'scale' => 3,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'comment' => array(
+        'type' => 'text',
+        'size' => 'tiny',
+      ),
+      'received' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'order_id' => array('order_id'),
+    ),
+    'primary key' => array('receipt_id'),
+  );
+
+  return $schema;
+}
+
+function uc_payment_install() {
+  drupal_install_schema('uc_payment');
+  $t = get_t();
+  db_query("INSERT INTO {uc_order_statuses} (order_status_id, title, state, weight, locked) VALUES ('payment_received', '". $t('Payment received') ."', 'payment_received', 10, 1);");
+}
+
+function uc_payment_uninstall() {
+  drupal_uninstall_schema('uc_payment');
+
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_pg_%%'");
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_payment_%%'");
+  variable_del('uc_default_payment_msg');
+}
+
+function uc_payment_update_1() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE {uc_payment_cod} (
+        order_id mediumint(9) NOT NULL,
+        delivery_month smallint(6) NOT NULL,
+        delivery_day smallint(6) NOT NULL,
+        delivery_year smallint(6) NOT NULL,
+        PRIMARY KEY  (order_id)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      break;
+    case 'pgsql':
+      $ret[] = update_sql("CREATE TABLE {uc_payment_cod} (
+        order_id mediumint(9) NOT NULL,
+        delivery_month smallint(6) NOT NULL,
+        delivery_day smallint(6) NOT NULL,
+        delivery_year smallint(6) NOT NULL,
+        PRIMARY KEY  (order_id)
+      ) ");
+      break;
+  }
+
+  $max_id = db_result(db_query("SELECT MAX(receipt_id) FROM {uc_payment_receipts}"));
+  if (!empty($max_id)) {
+    $ret[] = update_sql("INSERT INTO {sequences} VALUES ('{uc_payment_receipts}_receipt_id', $max_id)");
+  }
+  $ret[] = update_sql("ALTER TABLE {uc_payment_receipts} CHANGE receipt_id receipt_id MEDIUMINT(9) NOT NULL");
+
+  $max_id = db_result(db_query("SELECT MAX(check_id) FROM {uc_payment_check}"));
+  if (!empty($max_id)) {
+    $ret[] = update_sql("INSERT INTO {sequences} VALUES ('{uc_payment_check}_check_id', $max_id)");
+  }
+  $ret[] = update_sql("ALTER TABLE {uc_payment_check} CHANGE check_id check_id MEDIUMINT(9) NOT NULL");
+
+  return $ret;
+}
+
+function uc_payment_update_2() {
+  $t = get_t();
+
+  // Clean out the old order status table and redefine its structure.
+  if ($_SESSION['statuses'] !== TRUE) {
+    $ret[] = update_sql("ALTER TABLE {uc_order_statuses} CHANGE order_status_id order_status_id VARCHAR(32) CHARACTER SET utf8 NOT NULL default ''");
+    $ret[] = update_sql("ALTER TABLE {uc_order_statuses} CHANGE title title VARCHAR(48) CHARACTER SET utf8 NOT NULL default ''");
+    $ret[] = update_sql("ALTER TABLE {uc_order_statuses} CHANGE notify state VARCHAR(32) CHARACTER SET utf8 NOT NULL default ''");
+    $ret[] = update_sql("ALTER TABLE {uc_order_statuses} ADD weight MEDIUMINT(9) NOT NULL");
+    $ret[] = update_sql("ALTER TABLE {uc_order_statuses} ADD locked TINYINT NOT NULL DEFAULT '0'");
+    $ret[] = update_sql("DELETE FROM {uc_order_statuses} WHERE order_status_id LIKE '_'");
+    $_SESSION['statuses'] = TRUE;
+  }
+
+  $ret[] = update_sql("INSERT INTO {uc_order_statuses} (order_status_id, title, state, weight, locked) VALUES ('payment_received', '". $t('Payment received') ."', 'payment_received', 10, 1);");
+
+  return $ret;
+}
+
+function uc_payment_update_6000() {
+  $ret = array();
+
+  db_drop_primary_key($ret, 'uc_payment_receipts');
+  db_drop_index($ret, 'uc_payment_receipts', 'order_id');
+  db_change_field($ret, 'uc_payment_receipts', 'receipt_id', 'receipt_id', array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE), array('primary key' => array('receipt_id')));
+  db_change_field($ret, 'uc_payment_receipts', 'order_id', 'order_id', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('indexes' => array('order_id' => array('order_id'))));
+  db_change_field($ret, 'uc_payment_receipts', 'uid', 'uid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+
+  return $ret;
+}
+
+function uc_payment_update_6001() {
+  $ret = array();
+
+  db_change_field($ret, 'uc_payment_receipts', 'amount', 'amount', array('type' => 'numeric', 'precision' => 15, 'scale' => 3, 'not null' => TRUE, 'default' => 0));
+
+  return $ret;
+}

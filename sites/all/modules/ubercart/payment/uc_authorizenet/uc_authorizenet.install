@@ -1,0 +1,93 @@
+<?php
+// $Id: uc_authorizenet.install,v 1.1.2.7 2009/02/24 15:35:50 islandusurper Exp $
+
+/**
+ * @file
+ * Handles installing, uninstalling, and updating Authorize.net settings.
+ */
+
+/**
+ * Implementation of hook_requirements().
+ */
+function uc_authorizenet_requirements($phase) {
+  $t = get_t();
+
+  $has_curl = function_exists('curl_init');
+
+  $requirements['uc_authorizenet_curl'] = array(
+    'title' => $t('cURL'),
+    'value' => $has_curl ? $t('Enabled') : $t('Not found'),
+  );
+  if (!$has_curl) {
+    $requirements['uc_authorizenet_curl']['severity'] = REQUIREMENT_ERROR;
+    $requirements['uc_authorizenet_curl']['description'] = $t("Authorize.net requires the PHP <a href='!curl_url'>cURL</a> library.", array('!curl_url' => 'http://php.net/manual/en/curl.setup.php'));
+  }
+
+  return $requirements;
+}
+
+function uc_authorizenet_uninstall() {
+  // Delete related variables all at once.
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_authnet_%%'");
+}
+
+function uc_authorizenet_update_1() {
+  // Update variable values to the new names that match the API documentation.
+  variable_set('uc_authnet_api_login_id', variable_get('authnet_aim_login_id', ''));
+  variable_del('authnet_aim_login_id');
+
+  variable_set('uc_authnet_api_transaction_key', variable_get('authnet_aim_transaction_key', ''));
+  variable_del('authnet_aim_transaction_key');
+
+  $mode = variable_get('authnet_aim_transaction_mode', 'live_test');
+  if ($mode == 'production') {
+    $mode = 'live';
+  }
+  elseif ($mode == 'test') {
+    $mode = 'developer_test';
+  }
+  variable_set('uc_authnet_aim_txn_mode', $mode);
+  variable_del('authnet_aim_transaction_mode');
+
+  if (variable_get('authnet_aim_transaction_type', 'capture') == 'capture') {
+    variable_set('uc_authnet_aim_txn_type', 'AUTH_CAPTURE');
+  }
+  else {
+    variable_set('uc_authnet_aim_txn_type', 'AUTH_ONLY');
+  }
+  variable_del('authnet_aim_transaction_type');
+
+  variable_del('authnet_aim_delimiter');
+
+  if (variable_get('authnet_aim_customer_notification', 'FALSE') == 'TRUE') {
+    variable_set('uc_authnet_aim_customer_email', TRUE);
+  }
+  variable_del('authnet_aim_customer_notification');
+
+  variable_del('authnet_aim_merchant_notification');
+
+  return array();
+}
+
+function uc_authorizenet_update_2() {
+  // Change the variable used to define the default transaction type.
+  if (variable_get('uc_authnet_aim_txn_type', 'AUTH_CAPTURE') == 'AUTH_CAPTURE') {
+    variable_set('uc_pg_authorizenet_cc_txn_type', UC_CREDIT_AUTH_CAPTURE);
+  }
+  else {
+    variable_set('uc_pg_authorizenet_cc_txn_type', UC_CREDIT_AUTH_ONLY);
+  }
+
+  variable_del('uc_authnet_aim_txn_type');
+
+  return array();
+}
+
+function uc_authorizenet_update_3() {
+  // Update the name of the CIM transaction mode variable.
+  variable_set('uc_authnet_cim_mode', variable_get('uc_authnet_cim_server', 'disabled'));
+  variable_del('uc_authet_cim_server');
+
+  return array();
+}
+

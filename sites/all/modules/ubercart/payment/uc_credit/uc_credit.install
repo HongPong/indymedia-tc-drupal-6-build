@@ -1,0 +1,40 @@
+<?php
+// $Id: uc_credit.install,v 1.4.2.3 2008/11/07 21:13:23 islandusurper Exp $
+
+/**
+ * @file
+ * Install file for the credit module... this is mostly legacy code now.
+ */
+
+function uc_credit_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_credit_%%'");
+}
+
+function uc_credit_update_1() {
+  $ret[] = update_sql("ALTER TABLE {uc_payment_credit} ADD cc_bank VARCHAR(255) NOT NULL, ADD cc_type VARCHAR(255) NOT NULL");
+
+  $max = db_result(db_query("SELECT MAX(credit_id) FROM {uc_payment_credit}"));
+  if (is_numeric($max)) {
+    $ret[] = update_sql("INSERT INTO {sequences} VALUES ('{uc_payment_credit}_credit_id', ". $max .")");
+  }
+
+  return $ret;
+}
+
+function uc_credit_update_2() {
+  $ret[] = update_sql("ALTER TABLE {uc_payment_credit} CHANGE `cc_owner` `cc_owner` VARCHAR(255) NOT NULL, "
+                     ."CHANGE `cc_number` `cc_number` VARCHAR(255) NOT NULL, "
+                     ."CHANGE `cc_exp_month` `cc_exp_month` VARCHAR(255) NOT NULL, "
+                     ."CHANGE `cc_exp_year` `cc_exp_year` VARCHAR(255) NOT NULL, "
+                     ."CHANGE `cc_cvv` `cc_cvv` VARCHAR(255) NOT NULL");
+
+  return $ret;
+}
+
+function uc_credit_update_6000() {
+  $ret = array();
+
+  db_drop_table($ret, 'uc_payment_credit');
+
+  return $ret;
+}

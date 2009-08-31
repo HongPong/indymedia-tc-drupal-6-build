@@ -1,0 +1,224 @@
+<?php
+// $Id: uc_catalog.install,v 1.9.2.9 2009/07/21 14:37:21 islandusurper Exp $
+
+/**
+ * @file
+ * Install hooks for uc_catalog.module.
+ */
+
+/**
+ * Implementation of hook_schema().
+ */
+function uc_catalog_schema() {
+  $schema = array();
+
+  $schema['uc_catalog_images'] = array(
+    'fields' => array(
+      'fid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'filename' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'filepath' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'filemime' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'filesize' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('fid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ *
+ * Creates a Catalog vocabulary or uses one by that name that may already exist.
+ */
+function uc_catalog_install() {
+  $t = get_t();
+  //Find possible Product Catalog vocabulary.
+  $result = db_query("SELECT vid FROM {vocabulary} WHERE name = 'Catalog'");
+  if ($vocab = db_fetch_object($result)) {
+    $vid = $vocab->vid;
+  }
+  else { //If none, create one.
+    db_query("INSERT INTO {vocabulary} (name, description, help, relations, hierarchy, multiple, required, tags, module, weight)
+      VALUES ('%s', '', '%s', 0, 1, 1, 0, 0, 'uc_catalog', 0)", $t('Catalog'), $t('Hold Ctrl while clicking to select multiple categories.'));
+    $vid = db_last_insert_id('vocabulary', 'vid');
+  }
+  variable_set('uc_catalog_vid', $vid);
+  variable_set('uc_catalog_name', $t('Catalog'));
+
+  drupal_install_schema('uc_catalog');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function uc_catalog_uninstall() {
+  drupal_uninstall_schema('uc_catalog');
+  if ($vid = variable_get('uc_catalog_vid', 0)) {
+    taxonomy_del_vocabulary($vid);
+  }
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_catalog_%%'");
+}
+
+function uc_catalog_update_1() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE IF NOT EXISTS {uc_catalog_images} (
+        `fid` int(10) unsigned NOT NULL default '0',
+        `tid` int(10) unsigned NOT NULL default '0',
+        `filename` varchar(255) NOT NULL default '',
+        `filepath` varchar(255) NOT NULL default '',
+        `filemime` varchar(255) NOT NULL default '',
+        `filesize` int(10) unsigned NOT NULL default '0',
+        PRIMARY KEY  (`fid`)
+      );");
+    break;
+    case 'pgsql':
+      $ret[] = update_sql("CREATE TABLE IF NOT EXISTS {uc_catalog_images} (
+        fid integer unsigned NOT NULL default 0,
+        tid integer unsigned NOT NULL default 0,
+        filename varchar(255) NOT NULL default '',
+        filepath varchar(255) NOT NULL default '',
+        filemime varchar(255) NOT NULL default '',
+        filesize integer unsigned NOT NULL default 0,
+        PRIMARY KEY  (fid)
+      );");
+    break;
+  }
+  return $ret;
+}
+
+function uc_catalog_update_2() {
+  variable_del('uc_catalog_url');
+  return array(array('success' => TRUE, 'query' => "variable_del('uc_catalog_url')"));
+}
+
+function uc_catalog_update_3() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'pgsql':
+      db_change_column($ret, 'uc_catalog_images', 'fid', 'fid', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+      db_change_column($ret, 'uc_catalog_images', 'tid', 'tid', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+      db_change_column($ret, 'uc_catalog_images', 'filesize', 'filesize', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+    break;
+  }
+  return $ret;
+}
+
+function uc_catalog_update_4() {
+  $ret = array();
+  $result = db_query("SELECT rid FROM {permission} WHERE perm NOT LIKE '%%%s%%'", 'view catalog');
+  while ($role = db_fetch_object($result)) {
+    $sql_result = db_query("UPDATE {permission} SET perm = CONCAT_WS(', ', perm, 'view catalog') WHERE rid = %d", $role->rid);
+    $ret[] = array('success' => $sql_result !== FALSE, 'query' => "UPDATE {permission} SET perm = CONCAT_WS(', ', perm, 'view catalog') WHERE rid = ". $role->rid);
+  }
+  return $ret;
+}
+
+function uc_catalog_update_5() {
+  variable_del('uc_catalog_special_block');
+  variable_del('uc_catalog_special_block_lines');
+  variable_del('uc_catalog_special_block_help');
+  variable_del('uc_catalog_special_block_help_allowed');
+  variable_del('uc_catalog_special_block_title');
+  variable_del('uc_catalog_bestsellers_block');
+  variable_del('uc_catalog_bestsellers_block_lines');
+  variable_del('uc_catalog_bestsellers_block_help');
+  variable_del('uc_catalog_bestsellers_block_help_allowed');
+  variable_del('uc_catlaog_bestsellers_block_title');
+  variable_del('uc_catalog_contact_url');
+  variable_del('uc_catalog_consult_block');
+
+  return array(array('success' => TRUE, 'query' => "DELETE unused variables"));
+}
+
+function uc_catalog_update_6() {
+  $ret = array();
+
+  if (module_exists('imagecache')) {
+    $preset_id = db_next_id('{imagecache_preset}_presetid');
+    $action_id = db_next_id('{imagecache_action}_actionid');
+    db_query("INSERT INTO {imagecache_preset} (presetid, presetname) VALUES (%d, 'uc_catalog')", $preset_id);
+    db_query("INSERT INTO {imagecache_action} (actionid, presetid, weight, data) VALUES (%d, %d, 0, '%s')", $action_id, $preset_id, 'a:4:{s:8:"function";s:5:"scale";s:3:"fit";s:6:"inside";s:5:"width";s:2:"96";s:6:"height";s:2:"96";}');
+    cache_clear_all('imagecache:presets', 'cache');
+    $ret[] = array('success' => TRUE, 'query' => "INSERT INTO {imagecache_preset} (presetid, presetname) VALUES (". $preset_id .", 'uc_catalog')");
+    $ret[] = array('success' => TRUE, 'query' => "INSERT INTO {imagecache_action} (actionid, presetid, weight, data) VALUES (". $action_id .", ". $preset_id .", 0, '". 'a:4:{s:8:"function";s:5:"scale";s:3:"fit";s:6:"inside";s:5:"width";s:2:"96";s:6:"height";s:2:"96";}' ."')");
+  }
+
+  return $ret;
+}
+
+function uc_catalog_update_7() {
+  $ret = array();
+
+  if (module_exists('imagecache')) {
+    if (db_num_rows(db_query("SELECT presetid FROM {imagecache_preset} WHERE presetname = 'uc_category'")) == 0) {
+      $preset_id = db_next_id('{imagecache_preset}_presetid');
+      $action_id = db_next_id('{imagecache_action}_actionid');
+      db_query("INSERT INTO {imagecache_preset} (presetid, presetname) VALUES (%d, 'uc_category')", $preset_id);
+      db_query("INSERT INTO {imagecache_action} (actionid, presetid, weight, data) VALUES (%d, %d, 0, '%s')", $action_id, $preset_id, 'a:4:{s:8:"function";s:5:"scale";s:3:"fit";s:6:"inside";s:5:"width";s:2:"96";s:6:"height";s:2:"96";}');
+      cache_clear_all('imagecache:presets', 'cache');
+      $ret[] = array('success' => TRUE, 'query' => "INSERT INTO {imagecache_preset} (presetid, presetname) VALUES (". $preset_id .", 'uc_category')");
+      $ret[] = array('success' => TRUE, 'query' => "INSERT INTO {imagecache_action} (actionid, presetid, weight, data) VALUES (". $action_id .", ". $preset_id .", 0, '". 'a:4:{s:8:"function";s:5:"scale";s:3:"fit";s:6:"inside";s:5:"width";s:2:"96";s:6:"height";s:2:"96";}' ."')");
+      if ($old_id = db_result(db_query("SELECT presetid FROM {imagecache_preset} WHERE presetname = 'uc_catalog'"))) {
+        _imagecache_preset_flush($old_id);
+        db_query("DELETE FROM {imagecache_preset} WHERE presetid = %d", $old_id);
+        db_query("DELETE FROM {imagecache_action} WHERE presetid = %d", $old_id);
+        $ret[] = array('success' => TRUE, 'query' => "DELETE FROM {imagecache_action} WHERE presetid = $old_id");
+        $ret[] = array('success' => TRUE, 'query' => "DELETE FROM {imagecache_action} WHERE presetid = $old_id");
+        _imagecache_get_presets(TRUE);
+      }
+    }
+  }
+
+  return $ret;
+}
+
+function uc_catalog_update_8() {
+  $ret = array();
+
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("UPDATE {url_alias} SET src = SUBSTRING_INDEX(src, '/', 2) WHERE src LIKE 'catalog/%%';");
+      break;
+    case 'pgsql':
+      $ret[] = update_sql("UPDATE {url_alias} SET src = substring(src from '^catalog/\d*') WHERE src LIKE 'catalog/%%';");
+      break;
+  }
+
+  return $ret;
+}

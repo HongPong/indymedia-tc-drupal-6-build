@@ -1,0 +1,17 @@
+<?php
+// $Id: finland_246_1.cif,v 1.3.4.2 2008/11/07 21:13:24 islandusurper Exp $
+
+function finland_install() {
+  // VALUES = Country ID, Country Name, 2-digit Code, 3-digit Code, File Version
+  db_query("INSERT INTO {uc_countries} VALUES (246, 'Finland', 'FI', 'FIN', 1)");
+
+  // FI has no postal zones in the Ubercart sense
+
+  uc_set_address_format(246, "!company\r\n!first_name !last_name\r\n!street1\r\n!street2\r\n!postal_code !city\r\n!country_name_if");
+}
+
+function finland_update($version) {
+}
+
+function finland_uninstall() {
+}

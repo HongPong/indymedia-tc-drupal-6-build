@@ -1,0 +1,15 @@
+; $Id: uc_roles.info,v 1.2.2.8 2009/07/21 14:51:22 islandusurper Exp $
+name = Roles
+description = Assign permanent or expirable roles based on product purchases.
+dependencies[] = uc_product
+dependencies[] = uc_order
+package = "Ubercart - core (optional)"
+core = 6.x
+php = 5.0
+
+; Information added by drupal.org packaging script on 2009-08-20
+version = "6.x-2.0-rc6"
+core = "6.x"
+project = "ubercart"
+datestamp = "1250812046"
+

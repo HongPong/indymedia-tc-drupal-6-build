@@ -1,0 +1,268 @@
+<?php
+// $Id: uc_flatrate.install,v 1.5.2.6 2009/07/21 14:37:17 islandusurper Exp $
+
+/**
+ * @file
+ * Install hooks for uc_flatrate.module.
+ */
+
+/**
+ * Implmentation of hook_schema().
+ */
+function uc_flatrate_schema() {
+  $schema = array();
+
+  $schema['uc_flatrate_products'] = array(
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'mid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rate' => array(
+        'type' => 'numeric',
+        'precision' => 15,
+        'scale' => 3,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('vid', 'mid'),
+  );
+
+  $schema['uc_flatrate_methods'] = array(
+    'fields' => array(
+      'mid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'base_rate' => array(
+        'type' => 'numeric',
+        'precision' => 15,
+        'scale' => 3,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'product_rate' => array(
+        'type' => 'numeric',
+        'precision' => 15,
+        'scale' => 3,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+    ),
+    'primary key' => array('mid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function uc_flatrate_install() {
+  drupal_install_schema('uc_flatrate');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function uc_flatrate_uninstall() {
+  drupal_uninstall_schema('uc_flatrate');
+}
+
+function uc_flatrate_update_1() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} ADD COLUMN vid mediumint(9) unsigned NOT NULL default 0 FIRST");
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} DROP INDEX nid");
+      $result = db_query("SELECT nid, vid FROM {node}");
+      while ($product = db_fetch_object($result)) {
+        db_query("UPDATE {uc_flatrate_products} SET vid = %d WHERE nid = %d", $product->vid, $product->nid);
+      }
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} ADD PRIMARY KEY (vid)");
+    break;
+    case 'pgsql':
+      db_add_column($ret, 'uc_flatrate_products', 'vid', 'integer unsigned', array('not null' => TRUE, 'default' => 0));
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} DROP CONSTRAINT {uc_flatrate_products}_nid_key");
+      $result = db_query("SELECT nid, vid FROM {node}");
+      while ($product = db_fetch_object($result)) {
+        db_query("UPDATE {uc_flatrate_products} SET vid = %d WHERE nid = %d", $product->vid, $product->nid);
+      }
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} ADD PRIMARY KEY (vid)");
+    break;
+  }
+  return $ret;
+}
+
+function uc_flatrate_update_2() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} CHANGE rate rate decimal(10,2) NOT NULL default 0.00");
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} ADD COLUMN mid mediumint(9) unsigned NOT NULL default 0 AFTER nid");
+      $ret[] = update_sql("CREATE TABLE {uc_flatrate_methods} (
+        `mid` mediumint(9) unsigned NOT NULL default 0,
+        `title` varchar(255) NOT NULL default '',
+        `label` varchar(255) NOT NULL default '',
+        `base_rate` decimal(10,2) NOT NULL default 0.00,
+        `product_rate` decimal(10,2) NOT NULL default 0.00,
+        PRIMARY KEY (`mid`)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ;");
+    break;
+    case 'pgsql':
+      db_change_column($ret, 'uc_flatrate_products', 'rate', 'rate', 'decimal(10,2)', array('not null' => TRUE, 'default' => 0));
+      db_add_column($ret, 'uc_flatrate_products', 'mid', 'mediumint(9) unsigned', array('not null' => TRUE, 'default' => 0));
+      $ret[] = update_sql("CREATE TABLE {uc_flatrate_methods} (
+        mid mediumint(9) unsigned NOT NULL default 0,
+        title varchar(255) NOT NULL default '',
+        label varchar(255) NOT NULL default '',
+        base_rate decimal(10,2) NOT NULL default 0.00,
+        product_rate decimal(10,2) NOT NULL default 0.00,
+        PRIMARY KEY (mid)
+      );");
+      $ret[] = update_sql("CREATE INDEX {uc_flatrate_methods}_mid_idx ON {uc_flatrate_methods}(mid)");
+    break;
+  }
+
+  $set_var = FALSE;
+  $enabled = variable_get('uc_quote_enabled', array());
+  $weight = variable_get('uc_quote_method_weight', array('flatrate' => 0, 'order_rate' => 1));
+  $base_rate = variable_get('uc_flatrate_product_base_rate', 0);
+  $product_rate = variable_get('uc_flatrate_product_default', 0);
+  $changes = db_num_rows(db_query("SELECT * FROM {uc_flatrate_products}"));
+  $mid = db_next_id('{uc_flatrate_methods}_mid');
+  $ret[] = update_sql("INSERT INTO {uc_flatrate_methods} (mid, title, label, base_rate, product_rate) VALUES (". $mid .", '". t('Flat rate per product') ."', '". t('Shipping rate') ."', ". $base_rate .", ". $product_rate .")");
+  $ret[] = update_sql("UPDATE {uc_flatrate_products} SET mid = ". $mid);
+  $enabled['flatrate_'. $mid] = $enabled['flatrate'];
+  $weight['flatrate_'. $mid] = $weight['flatrate'];
+  unset($enabled['flatrate'], $weight['flatrate']);
+
+  if (db_table_exists('workflow_ng_cfgs') && $configuration = db_fetch_object(db_query("SELECT data FROM {workflow_ng_cfgs} WHERE name = '%s'", 'uc_flatrate_get_quote'))) {
+    $configuration->name = 'uc_flatrate_get_quote_'. $mid;
+    $configuration->data = unserialize($configuration->data);
+    $configuration->data['#event'] = 'get_quote_from_flatrate_'. $mid;
+    $result = db_query("UPDATE {workflow_ng_cfgs} SET name = '". $configuration->name ."', data = '". serialize($configuration->data) ."' WHERE name = 'uc_flatrate_get_quote'");
+    $ret[] = array('success' => $result !== FALSE, 'query' => check_plain("UPDATE {workflow_ng_cfgs} SET name = '". $configuration->name ."', data = '". serialize($configuration->data) ."' WHERE name = 'uc_flatrate_get_quote'"));
+  }
+  else {
+    $ret[] = array('success' => FALSE, 'query' => check_plain("UPDATE {workflow_ng_cfgs} SET name = '". $configuration->name ."', data = '". serialize($configuration->data) ."' WHERE name = 'uc_flatrate_get_quote'"));
+  }
+
+  $order_rate = variable_get('uc_flatrate_order_rate', 0);
+  $mid = db_next_id('{uc_flatrate_methods}_mid');
+  $ret[] = update_sql("INSERT INTO {uc_flatrate_methods} (mid, title, label, base_rate) VALUES (". $mid .", '". t('Flat rate per order') ."', '". t('Shipping rate') ."', ". $order_rate .")");
+  $enabled['flatrate_'. $mid] = $enabled['order_rate'];
+  $weight['flatrate_'. $mid] = $weight['order_rate'];
+  unset($enabled['order_rate'], $weight['order_rate']);
+
+  if (db_table_exists('workflow_ng_cfgs') && $configuration = db_fetch_object(db_query("SELECT data FROM {workflow_ng_cfgs} WHERE name = '%s'", 'uc_flatrate_get_quote_by_order'))) {
+    $configuration->name = 'uc_flatrate_get_quote_'. $mid;
+    $configuration->data = unserialize($configuration->data);
+    $configuration->data['#event'] = 'get_quote_from_flatrate_'. $mid;
+    $result = db_query("UPDATE {workflow_ng_cfgs} SET name = '". $configuration->name ."', data = '". serialize($configuration->data) ."' WHERE name = 'uc_flatrate_get_quote_by_order'");
+    $ret[] = array('success' => $result !== FALSE, 'query' => check_plain("UPDATE {workflow_ng_cfgs} SET name = '". $configuration->name ."', data = '". serialize($configuration->data) ."' WHERE name = 'uc_flatrate_get_quote_by_order'"));
+  }
+  else {
+    $ret[] = array('success' => FALSE, 'query' => check_plain("UPDATE {workflow_ng_cfgs} SET name = '". $configuration->name ."', data = '". serialize($configuration->data) ."' WHERE name = 'uc_flatrate_get_quote_by_order'"));
+  }
+
+  variable_set('uc_quote_enabled', $enabled);
+  variable_set('uc_quote_method_weight', $weight);
+  if (module_exists('workflow_ng')) {
+    workflow_ng_clear_cache();
+  }
+
+  variable_del('uc_flatrate_product_base_rate');
+  variable_del('uc_flatrate_product_default');
+  variable_del('uc_flatrate_order_rate');
+
+  return $ret;
+}
+
+function uc_flatrate_update_3() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} DROP PRIMARY KEY, ADD PRIMARY KEY (`vid`, `mid`)");
+    break;
+    case 'pgsql':
+      $ret[] = update_sql("ALTER TABLE {uc_flatrate_products} DROP CONSTRAINT {uc_flatrate_products}_pkey, ADD PRIMARY KEY (vid, mid)");
+    break;
+  }
+  return $ret;
+}
+
+function uc_flatrate_update_4() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'pgsql':
+      db_change_column($ret, 'uc_flatrate_products', 'vid', 'vid', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+      db_change_column($ret, 'uc_flatrate_products', 'nid', 'nid', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+      db_change_column($ret, 'uc_flatrate_products', 'mid', 'mid', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+    break;
+  }
+  return $ret;
+}
+
+function uc_flatrate_update_6000() {
+  $ret = array();
+
+  db_drop_primary_key($ret, 'uc_flatrate_products');
+  db_change_field($ret, 'uc_flatrate_products', 'vid', 'vid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+  db_change_field($ret, 'uc_flatrate_products', 'nid', 'nid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+  db_change_field($ret, 'uc_flatrate_products', 'mid', 'mid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+  db_add_primary_key($ret, 'uc_flatrate_products', array('vid', 'mid'));
+
+  db_drop_primary_key($ret, 'uc_flatrate_methods');
+  db_change_field($ret, 'uc_flatrate_methods', 'mid', 'mid', array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE), array('primary key' => array('mid')));
+
+  return $ret;
+}
+
+function uc_flatrate_update_6001() {
+  $ret = array();
+
+  db_change_field($ret, 'uc_flatrate_products', 'rate', 'rate', array('type' => 'numeric', 'precision' => 10, 'scale' => 2, 'not null' => FALSE));
+
+  return $ret;
+}
+
+function uc_flatrate_update_6002() {
+  $ret = array();
+
+  db_change_field($ret, 'uc_flatrate_products', 'rate', 'rate', array('type' => 'numeric', 'precision' => 15, 'scale' => 3, 'not null' => FALSE));
+  db_change_field($ret, 'uc_flatrate_methods', 'base_rate', 'base_rate', array('type' => 'numeric', 'precision' => 15, 'scale' => 3, 'not null' => FALSE));
+  db_change_field($ret, 'uc_flatrate_methods', 'product_rate', 'product_rate', array('type' => 'numeric', 'precision' => 15, 'scale' => 3, 'not null' => FALSE));
+
+  return $ret;
+}

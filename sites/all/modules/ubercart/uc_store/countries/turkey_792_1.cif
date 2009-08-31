@@ -1,0 +1,39 @@
+<?php
+// $Id: turkey_792_1.cif,v 1.3.2.3 2008/08/06 13:41:27 islandusurper Exp $
+
+/**
+* First implement hook_install() using the name of the country as the base of
+* the function name.
+*/
+function turkey_install() {
+  // Make the entry in the country table.
+  // VALUES = Country ID, Country Name, 2-digit Code, 3-digit Code, File Version
+  db_query("INSERT INTO {uc_countries} VALUES (792, 'Türkiye', 'TK', 'TUR', 1)");
+
+  // Use uc_set_address_format() with the country ID as the first argument and
+  // an address format string as the second.  Documentation on address formats
+  // is available at:
+  // http://www.ubercart.org/ubercart_users_guide/country_settings#address_format_docs
+  uc_set_address_format(792,
+    "!company\r\n!first_name !last_name\r\n!street1\r\n!street2"
+   ."\r\n!postal_code, !city\r\n\r\n!country_name_if");
+}
+
+/**
+* If necessary, implement hook_update() with $version being the only argument.
+* Add a new case for each version update, and be sure to always include the
+* latest changes in the install function.
+*/
+function turkey_update($version) {
+}
+
+/**
+* If necessary, implement hook_uninstall().  This requires no argument.  The
+* store module automatically removes rows from the country and zones tables
+* related to the country, and it unsets the address format.  This function is
+* only necessary for other things you may have included in your country's
+* installation process.
+*/
+function turkey_uninstall() {
+}
+

@@ -1,0 +1,60 @@
+<?php
+// $Id: uc_store.test,v 1.1.2.3 2009/07/21 14:37:21 islandusurper Exp $
+
+/**
+ * @file
+ * Test functionality provided by uc_store.
+ */
+
+/**
+ * Test the country import and update functions.
+ */
+class UCCountriesTestCase extends DrupalWebTestCase {
+
+  function getInfo() {
+    return array(
+      'name' => t('Country functionality'),
+      'description' => t('Import, edit, and remove countries and their settings.'),
+      'group' => t('Ubercart'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('token', 'uc_store');
+
+    $admin_user = $this->drupalCreateUser(array('administer store'));
+    $this->drupalLogin($admin_user);
+  }
+
+  function testCountry() {
+    $import_file = 'belgium_56_3.cif';
+    $country_name = 'Belgium';
+    $country_code = 'BEL';
+
+    $this->drupalGet('admin/store/settings/countries/edit');
+    $this->assertRaw('<option value="'. $import_file .'">'. $import_file .'</option>', t('Ensure country file is not imported yet.'));
+
+    $edit = array(
+      'import_file[]' => array($import_file => $import_file),
+    );
+    $this->drupalPost('admin/store/settings/countries/edit', $edit, t('Import'));
+    $this->assertText(t('Country file @file imported.', array('@file' => $import_file)), t('Country was imported successfully.'));
+    $this->assertText($country_code, t('Country appears in the imported countries table.'));
+    $this->assertNoRaw('<option value="'. $import_file .'">'. $import_file .'</option>', t('Country does not appear in list of files to be imported.'));
+
+    $this->clickLink(t('disable'));
+    $this->assertText(t('@name disabled.', array('@name' => $country_name)), t('Country was disabled.'));
+
+    $this->clickLink(t('enable'));
+    $this->assertText(t('@name enabled.', array('@name' => $country_name)), t('Country was enabled.'));
+
+    $this->clickLink(t('remove'));
+    $this->assertText(t('Are you sure you want to remove @name from the system?', array('@name' => $country_name)), t('Confirm form is displayed.'));
+
+    $this->drupalPost('admin/store/settings/countries/56/remove', array(), t('Remove'));
+    $this->assertText(t('@name removed.', array('@name' => $country_name)), t('Country removed.'));
+    $this->assertRaw('<option value="'. $import_file .'">'. $import_file .'</option>', t('Ensure country file is not imported yet.'));
+    $this->assertNoText($country_code, t('Country does not appear in imported countries table.'));
+  }
+
+}

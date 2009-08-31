@@ -1,0 +1,279 @@
+<?php
+// $Id: uc_roles.install,v 1.2.2.12 2009/07/21 14:37:19 islandusurper Exp $
+
+/**
+ * @file
+ * uc_roles module install file.
+ */
+
+/**
+ * Implemenation of hook_schema().
+ */
+function uc_roles_schema() {
+  $schema['uc_roles_products'] = array(
+    'fields' => array(
+      'rpid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pfid' => array(
+        'description' => t('The ID of the product feature this is attached to.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => t('The ID of the node this role feature is attached to.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'model' => array(
+        'description' => t('The product model.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+      ),
+      'rid' => array(
+        'description' => t('The role ID.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      // Start of expiation period
+      // Not actually implemented yet, this is a placeholder.
+      'start_override' => array(
+        'description' => t('Fallthrough to the default start time?'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'start_time' => array(
+        'description' => t('Role expiration start time. 0 signifies to start at product purchase.'),
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+
+      // End of expiation period
+      'end_override' => array(
+        'description' => t('Fallthrough to the default end time?'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'end_time' => array(
+        'description' => t('Role expiration end time. 0 signifies to use relative expiration.'),
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'duration' => array(
+        'description' => t('How long this role is valid for.'),
+        'type' => 'int',
+        'size' => 'small',
+      ),
+      'granularity' => array(
+        'type' => 'varchar',
+        'length' => 32,
+      ),
+      'shippable' => array(
+        'description' => t('Is this role feature shippable?'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'by_quantity' => array(
+        'description' => t('Multiply any relative expiration by the quantity purchased?'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'model' => array('model'),
+      'rid' => array('rid'),
+    ),
+    'primary key' => array('rpid'),
+  );
+
+  $schema['uc_roles_expirations'] = array(
+    'fields' => array(
+      'reid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => t('The user id.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rid' => array(
+        'description' => t('The role id.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'expiration' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'notified' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'rid' => array('rid'),
+    ),
+    'primary key' => array('reid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function uc_roles_install() {
+  drupal_install_schema('uc_roles');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function uc_roles_uninstall() {
+  drupal_uninstall_schema('uc_roles');
+
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_roles_%%'");
+}
+
+function uc_roles_update_6000() {
+  $ret = array();
+
+  db_drop_index($ret, 'uc_roles_products', 'pfid');
+  db_drop_index($ret, 'uc_roles_products', 'nid');
+  db_drop_index($ret, 'uc_roles_products', 'rid');
+  db_change_field($ret, 'uc_roles_products', 'pfid', 'pfid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('indexes' => array('pfid' => array('pfid'))));
+  db_change_field($ret, 'uc_roles_products', 'nid', 'nid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('indexes' => array('nid' => array('nid'))));
+  db_change_field($ret, 'uc_roles_products', 'rid', 'rid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('indexes' => array('rid' => array('rid'))));
+
+  db_drop_index($ret, 'uc_roles_expirations', 'uid');
+  db_drop_index($ret, 'uc_roles_expirations', 'rid');
+  db_change_field($ret, 'uc_roles_expirations', 'uid', 'uid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('indexes' => array('uid' => array('uid'))));
+  db_change_field($ret, 'uc_roles_expirations', 'rid', 'rid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('indexes' => array('rid' => array('rid'))));
+
+  return $ret;
+}
+
+function uc_roles_update_6001() {
+  $ret = array();
+
+  db_drop_index($ret, 'uc_roles_products', 'pfid');
+  db_add_primary_key($ret, 'uc_roles_products', array('pfid'));
+
+  return $ret;
+}
+
+function uc_roles_update_6002() {
+  $ret = array();
+
+  $schema = array(
+    'reid' => array(
+      'type' => 'serial',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
+    'rpid' => array(
+      'type' => 'serial',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
+  );
+  db_drop_primary_key($ret, 'uc_roles_products');
+
+  db_add_field($ret, 'uc_roles_products', 'rpid', $schema['rpid'], array('primary key' => array('rpid')));
+  db_add_field($ret, 'uc_roles_expirations', 'reid'  , $schema['reid'], array('primary key' => array('reid')));
+
+  return $ret;
+}
+
+/**
+ * Add the stuff to allow absolute ending expiration times.
+ * The code has also been laid here for absolute start times,
+ * but has not been fully implemented as yet.
+ */
+function uc_roles_update_6003() {
+  $ret = array();
+
+  $schema = array(
+    // Start of expiation period
+    'start_override' => array(
+      'description' => t('Fallthrough to the default start time?'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => FALSE,
+      'default' => 0,
+    ),
+    'start_time' => array(
+      'description' => t('Role expiration start time. 0 signifies to start at product purchase.'),
+      'type' => 'int',
+      'not null' => FALSE,
+      'default' => 0,
+    ),
+
+    // End of expiation period
+    'end_override' => array(
+      'description' => t('Fallthrough to the default end time?'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => FALSE,
+      'default' => 0,
+    ),
+    'end_time' => array(
+      'description' => t('Role expiration end time. 0 signifies to use relative expiration.'),
+      'type' => 'int',
+      'not null' => FALSE,
+      'default' => 0,
+    ),
+  );
+
+  db_add_field($ret, 'uc_roles_products', 'start_time', $schema['start_time']);
+  db_add_field($ret, 'uc_roles_products', 'start_override', $schema['start_override']);
+
+  db_add_field($ret, 'uc_roles_products', 'end_time'  , $schema['end_time']);
+  db_add_field($ret, 'uc_roles_products', 'end_override', $schema['end_override']);
+
+  return $ret;
+}
+
+/**
+ * Fix an oversight; when upgrading from an older version, we must default any expiration
+ * to overridge the global setting... past versions had no override, so it was implicit.
+ * Now it needs to be explicit.
+ */
+function uc_roles_update_6004() {
+  $ret = array();
+
+  db_query("UPDATE {uc_roles_products} SET start_override = 1, end_override = 1 WHERE 1 = 1");
+
+  return $ret;
+}
+

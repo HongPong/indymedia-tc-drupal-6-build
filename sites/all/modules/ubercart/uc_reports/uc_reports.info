@@ -1,0 +1,15 @@
+; $Id: uc_reports.info,v 1.2.2.5 2008/11/07 21:13:28 islandusurper Exp $
+name = Reports
+description = View reports about your store's sales, customers, and products.
+dependencies[] = uc_order
+dependencies[] = uc_product
+package = "Ubercart - core (optional)"
+core = 6.x
+php = 5.0
+
+; Information added by drupal.org packaging script on 2009-08-20
+version = "6.x-2.0-rc6"
+core = "6.x"
+project = "ubercart"
+datestamp = "1250812046"
+

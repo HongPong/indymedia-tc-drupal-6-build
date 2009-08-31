@@ -1,0 +1,116 @@
+/* $Id: uc_catalog.css,v 1.6.2.5 2009/07/08 12:56:48 islandusurper Exp $ */
+
+.catalog .trail {
+  font-weight: bold;
+}
+
+img.category {
+  float: right;
+  margin-left: 1em;
+}
+table.category-products {
+  clear: right;
+  width: 100%;
+}
+table.category {
+  clear: right;
+  width: 100%;
+}
+table.category *, table.category * tr {
+  border: none;
+  background-color: transparent;
+}
+td.category {
+  /* border: 1px solid #555; */
+  width: 33%;
+  text-align: center;
+  vertical-align: top;
+}
+td.category.width-1 {
+  width: 100%;
+}
+td.category.width-2 {
+  width: 50%;
+}
+td.category.width-3 {
+  width: 33%;
+}
+td.category.width-4 {
+  width: 25%;
+}
+td.category.width-5 {
+  width: 20%;
+}
+td.category div {
+  margin: 0.5em auto 0 auto;
+  padding: 0;
+}
+td.category img {
+  margin: 0;
+  padding: 0;
+}
+td.category span {
+  font-size: x-small;
+  line-height: 1.3em;
+}
+table.category-products form {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+/* --- grid view elements ---- */
+.category-grid-products {
+  text-align: center;
+  width: 100%;
+}
+.category-grid-products table {
+  text-align: center;
+  width: 100%;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+}
+.category-grid-products td {
+  text-align: center;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  background-color: #fff;
+}
+.category-grid-products .catalog-grid-image {
+  display: block;
+  text-align: center;
+  padding: 5px;
+}
+.category-grid-products .catalog-grid-title {
+  display: block;
+  text-align: center;
+}
+.category-grid-products .catalog-grid-sell-price {
+  display: block;
+  text-align: center;
+}
+.category-grid-products .add-to-cart {
+  display: block;
+  text-align: center;
+}
+
+/* --- some blocks elements ---- */
+/* p.special, p.best-sellers {
+  border-bottom: 1px dotted #369;
+  margin-bottom: 1em;
+  padding-bottom: 1em;
+  font-size: 130%;
+  font-style: italic;
+  color: #369;
+}
+div.no-products {
+  width: 100%;
+  font-size: 130%;
+  font-style: italic;
+  font-weight: bold;
+  text-align: center;
+  color: #a00;
+  padding-top: 4em;
+  padding-bottom: 4em;
+  border: 1px dotted #a00;
+} */

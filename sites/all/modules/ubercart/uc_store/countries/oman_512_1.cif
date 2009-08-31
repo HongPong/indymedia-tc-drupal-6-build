@@ -1,0 +1,21 @@
+<?php
+// $Id: oman_512_1.cif,v 1.1.2.2 2009/07/11 21:13:31 islandusurper Exp $
+
+function oman_install() {
+  db_query("INSERT INTO {uc_countries} VALUES ('512', 'Oman', 'OM', 'OMN', 1)");
+
+  db_query("INSERT INTO {uc_zones} (zone_country_id, zone_code, zone_name) VALUES "
+          ."(512, 'BA', 'Al Batinah'),"
+          ."(512, 'DA', 'Ad Dakhiliyah'),"
+          ."(512, 'JA', 'Al Janubiyah'),"
+          ."(512, 'MA', 'Masqat'),"
+          ."(512, 'MU', 'Musandam'),"
+          ."(512, 'SH', 'Ash Sharqiyah'),"
+          ."(512, 'WU', 'Al Wusta'),"
+          ."(512, 'ZA', 'Az Zahirah')");
+
+  variable_set('uc_address_format_512',
+   "!company\r\n!first_name !last_name\r\n!street1\r\n!street2"
+  ."\r\n!city\r\n!zone_name, !country_name_if");
+}
+

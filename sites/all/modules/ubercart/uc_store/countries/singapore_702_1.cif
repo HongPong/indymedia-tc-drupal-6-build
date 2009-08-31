@@ -1,0 +1,22 @@
+<?php
+// $Id: singapore_702_1.cif,v 1.4 2007/11/05 20:32:01 rszrama Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function singapore_install() {
+  db_query("INSERT INTO {uc_countries} VALUES (702, 'Singapore', 'SG', 'SGP', 1)");
+
+  uc_set_address_format(702,
+    "!company\r\n!first_name !last_name\r\n!street1\r\n!street2"
+   ."\r\n!country_name, !postal_code");
+}
+
+/**
+ * Implementation of hook_update().
+ */
+function singapore_update($version) {
+  switch ($version) {
+  }
+}
+

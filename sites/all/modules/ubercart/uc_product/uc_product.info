@@ -1,0 +1,14 @@
+; $Id: uc_product.info,v 1.7.2.2 2008/11/07 21:13:24 islandusurper Exp $
+name = Product
+description = REQUIRED. A module to represent items in an online store. Imagecache and CCK Image field recommended.
+dependencies[] = uc_store
+package = Ubercart - core
+core = 6.x
+php = 5.0
+
+; Information added by drupal.org packaging script on 2009-08-20
+version = "6.x-2.0-rc6"
+core = "6.x"
+project = "ubercart"
+datestamp = "1250812046"
+

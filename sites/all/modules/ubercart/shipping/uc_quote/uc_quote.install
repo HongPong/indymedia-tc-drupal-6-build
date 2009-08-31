@@ -1,0 +1,367 @@
+<?php
+// $Id: uc_quote.install,v 1.5.2.8 2009/07/21 14:37:21 islandusurper Exp $
+
+/**
+ * @file
+ * Install hooks for uc_quote.module.
+ */
+
+/**
+ * Implementation of hook_schema().
+ */
+function uc_quote_schema() {
+  $schema = array();
+
+  $schema['uc_quote_shipping_types'] = array(
+    'fields' => array(
+      'id_type' => array(
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'shipping_type' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id_type', 'id'),
+  );
+
+  $schema['uc_quote_product_locations'] = array(
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'first_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'last_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'company' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'street1' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'street2' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'city' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'zone' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'postal_code' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'country' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'phone' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+
+  $schema['uc_order_quotes'] = array(
+    'fields' => array(
+      'order_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'method' => array(
+        'type' => 'varchar',
+        'length' => 25,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'accessorials' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'rate' => array(
+        'type' => 'numeric',
+        'precision' => 15,
+        'scale' => 3,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quote_form' => array(
+        'type' => 'text',
+      ),
+    ),
+    'unique keys' => array(
+      'order_id_quote_method' => array('order_id', 'method'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function uc_quote_install() {
+  drupal_install_schema('uc_quote');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function uc_quote_uninstall() {
+  drupal_uninstall_schema('uc_quote');
+
+  db_query("DELETE FROM {variable} WHERE name LIKE 'uc_quote_%%'");
+  variable_del('uc_store_shipping_type');
+}
+
+function uc_quote_update_1() {
+  variable_del('uc_store_shipping_quote_type');
+  $ret = array();
+  $ret[] = update_sql("DROP TABLE {uc_quote_types}");
+  $ret[] = update_sql("DROP TABLE {uc_order_fulfillments}");
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {uc_order_quotes} CHANGE COLUMN accessorials accessorials varchar(255) NOT NULL");
+    break;
+    case 'pgsql':
+      db_change_column($ret, 'uc_order_quotes', 'accessorials', 'accessorials', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+    break;
+  }
+  return $ret;
+}
+
+function uc_quote_update_2() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE {uc_quote_manufacturer_locations} (
+        `tid` mediumint(9) UNSIGNED NOT NULL,
+        `first_name` varchar(255) NOT NULL,
+        `last_name` varchar(255) NOT NULL,
+        `company` varchar(255) NOT NULL,
+        `address1` varchar(255) NOT NULL,
+        `address2` varchar(255) NOT NULL,
+        `city` varchar(255) NOT NULL,
+        `zone` mediumint(11) UNSIGNED NOT NULL,
+        `postal_code` varchar(255) NOT NULL,
+        `country` mediumint(11) UNSIGNED NOT NULL,
+        PRIMARY KEY (tid)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ;");
+      $ret[] = update_sql("CREATE TABLE {uc_quote_product_locations} (
+        `nid` mediumint(9) UNSIGNED NOT NULL,
+        `first_name` varchar(255) NOT NULL,
+        `last_name` varchar(255) NOT NULL,
+        `company` varchar(255) NOT NULL,
+        `address1` varchar(255) NOT NULL,
+        `address2` varchar(255) NOT NULL,
+        `city` varchar(255) NOT NULL,
+        `zone` mediumint(11) UNSIGNED NOT NULL,
+        `postal_code` varchar(255) NOT NULL,
+        `country` mediumint(11) UNSIGNED NOT NULL,
+        PRIMARY KEY (nid)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ;");
+    break;
+    case 'pgsql':
+      $ret[] = update_sql("CREATE TABLE {uc_quote_manufacturer_locations} (
+        tid integer UNSIGNED NOT NULL default 0,
+        first_name varchar(255) NOT NULL default '',
+        last_name varchar(255) NOT NULL default '',
+        company varchar(255) NOT NULL default '',
+        address1 varchar(255) NOT NULL default '',
+        address2 varchar(255) NOT NULL default '',
+        city varchar(255) NOT NULL default '',
+        zone integer UNSIGNED NOT NULL default 0,
+        postal_code varchar(255) NOT NULL default '',
+        country integer UNSIGNED NOT NULL default '',
+        PRIMARY KEY (tid)
+      );");
+      $ret[] = update_sql("CREATE TABLE {uc_quote_product_locations} (
+        nid integer UNSIGNED NOT NULL default 0,
+        first_name varchar(255) NOT NULL default '',
+        last_name varchar(255) NOT NULL default '',
+        company varchar(255) NOT NULL default '',
+        address1 varchar(255) NOT NULL default '',
+        address2 varchar(255) NOT NULL default '',
+        city varchar(255) NOT NULL default '',
+        zone integer UNSIGNED NOT NULL default 0,
+        postal_code varchar(255) NOT NULL default '',
+        country integer UNSIGNED NOT NULL default '',
+        PRIMARY KEY (nid)
+      );");
+    break;
+  }
+  return $ret;
+}
+
+function uc_quote_update_3() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {uc_quote_manufacturer_locations} CHANGE COLUMN address1 street1 varchar(255) NOT NULL default ''");
+      $ret[] = update_sql("ALTER TABLE {uc_quote_manufacturer_locations} CHANGE COLUMN address2 street2 varchar(255) NOT NULL default ''");
+      $ret[] = update_sql("ALTER TABLE {uc_quote_product_locations} CHANGE COLUMN address1 street1 varchar(255) NOT NULL default ''");
+      $ret[] = update_sql("ALTER TABLE {uc_quote_product_locations} CHANGE COLUMN address2 street2 varchar(255) NOT NULL default ''");
+    break;
+    case 'pgsql':
+      db_change_column($ret, 'uc_quote_manufacturer_locations', 'address1', 'street1', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+      db_change_column($ret, 'uc_quote_manufacturer_locations', 'address2', 'street2', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+      db_change_column($ret, 'uc_quote_product_locations', 'address1', 'street1', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+      db_change_column($ret, 'uc_quote_product_locations', 'address2', 'street2', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+    break;
+  }
+  return $ret;
+}
+
+function uc_quote_update_4() {
+  $ret = array();
+  $ret[] = update_sql("DELETE FROM {uc_quote_product_locations} WHERE street1 = ''");
+  $ret[] = update_sql("DELETE FROM {uc_quote_manufacturer_locations} WHERE street1 = ''");
+  return $ret;
+}
+
+function uc_quote_update_5() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'pgsql':
+      db_change_column($ret, 'uc_order_quotes', 'oid', 'oid', 'int_unsigned', array('not null' => TRUE, 'default' => 0));
+    break;
+  }
+  return $ret;
+}
+
+function uc_quote_update_6() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {uc_quote_manufacturer_locations} ADD COLUMN phone varchar(255) NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {uc_quote_product_locations} ADD COLUMN phone varchar(255) NOT NULL");
+    break;
+    case 'pgsql':
+      db_add_column($ret, 'uc_quote_manufacturer_locations', 'phone', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+      db_add_column($ret, 'uc_quote_product_locations', 'phone', 'varchar(255)', array('not null' => TRUE, 'default' => "''"));
+    break;
+  }
+  $address = variable_get('uc_quote_store_default_address', new stdClass());
+  $result = db_query("UPDATE {uc_quote_manufacturer_locations} SET phone = '%s'", $address->phone);
+  $ret[] = array('success' => $result !== FALSE, 'query' => check_plain("UPDATE {uc_quote_manufacturer_locations} SET phone = '". $address->phone ."'"));
+  $result = db_query("UPDATE {uc_quote_product_locations} SET phone = '%s'", $address->phone);
+  $ret[] = array('success' => $result !== FALSE, 'query' => check_plain("UPDATE {uc_quote_product_locations} SET phone = '". $address->phone ."'"));
+  return $ret;
+}
+
+function uc_quote_update_7() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'pgsql':
+      $ret[] = update_sql("ALTER TABLE {uc_order_quotes} SET WITHOUT OIDS");
+    break;
+  }
+  return $ret;
+}
+
+function uc_quote_update_8() {
+  $ret = array();
+
+  $ret[] = update_sql("DELETE FROM {uc_quote_shipping_types} WHERE id = 0");
+
+  return $ret;
+}
+
+function uc_quote_update_6000() {
+  $ret = array();
+
+  db_drop_primary_key($ret, 'uc_quote_shipping_types');
+  db_change_field($ret, 'uc_quote_shipping_types', 'id', 'id', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('primary key' => array('id_type', 'id')));
+
+  db_drop_primary_key($ret, 'uc_quote_manufacturer_locations');
+  db_change_field($ret, 'uc_quote_manufacturer_locations', 'tid', 'tid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('primary key' => array('tid')));
+
+  db_drop_primary_key($ret, 'uc_quote_product_locations');
+  db_change_field($ret, 'uc_quote_product_locations', 'nid', 'nid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('primary key' => array('nid')));
+
+  db_drop_unique_key($ret, 'uc_order_quotes', 'oid_quote_method');
+  db_change_field($ret, 'uc_order_quotes', 'oid', 'order_id', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0), array('unique keys' => array('order_id_quote_method' => array('order_id', 'method'))));
+
+  return $ret;
+}
+
+function uc_quote_update_6001() {
+  $ret = array();
+
+  db_change_field($ret, 'uc_order_quotes', 'rate', 'rate', array('type' => 'numeric', 'precision' => 15, 'scale' => 3, 'not null' => TRUE, 'default' => 0));
+
+  return $ret;
+}
+
+function uc_quote_update_6002() {
+  $ret = array();
+
+  if (db_table_exists('uc_quote_manufacturer_locations')) {
+    db_drop_table($ret, 'uc_quote_manufacturer_locations');
+  }
+
+  return $ret;
+}
+
+function uc_quote_update_6003() {
+  // This is the same update as #8, but it was added after 6002 was published.
+  $ret = array();
+
+  $ret[] = update_sql("DELETE FROM {uc_quote_shipping_types} WHERE id = 0");
+
+  return $ret;
+}
