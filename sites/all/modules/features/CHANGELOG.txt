@@ -1,0 +1,56 @@
+// $Id: CHANGELOG.txt,v 1.1.2.3 2009/06/22 00:13:51 yhahn Exp $
+features DRUPAL-6--1-ALPHA5
+---------------------------
+- Implementing project status url and version keys in info files.
+- Removed context dependency.
+- Implementing feature reverting in the UI and some admin UI cleanups.
+- Initial commit of experimental user/permission integration.
+- Initial commit of features-filters integration.
+- Corrected a misnamed drush hook.
+- Updated usage of drush_print_table to reflect recent changes in drush.
+- Adding component conflict detection between features.
+- Adding export for translatable strings in menu, CCK.
+- #483548 by jmiccolis: Use AJAX to lighten server load on feature
+  overview page.
+
+features DRUPAL-6--1-ALPHA4
+---------------------------
+- Ensure that a feature module cannot create circular dependencies.
+- #482212 by rszrama: Displaying a friendly message when no features
+  are available.
+- Move all theme functions into theme.inc.
+- Allow any implementing module to specify itself as a feature source.
+- Improve handling of include files.
+- Added hook_features_api() for declaring various info.
+- Show options for any implementer that provides export options on the
+  feature component confirmation form.
+- Fixing issue where only 1st level dependencies were enabled when
+  enabling a feature.
+- Clearing caches after features form submission using
+  hook_flush_caches() rather than piecemeal.
+
+features DRUPAL-6--1-ALPHA3
+---------------------------
+- Removing field updating nonsense from field rebuilding --
+  moved to revert hooks.
+- Renaming drush command 'status features' to 'features'.
+- #441826: Fix for improper escaping of single quotes.
+- #449916 by Steven Jones: Checks that implementations of
+  hook_views_default_views() actually return an array of views before
+  iterating.
+- #440592 by benroot: Feature component reverting through drush.
+- Adding headers to diff table.
+
+features DRUPAL-6--1-ALPHA2
+---------------------------
+- #421740: Fix for context pipe with views displays.
+- #430044: Fixing dependency checking in content and context includes.
+- Flushing caches before drush export.
+- Adding export item sorting for code stability.
+- Smarter export detection and dependency handling to imagecache.
+- Fix for imagecache export render.
+- Adding implementation of hook_flush_caches().
+
+features DRUPAL-6--1-ALPHA1
+---------------------------
+- Initial release of features module.
