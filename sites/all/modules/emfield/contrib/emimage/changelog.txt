@@ -1,0 +1,84 @@
+/* $Id: changelog.txt,v 1.1.2.12 2009/08/25 02:45:50 aaron Exp $ */
+
+DRUPAL-6--1-3
+=============
+
+August 2009
+-----------
+ * #370882: Fix menu creation (jdwfly/aaron).
+ * Documentation in custom_url (aaron).
+
+July 2009
+---------
+ * #506440 Add Custom URL For Image Providers (d.roldan.drupal/Rob Loach).
+
+DRUPAL-6--1-2
+=============
+
+May 2009
+--------
+ * #383274 Fix image scaling (aaron).
+ * #383274 Fix division by error (aaron).
+
+December 2008
+-------------
+ * #345383/moonray - Allow hook_menu() in providers (aaron/moonray).
+
+November 2008
+-------------
+ * #278957/coldice4678 Fetch correct images from Flicker (aaron/coldice4678).
+
+August 2008
+-----------
+ * #177027#comment-951694 cshoney patched to work with Drupal 6 (cshoney).
+
+July 2008
+---------
+ * Name changed from video_ncck to emimage.
+ * Simplify regex for image_ncck_flickr_extract, to eventually allow better photoset imports (a_c_m).
+
+May 2008
+--------
+ * Widget info
+ * 'callbacks' => array('tables' => CONTENT_CALLBACK_DEFAULT, 'arguments' => CONTENT_CALLBACK_DEFAULT, ),
+ * Case 'database columns': return module_invoke('emfield', 'field_columns', $field);
+ * Content_notify in .install files
+ * Implement hook_content_is_empty
+ * #177027/dipen chaudhary - close parens on array
+ * #254028 - bangpound fixed regex problem with Picassa to support new address for images
+
+February 2008
+-------------
+ * Fix error in flickr when importing (args)
+ * Add provider views handlers
+
+December 2007
+-------------
+ * Alerts when flickr api is missing (when uploading flickr content)
+
+November 2007
+-------------
+ * Add support for picasa -- thanks alexua!
+
+October 2007
+------------
+ * Make sure xml in data knows whether an array is returned for tags
+ * Add support for importing flickr photosets
+
+August 2007
+-----------
+ * #170854 Fixed image h/w 0 in IE.
+ * #167497 Fixed default h/w.
+ * Added imageshack support
+ * Added photobucket support
+
+July 2007
+---------
+ * Ignore case when matching providers
+
+June 2007
+---------
+ * Allow w/h of 0 (for scalable photos)
+ * Change flickr request call to unserialize data
+ * Add $module calls to ncck hooks
+ * Begin writing module (aaron).

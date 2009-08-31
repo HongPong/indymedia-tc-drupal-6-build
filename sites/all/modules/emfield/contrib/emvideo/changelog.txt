@@ -1,0 +1,260 @@
+/* $Id: changelog.txt,v 1.1.2.50 2009/08/25 02:45:50 aaron Exp $ */
+
+/**
+ *  @file
+ *  Changelog for Embedded Video Field (emvideo).
+ */
+
+August 2009
+-----------
+ * #370882: Fix menu creation (jdwfly/aaron).
+ * #542994: Remove emvideo_requirements (chenba/Rob Loach).
+ * #397802: blip.tv enclosures seem to not be showing up (jjkiesch).
+ * #457452: Remove API info from Guba (aaron).
+ * Don't allow spaces in YouTube URL (aaron).
+
+DRUPAL-6--1-3
+=============
+
+July 2009
+---------
+ * Fix emvideo_requirements (mikey_p/Dave Reid).
+ * Add a 'return_url' option to thumbnails (aaron).
+ * Add ability to play YouTube videos with JW FLV Player (aaron).
+ * Rebuild theme in update (aaron).
+ * Add $options to YouTube theme (aaron).
+
+June 2009
+---------
+ * Absolute URL's for custom URL's (aaron).
+ * #207224 Fix amphersands in HTML (aaron/seanr).
+
+DRUPAL-6--1-2
+=============
+
+May 2009
+---------
+ * Redo #351145 and fix autoplay for blip in new player (aaron).
+ * Pass $node to $options in theme functions (aaron).
+ * Pass $options to theme_video_cck_bliptv_flash (aaron).
+ * #351145 After upgrade, blip.tv videos show: Error: Invalid Feed (aaron).
+ * #459272 - fixed MySpace povider file with new api (junedkazi/alex).
+ * #374201 - jastraat fixed problem with $enablejsapi param.
+ * #405596 - ahem85 fixed problem with regex in zzz_custom_url.inc
+ * #363287 - q0rban fixed problem with emvideo.install
+ * #466608 - fixed path to cck's content.admin.inc
+
+March 2009
+----------
+ * We added the archive.org provider file, so need to rebuild the theme (aaron).
+ * Example provider file (aaron).
+ * Some video codes have a '/' character, so we have to accomodate in the URL (aaron).
+ * Replace play button w/ 8bit PNG (BrightLoudNoise).
+ * Fix conflict w/ inline preview & thickbox/lightbox2 (aaron).
+ * Fix inline preview size (aaron).
+
+February 2009
+-------------
+ * Documentation of css (aaron).
+ * Add new play button, courtesy of BrightLoudNoise (BrightLoudNoise/aaron).
+ * Add thumbnail -> video replacement formatters (aaron).
+ * Always use YouTube's largest thumbnail (aaron).
+ * #370500 - Rob Loach added flowplayer support for custom url videos.
+ * #370909 - drewish fixed a conflict between swfobject and thickbox in yahoomusic.inc and youtube.inc
+ * #370021 Fix module looking for brightcove in vimeo.inc (jcmarco).
+ * Add Lightbox2 support (aaron).
+ * Add attributes to thumnbails; route thumbnails through theme('image') (aaron).
+ * #368963 - Remove support for Brightcove.tv (aaron).
+ * #303756 - High quality YouTube (benshell/jrfano/VeryMisunderstood).
+ * #237664 - Adding support for uStream videos (aaron).
+
+
+January 2009
+-------------
+ * #348357 - jtsnow added support for yahoo music videos
+
+December 2008
+-------------
+ * #339025/moonray - Provide node info to providers take 2 (aaron/moonray).
+ * Clean up theme_emvideo_video_thumbnail a bit (aaron).
+ * #345383/moonray - Allow hook_menu() in providers (aaron/moonray).
+ * Begin token support for thumbnail title (aaron).
+ * 345538/joe-b - Fix autoplay for youtube previews (aaron/joe-b).
+ * 345515 - Fix thumbnails with vimeo; remove need for API key (aaron).
+ * 313973 - Fix problem with &amp;/& in URL structure for myspace (aaron).
+ * 195783 - solomongifford noted that Vimeo needed transparent mode
+ * 327052 - dalin made improvements to theme_emvideo_zzz_custom_url_embedded_video()
+ * 334944 - fixed small problem with Veoh provider
+ * 334535 - Gyt added multivideo support for thickbox
+ * 307187 - grendzy added fullscreen support for YouTube
+ * 339025 - moonray changed emvideo_PROVIDER_video() hook to allow for more info being passed
+ * 332673 - Jody Lynn fixed a fatal error in the google.inc file
+ * 330176 - beeradb and aaron fixed problem with trailing slashes in blip.tv urls
+
+November 2008
+-------------
+ * #333365/chrono325: Allow Emvideo to play Google Video links from RSS feeds (aaron/chrono325).
+
+September 2008
+--------------
+ * Comment some code in upgrade to d6 that might cause a complaint (aaron).
+ * Begin upgrade from d5 to d6 (aaron).
+ * Add drupal_load('module', 'content'); to install/uninstall process (aaron).
+ * Placeholder function to upgrade from video_cck (aaron).
+
+August 2008
+-----------
+ * Add support for swfobject to youtube, taking swfobject_api into account (aaron).
+#297760 - BenKewell fixed thickbox theming issues
+
+July 2008
+---------
+Changed name from video_cck to emvideo to comply with new naming standards.
+
+June 2008
+---------
+ * Add TODO for thumbnails for spike.tv (aaron).
+ * Add placeholder ifilm.inc to help with updates after ifilm-spike switch (aaron).
+ * Move ifilm.inc to spike.inc (aaron).
+ * Move theme functions to video_cck.theme.inc (aaron).
+ * Implement hook_theme (aaron).
+
+May 2008
+--------
+ * Widget info
+ * 'callbacks' => array('tables' => CONTENT_CALLBACK_DEFAULT, 'arguments' => CONTENT_CALLBACK_DEFAULT, ),
+ * Allow w/h (and other) overrides to thumbnails and other formatters
+ * Case 'database columns': return module_invoke('emfield', 'field_columns', $field);
+ * content_notify in .install files
+ * Implement hook_content_is_empty
+ * #261999 - chirale fixed XHTML validation errors in YouTube.inc
+ * #208963 - robomalo + darrenmUK  added Vimeo support
+ * #249255 - ekes added MRSS support to multiple files
+ * #170799 - ekes added support for google video URLs from '.com.au', 'co.uk' etc.
+ * #199189 - vsnguyen + Rysk added support for Veoh
+ * #253389 - Rysk updated Veoh support + added providers guba and imeem
+
+April 2008
+----------
+ * change 'thumbnail' text on widget settings form
+ * dailymotion thumbnails
+ * support for blip.tv's new player
+ * added $options=array() to themes for future expansion of options
+
+2008-03-14
+#216796/jhedstrom - extended brightcove support
+ifilm.inc was changed to spike.inc to reflect the change in site name and url, and the provider file was fixed.
+
+2008-03-21
+add support for last.fm videos
+
+2008-02-22
+#217339/fjen fix myspace thumbnails
+myspace now is also myspacetv.com
+fix myspace to use object instead of embed
+
+2008-02-17
+removed goleft support -- no user contributed videos, and no thumbnails.
+add provider views handlers
+
+2008-02-16
+#178299/dalin - modified patch to allow filter by video present
+
+2008-02-09
+#211529 - MrKatz fixed the revver url
+
+2008-02-07
+support for goleft.tv
+
+2008-01-06
+grab random youtube thumbnail
+#200435/jhedstrom - default thumbnail when video thumbnail not available
+
+2008-01-04
+remove bliptv debugging printout on node submission
+dailymotion autoplay support
+added dailymotion support
+#181095:alley youtube thumbnails w/o api or requests
+#177593:anonymous5190 parse new google embed code
+add <param name=\"wmode\" value=\"transparent\" /> to youtube & google
+integrate with colorpicker module; add border options for youtube
+#201855;jhedstrom add color options for youtube player
+#184980 cache youtube thumbnails (cache was accidentally left off while debugging)
+#173780;alexua - fix 'Cannot find server or DNS Error' in ie6 for youtube
+add support for emthumb, so that custom thumbnails may be stored and displayed for videos
+
+2007-12-07
+change url for brightcove to .tv
+
+2007-10-17
+#179454 fix youtube's new &rel=1 url structure
+
+2007-09-12
+better support for blip.tv's rss (allow overriding type given)
+
+2007-09-06
+added rss support for blip.tv
+added data versioning to allow nodes to save more data, but respect older nodes
+
+2007-07-27
+ignore case when matching video url's
+don't show 'show video' on thumbnails if no embed code value
+
+2007-06-27
+clean old variables during install, sorry, new update again.
+fix install -- change ncck to emfield
+
+2007-06-19
+add update code to change variables and remove old menu item
+require dependency on ncck
+
+2007-06-09
+fixed embed pasting for blip.tv
+added support for blip.tv
+added serialized data array for extra provider-specific node-level data
+added thumbnail width/height
+
+2007-06-07
+created 'supported features' sections of settings page
+added support for 'related videos' for youtube
+
+2007-06-05
+add 'embed code' filter for views -- note: run update.php to see it
+increase maxlength on embed textfield for better embed code support
+added support for ifilm
+
+2007-06-03
+began support for autoplay (starting with youtube)
+added support for sevenload
+
+2007-04-25
+added support for brightcove videos. thanks, recidive!
+
+2007-04-12
+text link for thumbnail when thumbnail not available
+link thumbnails to node view
+fix youtube thumbnails
+
+2007-04-04
+some code documentation
+
+2007-03-24
+simplified api
+added video link hook to api
+
+2007-03-23
+begin bliptv, but waiting on email re. api
+add google, metacafe, myspace, revver, jumpcut
+change structure to use .inc files for 3rd party providers
+describe api in readme
+
+2007-03-22
+fix bug w/ blank video when no embed code entered
+call youtube api to fetch thumbnails
+parse video code from the YouTube video URL
+
+2007-03-14
+branch to video_cck for more generic video integration
+
+2007-02-23
+began development for YouTube integration; release as youtube_cck

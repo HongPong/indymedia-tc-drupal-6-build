@@ -1,0 +1,91 @@
+/* $Id: changelog.txt,v 1.7.2.23 2009/08/25 03:00:44 aaron Exp $ */
+
+/**
+ *  @file
+ *  Changelog for Embedded Thumbnail Field.
+ */
+
+August 2009
+-----------
+ * Remove warning notice from info file (aaron).
+ * #539940: Remove requirement of PHP 5.1.2 (Eric At NRD/Rob Loach).
+ * #510156: Allow configuration of default display: collapsed / not collapsed (andrewsuth).
+
+DRUPAL-6--1-3
+=============
+
+July 2009
+---------
+ * Save thumbs on update properly (aaron).
+ * Fix double slash when emthumb path is empty (aaron).
+ * Honor widget settings for storing thumbnails (aaron).
+
+June 2009
+---------
+ * #463582: Fetch remote thumbnail on node insertion (aaron).
+ * Better documentation of functions (aaron).
+
+DRUPAL-6--1-2
+=============
+
+May 2009
+--------
+ * #474790: Insecure handling of $field['widget']['emthumb_description'] (aaron).
+ * #474790: Insecure handling of $field['widget']['emthumb_label'] (aaron).
+
+April 2009
+----------
+ * Preview size same as field thumbnail (aaron).
+
+March 2009
+----------
+ * Change filename creation for automatic thumbs (aaron).
+ * Add support for the Transliteration module (aaron).
+ * Strip out the query if provided in a thumbnail filepath (aaron).
+
+February 2009
+-------------
+ * Fix image path for thumbnail storage (aaron).
+ * Use $field['widget']['emthumb_image_path']) folder for remote thumbs (aaron).
+ * Settings for controlling storage of remote thumbs (aaron).
+ * Fetch remote images (aaron).
+
+January 2009
+------------
+ * Upgrade to Drupal 6 (aaron).
+
+December 2008
+-------------
+ * Implode #description of element (aaron).
+ * Add field & delta info to element (aaron).
+ * Refactor emthumb_widget and add theme function that calls theme_filefield_widget (aaron).
+ * Begin integrating filefield into emthumb_emfield_widget_extra (aaron).
+ * Factor in filefield widget & field settings (aaron/oweno).
+ * Add hook_elements (aaron/oweno).
+ * Add requirement of filefield (aaron/oweno).
+
+November 2008
+-------------
+ * Create $form['imagefield_test'] to test imagefield widget integration (aaron).
+
+May 2008
+--------
+ * #249255 - ekes added MRSS support to multiple files (aaron/ekes).
+
+April 2008
+----------
+ * #239374 Can't turn off custom thumbnail feature on node/add for video and image.
+
+February 2008
+-------------
+ * #216553- patch by dalin to increase max length to $form['emthumb']['emthumb_description'] (aaron/dalin).
+ * #213447- patch by jhedstrom to change paths in emthumb_thumbnail_url() from relative to absolute (aaron/jhedstrom).
+
+January 2008
+------------
+ * Remove references to imagefield (aaron).
+ * #207165/vnd remove debug code (aaron/vnd).
+ * #207085/vnd Fatal error: Cannot access empty property (aaron/vnd).
+ * Remove debugging statements on multiple (aaron).
+ * Fix array_push bug (aaron).
+ * Created emthumb module (aaron).

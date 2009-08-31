@@ -1,0 +1,23 @@
+/* $Id: changelog.txt,v 1.1.4.4 2008/07/18 20:02:24 alexua Exp $ */
+2008-07 - EMIMPORT HAS BEEN DEPRECATED!
+
+2008-03-26
+#237749 - Invalid argument supplied for foreach()
+
+2007-10-08
+readme
+
+2007-10-05
+checkboxes selected by default
+gray url textfield during import process
+
+2007-10-04
+allow override of title/body/tags
+add taxonomy capability
+node saves
+
+2007-10-03
+pull tn's from sets
+import form page
+settings pages
+started module
