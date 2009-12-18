@@ -1,0 +1,7 @@
+$Id: CHANGELOG.txt,v 1.6 2009/12/04 20:36:57 wwalc Exp $
+
+-- 2009-12-05 version 6.x-1.x-dev
+- First public (beta) release
+
+-- 2009-10-05 version 6.x-1.x-dev
+- Created initial dev version of the CKEditor module

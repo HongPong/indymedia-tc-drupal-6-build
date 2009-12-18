@@ -1,0 +1,1204 @@
+# $Id: ckeditor.pot,v 1.1 2009/12/04 20:53:48 wwalc Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  ckeditor.module,v 1.20.2.34.2.83 2009/10/04 20:28:01 jorrit
+#  ckeditor.help.inc,v 1.1.2.16 2009/08/05 20:04:08 jorrit
+#  ckeditor.install,v 1.2.2.10.2.42 2009/10/04 16:45:10 jorrit
+#  ckeditor.info,v 1.2.2.2 2008/03/18 13:50:45 wwalc
+#  ckeditor.admin.inc,v 1.1.2.42 2009/09/08 15:58:07 jorrit
+#  ckeditor.user.inc,v 1.1.2.15 2009/08/16 17:10:45 jorrit
+#  fckeditor.utils.js,v 1.2.2.8.2.31 2009/09/09 19:40:01 jorrit
+#  plugins/drupalbreaks/plugin.js: n/a
+#  functions.js,v 1.1.4.2 2008/12/05 10:59:28 wwalc
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-12-04 21:50+0100\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ckeditor.module:508;509
+msgid "Switch to plain text editor"
+msgstr ""
+
+#: ckeditor.module:508;509
+msgid "Switch to rich text editor"
+msgstr ""
+
+#: ckeditor.module:880
+msgid "Open rich text editor"
+msgstr ""
+
+#: ckeditor.module:887
+msgid "CKEditor: the ID for <a href=\"!excluding\">excluding or including</a> this element is %fieldname."
+msgstr ""
+
+#: ckeditor.module:78
+msgid "administer ckeditor"
+msgstr ""
+
+#: ckeditor.module:78 includes/ckeditor.page.inc:71
+msgid "access ckeditor"
+msgstr ""
+
+#: ckeditor.module:79
+msgid "module"
+msgstr ""
+
+#: ckeditor.module:79
+msgid "ckeditor"
+msgstr ""
+
+#: ckeditor.module:79
+msgid "/ckfinder"
+msgstr ""
+
+#: ckeditor.module:80
+msgid "allow CKFinder file uploads"
+msgstr ""
+
+#: ckeditor.module:234
+msgid "XSS Filter"
+msgstr ""
+
+#: ckeditor.module:235
+msgid "XSS Filter."
+msgstr ""
+
+#: ckeditor.module:243 ckeditor.install:269 ckeditor.info:0 includes/ckeditor.page.inc:100
+msgid "CKEditor"
+msgstr ""
+
+#: ckeditor.module:244;253;263;273;283;293;303
+msgid "Configure the rich text editor."
+msgstr ""
+
+#: ckeditor.module:252
+msgid "Add new CKEditor profile"
+msgstr ""
+
+#: ckeditor.module:262
+msgid "Clone CKEditor profile"
+msgstr ""
+
+#: ckeditor.module:272
+msgid "Edit CKEditor profile"
+msgstr ""
+
+#: ckeditor.module:282
+msgid "Delete CKEditor profile"
+msgstr ""
+
+#: ckeditor.module:292
+msgid "Add CKEditor Global profile"
+msgstr ""
+
+#: ckeditor.module:302
+msgid "Edit CKEditor Global profile"
+msgstr ""
+
+#: ckeditor.install:270
+msgid "Unknown"
+msgstr ""
+
+#: ckeditor.install:278
+msgid "CKEditor was not found at %sourcepath"
+msgstr ""
+
+#: ckeditor.install:282
+msgid "CKEditor version could not be determined"
+msgstr ""
+
+#: ckeditor.install:290
+msgid "You are using a feature that requires $cookie_domain to be set, but it is not set in your settings.php (CKFinder is enabled in the !profile profile)."
+msgstr ""
+
+#: ckeditor.install:299
+msgid "Some features are disabled because you're using an older version of CKEditor, please upgrade the editor to CKEditor 3.1 (or higher)."
+msgstr ""
+
+#: ckeditor.install:352
+msgid "!ckfinder is not installed correctly: !config not found. Make sure that you have uploaded all files or didn't remove that file accidentally."
+msgstr ""
+
+#: ckeditor.install:359
+msgid "CKEditor needs read permission to !config."
+msgstr ""
+
+#: ckeditor.install:389
+msgid "You are using a feature that requires manual integration into config.php (either built-in filebrowser or quick uploads are enabled in the !profile profile). Read instructions about enabling built-in file browser and add \"require_once ...\" statement in editor/filemanager/connectors/php/config.php."
+msgstr ""
+
+#: ckeditor.install:394
+msgid "You are using a feature that requires manual integration into config.php (either built-in filebrowser or quick uploads are enabled in the !profile profile). You have added \"require_once ...\" statement in editor/filemanager/connectors/php/config.php, but in the wrong line."
+msgstr ""
+
+#: ckeditor.info:0
+msgid "Enables the usage of CKEditor (WYSIWYG) instead of plain text fields."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:41
+msgid "Checking for %filename or %file."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:42
+msgid "The CKEditor component is not installed correctly. Please go to the <a href=\"!ckeditorlink\">CKEditor homepage</a> to download the latest version. After that you must extract the files to %ckeditorpath or %librarypath and make sure that the file %ckeditorfile or %ckeditorlibrary exist. Refer to the <a href=\"!readme\">readme.txt</a> for more information."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:43
+msgid "If you have CKEditor already installed please edit <a href=\"!editg\">CKEditor Global Profile</a> and update CKEditor path."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:49
+msgid "There is currently no role with the \"access ckeditor\" permission. Visit <a href=\"!acl\">permissions</a> administration section."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:67
+msgid "No CKEditor profiles found. At this moment, nobody is able to use CKEditor. Create new profile below."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:78
+msgid "Not all roles with <a href=\"!access\">access ckeditor</a> permission are associated with CKEditor profiles. As a result, users having the following roles may be unable to use CKEditor: !list Create new or edit CKEditor profiles below and in the <em>Basic setup</em> section, check \"Roles allowed to use this profile\"."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:95;133
+msgid "Profile"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:95
+msgid "Roles"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:95;133
+msgid "Operations"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:108;131
+msgid "edit"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:109
+msgid "clone"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:110;131
+msgid "delete"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:115
+msgid "Profiles"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:117
+msgid "Create new profile"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:120
+msgid "No profiles found. Click here to <a href=\"!create\">create a new profile</a>."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:125
+msgid "Global profile not found. Click here to <a href=\"!create\">create the global profile</a>."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:128
+msgid "Global settings"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:130
+msgid "CKEditor Global Profile"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:151;877
+msgid "Your CKEditor profile has been created."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:192
+msgid "You haven't assigned \"access ckeditor\" <a href=\"!permissions\">permissions</a> yet. It is recommended to assign the \"access ckeditor\" <a href=\"!permissions\">permissions</a> before updating CKEditor profiles."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:203
+msgid "Not all user roles are shown since they already have ckeditor profiles. You must first unassign profiles in order to add them to a new one."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:209
+msgid "Basic setup"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:247
+msgid "Profile name"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:251
+msgid "Enter a name for this profile. This name is only visible within the ckeditor administration page."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:257
+msgid "Roles allowed to use this profile"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:260
+msgid "Only roles with \"access ckeditor\" permission will be shown here. If no role is available, make sure that you have assigned the \"access ckeditor\" <a href=\"!permission\">permission</a>."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:266
+msgid "Allow users to customize CKEditor appearance"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:269;413;754;1026 includes/ckeditor.user.inc:69;81;91;147
+msgid "No"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:270;414;753;1025 includes/ckeditor.user.inc:68;80;92;146
+msgid "Yes"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:272
+msgid "If allowed, users will be able to override the \"Editor appearance\" by visiting their profile page."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:277
+msgid "Security"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:278
+msgid "The CKEditor security system protects you from executing malicious code that is already in your database. In plain text areas database content is harmless because it is not executed, but the CKEditor WYSIWYG editor evaluates HTML like a web browser and content needs to be filtered before it is loaded."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:287
+msgid "Security filters"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:288
+msgid "Please choose carefully all filters that protect your content (probably not all filters listed below are security filters)."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:317
+msgid "Security settings"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:320
+msgid "Always run security filters for CKEditor."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:321
+msgid "Run security filters only when CKEditor is set to start automatically."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:323
+msgid "There are two ways of starting CKEditor: automatically and manually (via toggle or in a popup). If you decide to apply security filters only when CKEditor starts automatically, you will not be protected when toggling manually from plain text area to CKEditor or when using CKEditor in a popup mode. So choose this option only, if you can detect various attacks (mainly XSS) by yourself just by looking at the HTML code."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:328;949
+msgid "Visibility settings"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:331
+msgid "The following settings are combined with the visibility settings of the global profile."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:336
+msgid "Minimum rows"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:338
+msgid "CKEditor will be triggered if the textarea has more rows than entered here. Enter '1' if you do not want to use this feature."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:343;957 includes/ckeditor.page.inc:122
+msgid "Use inclusion or exclusion mode"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:346;960
+msgid "Exclude"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:347;961
+msgid "Include"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:349;963
+msgid "Choose the way of disabling/enabling CKEditor on selected fields/paths (see below). Use exclude to disable CKEditor on selected fields/paths. Use include if you want to load CKEditor only on selected paths/fields."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:359;972
+msgid "Fields to exclude/include"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "Enter the paths to the textarea fields on which you want to enable or disable CKEditor."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "Please see the <a href=\"!helppagelink\">help page</a> for more information about defining field names. Short instruction is available below."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "Path structure: <strong>content_type@path.element_id</strong>"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "The following wildcards are available: \"*\", \"?\"."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "Content type is optional. You may even specify only path or field id."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "Examples:"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "matches all fields of type \"blog\" called edit-body, on any page."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:365;978
+msgid "matches fields starting with \"edit-user-\" on pages starting with \"node/add/"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:371;984
+msgid "Force simplified toolbar on the following fields"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:375;988
+msgid "Enter the paths to the textarea fields on which you want to force the simplified toolbar (!name)."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:375;988
+msgid "Please see the <a href=\"!helppagelink\">help page</a> for more information about defining field names. Take a look at the exclusion settings (above) for short instruction."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:381
+msgid "Editor appearance"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:388 includes/ckeditor.user.inc:54
+msgid "Default state"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:391;519 includes/ckeditor.user.inc:57
+msgid "Enabled"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:392;520 includes/ckeditor.user.inc:58
+msgid "Disabled"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:394
+msgid "Default editor state. If disabled, rich text editor may still be enabled using toggle or popup window."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:399 includes/ckeditor.user.inc:65
+msgid "Show disable/enable rich text editor toggle"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:402
+msgid "Show"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:403
+msgid "Hide"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:405
+msgid "Whether or not to show the disable/enable rich text editor toggle below the textarea. Works only if CKEditor is not running in a popup window (see below)."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:410 includes/ckeditor.user.inc:88
+msgid "Use CKEditor in a popup window"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:416 includes/ckeditor.user.inc:94
+msgid "If this option is enabled a link to a popup window will be used instead of a textarea replace."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:421 includes/ckeditor.user.inc:99
+msgid "Skin"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:424
+msgid "Choose a default skin."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:428;605;626
+msgid "CKEditor default"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:429
+msgid "Select manually"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:445
+msgid "Color module: base"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:446
+msgid "Color module: top"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:447
+msgid "Color module: bottom"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:457
+msgid "User Interface color"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:460
+msgid "Works only with \"!skin\" skin."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:480 includes/ckeditor.user.inc:107
+msgid "Toolbar"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:483
+msgid "Choose a default toolbar set. To define new toolbar, edit \"ckeditor.config.js\" located in \"!module_path\"."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:488 includes/ckeditor.user.inc:115
+msgid "Start the toolbar expanded"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:491 includes/ckeditor.user.inc:118
+msgid "Expanded"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:492 includes/ckeditor.user.inc:119
+msgid "Collapsed"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:494 includes/ckeditor.user.inc:121
+msgid "The toolbar start expanded or collapsed."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:499 includes/ckeditor.user.inc:126
+msgid "Width"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:501
+msgid "Width in pixels or percent. Example: 400 or 100%."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:508 includes/ckeditor.user.inc:135
+msgid "Language"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:511 includes/ckeditor.user.inc:138
+msgid "The language for the CKEditor interface."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:516 includes/ckeditor.user.inc:143
+msgid "Auto-detect language"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:522 includes/ckeditor.user.inc:149
+msgid "Use auto detect user language feature."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:540
+msgid "Cleanup and output"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:547
+msgid "Enter mode"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:554
+msgid "Set which tag CKEditor should use when [Enter] key is pressed."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:559
+msgid "Shift + Enter mode"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:566
+msgid "Set which tag CKEditor should use when [Shift] + [Enter] is pressed."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:571
+msgid "Font formats"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:575
+msgid "Semicolon separated list of HTML font formats. Allowed values are: p;div;pre;address;h1;h2;h3;h4;h5;h6"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:593
+msgid "CSS"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:600
+msgid "Editor CSS"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:603
+msgid "Use theme css"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:604
+msgid "Define css"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:607
+msgid "Defines the CSS to be used in the editor area.<br />Use theme css - load style.css from current site theme.<br/>Define css - enter path for css file below.<br />CKEditor default - uses default CSS from editor."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:612
+msgid "CSS path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:616
+msgid "Enter path to CSS file (Example: \"css/editor.css\") or a list of css files separated by a comma (Example: \"/themes/garland/style.css,http://example.com/style.css\"). Make sure to select \"Define css\" above.<br />Available placeholders:<br /><strong>%h</strong> - host name (!host).<br /><strong>%t</strong> - path to theme (!theme)."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:621
+msgid "Predefined styles"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:624
+msgid "Use theme ckeditor.styles.js"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:625
+msgid "Define path to ckeditor.styles.js"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:628
+msgid "Define the location of \"ckeditor.styles.js\" file. It is used by the \"Style\" dropdown list available in the default toolbar. Copy \"!ckeditor.styles.js\" inside your theme directory (\"!theme\") and adjust it to your needs."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:633
+msgid "Predefined styles path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:637
+msgid "Enter path to XML file with predefined styles (Example: \"/ckeditor.styles.js\"). Be sure to select \"define path to ckeditor.styles.js\" above.<br />Available placeholders:<br /><strong>%h</strong> - host name (!host).<br /><strong>%t</strong> - path to theme (!theme).<br /><strong>%m</strong> - path to CKEditor module (!module)."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:642
+msgid "File browser settings"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:645
+msgid "Set file browser settings. A file browser will allow you to explore the files contained on the server and embed them as links, images or flash movies. CKEditor is compatible with contributed modules like <a href=\"!imce\">IMCE</a>, <a href=\"!ib\">Image Browser</a> or <a href=\"!webfm\">Web File Manager</a>. CKEditor can be also integrated with <a href=\"!ckfinder\">CKFinder</a>."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:649
+msgid "None"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:650;655 includes/ckeditor.page.inc:154
+msgid "CKFinder"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:654
+msgid "Same as in Link dialog"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:659;660 includes/ckeditor.page.inc:158
+msgid "IMCE"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:664;665 includes/ckeditor.page.inc:159
+msgid "Image Browser"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:669;670 includes/ckeditor.page.inc:160
+msgid "Web File Manager"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:675
+msgid "File browser type (Link dialog)"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:678
+msgid "Select the file browser that you would like to use to upload files."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:683
+msgid "File browser type (Image dialog)"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:686
+msgid "Select the file browser that you would like to use to upload images."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:691
+msgid "File browser type (Flash dialog)"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:694
+msgid "Select the file browser that you would like to use to upload flash movies."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:703
+msgid "Path to uploaded files"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:707
+msgid "Path to uploaded files relative to the document root.<br />Available placeholders:<br/><strong>%b</strong> - base URL path of the Drupal installation (!base).<br/><strong>%f</strong> - Drupal file system path where the files are stored (!files).<br /><strong>%u</strong> - User ID.<br /><strong>%n</strong> - Username.<br />Current path: !path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:712
+msgid "Absolute path to uploaded files"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:717
+msgid "The path to the local directory (in the server) which points to the path defined above. If empty, CKEditor will try to discover the right path.<br />Available placeholders:<br/><strong>%d</strong> - server path to document root (!root).<br /><strong>%b</strong> - base URL path of the Drupal installation (!base).<br/><strong>%f</strong> - Drupal file system path where the files are stored (!files).<br /><strong>%u</strong> - User ID.<br /><strong>%n</strong> - Username.<br />Current path: !path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:721
+msgid "Setting relative path to uploaded files has been disabled because private downloads are enabled and this path is calculated automatically. To change the location of uploaded files in the private file system, edit the <a href=\"!url\">CKEditor Global Profile</a>."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:723
+msgid "Setting path to uploaded files has been disabled because private downloads are enabled and this path is calculated automatically.To change the location of uploaded files in the private file system, edit the <a href=\"!url\">CKEditor Global Profile</a>."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:729
+msgid "Advanced options"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:735
+msgid "Load method"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:738
+msgid "Select the load method of CKEditor. If ckeditor_base.js is used, only a small file is initially loaded and the rest part of the editor is loaded later (see \"Load timeout\")."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:742
+msgid "Load timeout"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:746
+msgid "The time to wait (in seconds) to load the full editor code after the page load, if the \"ckeditor_basic.js\" file is used. If set to zero, the editor is loaded on demand."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:750
+msgid "Load ckeditor.config.js from theme path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:756
+msgid "When set to \"true\" the editor will try to load the ckeditor.config.js file from theme directory."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:760
+msgid "Custom javascript configuration"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:764
+msgid "To change CKEditor configuration globally, you should modify the config file: \"!ckeditor_config\". Sometimes it is required to change the CKEditor configuration for a single profile only. Use this box to define settings that are unique for this profile. Available options are listed in the <a href=\"!docs\">CKEditor documentation</a>. Add the following code snippet to change available fonts in combo boxes in CKEditor: <pre>@code</pre><strong>Warning</strong>: If you make something wrong here, CKEditor may fail to load."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:770
+msgid "Save"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:784;1065
+msgid "Include mode selected, but no paths given. Enter at least one path where CKEditor should appear."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:793
+msgid "Minimum rows must be a valid number."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:797 includes/ckeditor.user.inc:158
+msgid "If CKEditor is enabled by default, popup window must be disabled."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:801 includes/ckeditor.user.inc:162
+msgid "If toggle is enabled, popup window must be disabled."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:805
+msgid "You must give a profile name."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:808
+msgid "This profile name is reserved. Please choose a different name."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:813
+msgid "The profile name must be unique. A profile with this name already exists."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:818
+msgid "Enter valid width. Example: 400 or 100%."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:823
+msgid "CSS path is not empty. Please set the \"Editor CSS\" option to \"define css\" mode."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:826
+msgid "Double quotes are not allowed in CSS path."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:829;841
+msgid "Enter valid path, do not surround it with quotes."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:835
+msgid "Path to predefined styles is not empty. Please set the \"Predefined styles\" option to \"define path to fckstyles.xml\" mode."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:838
+msgid "Double quotes are not allowed in path."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:847
+msgid "Enter valid, semicolon separated, list of HTML font formats (no semicolon at the end of list expected)."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:853
+msgid "Path to uploaded files is required."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:856
+msgid "Absolute path to uploaded files is required."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:861
+msgid "Set valid load method."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:864
+msgid "Enter valid load timeout in seconds."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:874
+msgid "Your CKEditor profile has been updated."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:911
+msgid "Global profile already exist. Only one global profile is allowed."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:915
+msgid "Create global profile"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:918
+msgid "Update global profile"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:923
+msgid "Main setup"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:936
+msgid "Role precedence"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:938
+msgid "A user having <strong>multiple roles</strong> gets the permissions of the highest one. Sort role IDs according to their <strong>precedence from higher to lower</strong> by putting > in between."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:941
+msgid "Here is the id-name pairs of roles having access to CKEditor:"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:944
+msgid "You haven't assigned the \"access ckeditor\" <a href=\"!permissions\">permissions</a> yet."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:952
+msgid "The following settings are combined with the visibility settings of the specific profile."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:994
+msgid "Advanced settings"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1003
+msgid "Path to CKEditor"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1007
+msgid "Path to CKEditor (the HTML editor, downloaded from <a href=\"!ckeditornet\">ckeditor.com</a>) relative to the document root.<br />Available placeholders:<br /><strong>%b</strong> - base URL path of the Drupal installation (!base).<br /><strong>%m</strong> - base URL path where CKEditor module is stored (!files).<br />Current path: !path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1013
+msgid "Local path to CKEditor"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1017
+msgid "The path to the local directory (on the server) which points to the path defined above. Enter either an absolute server path or path relative to \"index.php\". If empty, CKEditor module will try to find the right path.<br />Current path: !path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1022 includes/ckeditor.user.inc:77
+msgid "Show field name hint below each rich text editor"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1028
+msgid "This only applies for users with \"administer ckeditor\" permissions."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1035
+msgid "Location of files uploaded with CKEditor in the private folder"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "The path relative to the location of the private directory where CKEditor should store uploaded files."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "<strong>Warning:</strong> CKEditor does not implement any kind of access protection on files available in this location. All files stored in the directory defined above might be accessible by unauthenticated users if there is no information about the file in the Drupal's database."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "System path to the private folder is: !system_path."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "Available wildcard characters:"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "User ID"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "Username"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1039
+msgid "Current path: !path"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1045
+msgid "Link to paths only"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1045
+msgid "Link using internal: links"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1045
+msgid "Allow user to select between paths and internal links"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1046
+msgid "Path Filter & Link To Content integration"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1048
+msgid "With !plink extension it is possible to use :internal links. By default !link extension is linking to nodes using paths."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1048
+msgid "Path Filter"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1048
+msgid "Link To Content"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1112
+msgid "CKEditor global profile has been saved."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1133
+msgid "Rule %rule is ambiguous: please append .* if %rule is a path or prepend *. if %rule is a field"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1152
+msgid "Are you sure that you want to delete the CKEditor profile %profile?"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1158
+msgid "Delete"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1164
+msgid "Cancel"
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1175
+msgid "Deleted CKEditor profile."
+msgstr ""
+
+#: includes/ckeditor.admin.inc:1302
+msgid "for developers only"
+msgstr ""
+
+#: includes/ckeditor.page.inc:36
+msgid "Enables the usage of CKEditor (WYSIWYG editor) instead of plain text fields."
+msgstr ""
+
+#: includes/ckeditor.page.inc:41
+msgid "CKEditor is highly configurable. The most commonly used features are listed below. You can also customize CKEditor to your needs by changing the configuration file: %ckeditor_module_config. This is also the only way to define new toolbar sets."
+msgstr ""
+
+#: includes/ckeditor.page.inc:45
+msgid "It is advised to not edit the configuration file that is distributed with CKEditor: %ckeditor_config_file (%ckeditor_config_path) because you may overwrite it accidentally when you update the editor."
+msgstr ""
+
+#: includes/ckeditor.page.inc:54
+msgid "The Global Profile allows you to define settings that are common for all profiles. Values defined in other profiles will be appended to the global configuration. This way you can avoid repeating some of the settings that are usually the same in each profile."
+msgstr ""
+
+#: includes/ckeditor.page.inc:59;77
+msgid "The CKEditor module allows Drupal to replace textarea fields with a rich text or !wysiwyg editor. This editor brings many of the powerful functionalities of known desktop editors like Word to the web. It's relatively lightweight and doesn't require any kind of installation on the client computer."
+msgstr ""
+
+#: includes/ckeditor.page.inc:61;79
+msgid "What You See Is What You Get"
+msgstr ""
+
+#: includes/ckeditor.page.inc:61;79
+msgid "WYSIWYG"
+msgstr ""
+
+#: includes/ckeditor.page.inc:63;81
+msgid "More information about the editor is located at the !ckeditorlink. A small !userguidelink is available."
+msgstr ""
+
+#: includes/ckeditor.page.inc:65;83;90
+msgid "CKEditor homepage"
+msgstr ""
+
+#: includes/ckeditor.page.inc:66;84
+msgid "user guide"
+msgstr ""
+
+#: includes/ckeditor.page.inc:68
+msgid "Profiles can be defined based on user roles. A CKEditor profile can define which pages receive this CKEditor capability, what buttons or themes are enabled for the editor, how the editor is displayed, and a few other editor functions. It is possible also to define the Global Profile that will hold values that will be appended to all other profiles."
+msgstr ""
+
+#: includes/ckeditor.page.inc:69
+msgid "Lastly, only users with the %accesspermission !permissionlink will be able to use CKEditor."
+msgstr ""
+
+#: includes/ckeditor.page.inc:72
+msgid "permission"
+msgstr ""
+
+#: includes/ckeditor.page.inc:86
+msgid "Configuration"
+msgstr ""
+
+#: includes/ckeditor.page.inc:88
+msgid "Go to the !ckeditorlink and download the latest version of CKEditor. Then uncompress the contents of the ckeditor directory of the downloaded file to %ckeditordir."
+msgstr ""
+
+#: includes/ckeditor.page.inc:93
+msgid "Enable the module as usual from Drupal's admin pages."
+msgstr ""
+
+#: includes/ckeditor.page.inc:94
+msgid "Grant permissions for use of CKEditor in !adminpath."
+msgstr ""
+
+#: includes/ckeditor.page.inc:96;100
+msgid "Administer"
+msgstr ""
+
+#: includes/ckeditor.page.inc:96
+msgid "User management"
+msgstr ""
+
+#: includes/ckeditor.page.inc:96
+msgid "Permissions"
+msgstr ""
+
+#: includes/ckeditor.page.inc:98
+msgid "Under !adminpath, adjust the ckeditor profiles. In each profile you can choose which textareas will be replaced by CKEditor, select default toolbar and configure some more advanced settings."
+msgstr ""
+
+#: includes/ckeditor.page.inc:100
+msgid "Site configuration"
+msgstr ""
+
+#: includes/ckeditor.page.inc:102
+msgid "For the Rich Text Editing to work you also need to configure your !filterlink for the users that may access Rich Text Editing. Either grant those users Full HTML access or use the following:"
+msgstr ""
+
+#: includes/ckeditor.page.inc:104
+msgid "filters"
+msgstr ""
+
+#: includes/ckeditor.page.inc:107
+msgid "To have a better control over line breaks, you should disable %settingname in the chosen filter (recommended)."
+msgstr ""
+
+#: includes/ckeditor.page.inc:109
+msgid "Line break converter"
+msgstr ""
+
+#: includes/ckeditor.page.inc:111
+msgid "Modify the %ckconfig file to custom your needs (optional). Available configuration settings are available in the !apidocs."
+msgstr ""
+
+#: includes/ckeditor.page.inc:114
+msgid "API documentation"
+msgstr ""
+
+#: includes/ckeditor.page.inc:119
+msgid "Defining field inclusion/exclusions"
+msgstr ""
+
+#: includes/ckeditor.page.inc:120
+msgid "In order to specifically display CKEditor on those text areas on which you need it, the CKEditor module provides a powerfull method to define fields that should be enhanced with CKEditor. The first choice you have to make is whether you want to display CKEditor on all textareas and define a list of exceptions, or if you don't want to display CKEditor unless it is specifically enabled. This choice is made in the %settingname setting."
+msgstr ""
+
+#: includes/ckeditor.page.inc:124
+msgid "Next, the list of exceptions has to be defined. This list follows a specific syntax: the path to a field is defined by specifying the content type followed by @ character, specifying the path followed by dot and appending the field name at the end. You may decide to not use the content type. The field %fieldname on page %pathname would thus be addressed as %result. You can use wildcards * and ? anywhere in this line. If you have a dot in your field name and it causes problems, you can escape it with a slash (\\)."
+msgstr ""
+
+#: includes/ckeditor.page.inc:131
+msgid "Some examples:"
+msgstr ""
+
+#: includes/ckeditor.page.inc:133
+msgid "matches all fields on %pathname"
+msgstr ""
+
+#: includes/ckeditor.page.inc:134
+msgid "matches all fields called %fieldname on any page"
+msgstr ""
+
+#: includes/ckeditor.page.inc:135
+msgid "matches all fields called %fieldname on pages related to node type %typename"
+msgstr ""
+
+#: includes/ckeditor.page.inc:136
+msgid "matches all fields on pages related to node type %nodetype"
+msgstr ""
+
+#: includes/ckeditor.page.inc:137
+msgid "matches all fields on pages such as %pathname1, %pathname2, etc."
+msgstr ""
+
+#: includes/ckeditor.page.inc:138
+msgid "matches all %fieldname fields on pages such as %pathname1, %pathname2, etc."
+msgstr ""
+
+#: includes/ckeditor.page.inc:139
+msgid "matches fields starting with %fieldname on pages starting with %pathname"
+msgstr ""
+
+#: includes/ckeditor.page.inc:142
+msgid "Troubleshooting"
+msgstr ""
+
+#: includes/ckeditor.page.inc:144
+msgid "Take a look at !listlink when installing CKEditor."
+msgstr ""
+
+#: includes/ckeditor.page.inc:144
+msgid "list of common problems"
+msgstr ""
+
+#: includes/ckeditor.page.inc:145
+msgid "If you are looking for more information, have any trouble in configuration or if you found an issue, please visit the !officiallink."
+msgstr ""
+
+#: includes/ckeditor.page.inc:145
+msgid "official project page"
+msgstr ""
+
+#: includes/ckeditor.page.inc:146
+msgid "More information about how to tune up CKEditor for your theme can be found !herelink."
+msgstr ""
+
+#: includes/ckeditor.page.inc:146
+msgid "here"
+msgstr ""
+
+#: includes/ckeditor.page.inc:149
+msgid "Uploading images and files"
+msgstr ""
+
+#: includes/ckeditor.page.inc:150
+msgid "There are three ways for uploading files:"
+msgstr ""
+
+#: includes/ckeditor.page.inc:152
+msgid "By using !ckfinder (commercial)."
+msgstr ""
+
+#: includes/ckeditor.page.inc:156
+msgid "By using a module like !imcelink, !iblink or !webfmlink."
+msgstr ""
+
+#: includes/ckeditor.page.inc:162
+msgid "By using the core upload module."
+msgstr ""
+
+#: includes/ckeditor.user.inc:46
+msgid "Rich text editor settings"
+msgstr ""
+
+#: includes/ckeditor.user.inc:60
+msgid "Should rich-text editing be enabled or disabled by default in textarea fields? If disabled, rich text editor may still be enabled using toggle or popup window."
+msgstr ""
+
+#: includes/ckeditor.user.inc:71
+msgid "Whether or not to show the disable/enable rich text editor toggle below the textarea. Works only if CKEditor is not running a popup window (see below)."
+msgstr ""
+
+#: includes/ckeditor.user.inc:102
+msgid "Choose a CKEditor skin."
+msgstr ""
+
+#: includes/ckeditor.user.inc:110
+msgid "Choose a CKEditor toolbar set."
+msgstr ""
+
+#: includes/ckeditor.user.inc:128
+msgid "Width in pixels or percent."
+msgstr ""
+
+#: includes/ckeditor.user.inc:128;166
+msgid "Example"
+msgstr ""
+
+#: includes/ckeditor.user.inc:128;166
+msgid "or"
+msgstr ""
+
+#: includes/ckeditor.user.inc:166
+msgid "Enter valid width."
+msgstr ""
+
+#: includes/ckeditor.utils.js:0;0
+msgid "Join summary"
+msgstr ""
+
+#: includes/ckeditor.utils.js:0;0
+msgid "Split summary at cursor"
+msgstr ""
+
+#: plugins/drupalbreaks/plugin.js:0
+msgid "Insert Teaser Break"
+msgstr ""
+
+#: plugins/drupalbreaks/plugin.js:0
+msgid "Insert Page Break"
+msgstr ""
+
+#: plugins/drupalbreaks/plugin.js:0
+msgid "The document already contains a teaser break. Do you want to proceed by removing it first?"
+msgstr ""
+
+#: plugins/linktomenu/jscripts/functions.js:0 plugins/linktonode/jscripts/functions.js:0
+msgid "Error !msg"
+msgstr ""
+
+#: plugins/linktomenu/jscripts/functions.js:0 plugins/linktonode/jscripts/functions.js:0
+msgid "Error on retrieving data from module."
+msgstr ""
+
