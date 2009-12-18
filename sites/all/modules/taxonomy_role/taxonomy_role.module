@@ -1,0 +1,118 @@
+<?php
+// $Id: 
+
+/**
+ * @file
+ * Taxonomy role - allows restriction of access to vocabularies  
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function taxonomy_role_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#taxonomy_role':      
+      $output = '<p>'. t('This module allows you to restrict access to vocabularies on node forms by role. Once it is installed, you will need to configure the permissions for new and existing vocabularies.'). '</p>'; 
+      return $output;
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function taxonomy_role_menu() {
+  $items = array();
+
+    $items['admin/settings/taxonomy_role'] = array(
+      'title' => t('Taxonomy Role'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('taxonomy_role_admin_settings_form'),
+      'access arguments' => array('administer site configuration'),
+      'description' => t('Configure Taxonomy Role settings.'),
+      'type' => MENU_NORMAL_ITEM,
+    );
+    
+  return $items;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function taxonomy_role_form_alter(&$form, &$form_state, $form_id) { 
+  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    if (isset($form['taxonomy'])) {
+      $vocabularies = taxonomy_get_vocabularies();
+      foreach ($form['taxonomy'] as $vid => $value) {
+        if (is_numeric($vid) && !user_access('access '. check_plain($vocabularies[$vid]->name) .' vocabulary')) {
+          if (variable_get('taxonomy_role_'. $vid, 'hidden') == 'hidden') {
+            $form['taxonomy'][$vid] = array(
+              '#type' => 'value',
+              '#value' => $form['taxonomy'][$vid]['#default_value'],
+            );
+          }
+          else {
+            $form['taxonomy'][$vid]['#disabled'] = TRUE;
+          }
+        }
+      }
+      if (isset($form['taxonomy']['tags'])) {
+        foreach ($form['taxonomy']['tags'] as $vid => $value) {
+          if (is_numeric($vid) && !user_access('access '. check_plain($vocabularies[$vid]->name) .' vocabulary')) {
+            if (variable_get('taxonomy_role_'. $vid, 'hidden') == 'hidden') {
+              $form['taxonomy']['tags'][$vid] = array(
+                '#type' => 'value',
+                '#value' => $form['taxonomy']['tags'][$vid]['#default_value'],
+              );
+            }
+            else {
+              $form['taxonomy']['tags'][$vid]['#disabled'] = TRUE;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function taxonomy_role_perm() {
+  $vocabularies = taxonomy_get_vocabularies();
+  $perms = array();
+  foreach ($vocabularies as $vocabulary) {
+    $perms[] = 'access '. check_plain($vocabulary->name) .' vocabulary';
+  }
+  return $perms;
+}
+
+/**
+ * Administration page callback.
+ */
+function taxonomy_role_admin_settings_form() {
+  $vocabularies = taxonomy_get_vocabularies();
+  if (count($vocabularies)) {
+    $form['settings'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => FALSE,
+      '#title' => t('Vocabulary visibility'),
+      '#description' => t("When a user is denied access to a vocabulary, you can decide whether that vocabulary's field will be hidden or disabled. The latter allows users to see the terms."),
+    );
+    $options = array(
+      'hidden' => t('Hidden'),
+      'disabled' => t('Disabled'),
+    );
+    foreach ($vocabularies as $vid => $vocabulary) {
+      $form['settings']['taxonomy_role_'. $vid] = array(
+        '#type' => 'select',
+        '#title' => check_plain($vocabulary->name),
+        '#multiple' => FALSE,
+        '#required' => FALSE,
+        '#options' => $options,
+        '#default_value' => variable_get('taxonomy_role_'. $vid, 'hidden'),
+      );
+    }
+  }
+  return system_settings_form($form);
+}
+

@@ -1,0 +1,126 @@
+# Brazilian Portuguese translation of vertical_tabs (6.x-1.0-beta3)
+# Copyright (c) 2009 by the Brazilian Portuguese translation team
+# Generated from files:
+#  vertical_tabs/vertical_tabs.node_form.js: n/a
+#  vertical_tabs/vertical_tabs.module: n/a
+#  vertical_tabs/vertical_tabs.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vertical_tabs (6.x-1.0-beta3)\n"
+"POT-Creation-Date: 2009-07-12 15:18+0000\n"
+"PO-Revision-Date: 2009-07-12 15:15+0000\n"
+"Language-Team: Brazilian Portuguese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: vertical_tabs.node_form.js:0
+msgid "Published"
+msgstr "Publicado"
+
+#: vertical_tabs.node_form.js:0
+msgid "Promoted to front page"
+msgstr "Promover à página principal"
+
+#: vertical_tabs.node_form.js:0
+msgid "Create new revision"
+msgstr "Criar nova revisão"
+
+#: vertical_tabs.node_form.js:0
+msgid "1 attachment"
+msgid_plural "@count attachments"
+msgstr[0] "1 anexo"
+msgstr[1] "@count anexos"
+
+#: vertical_tabs.node_form.js:0
+msgid "<none>"
+msgstr "<nenhum>"
+
+#: vertical_tabs.node_form.js:0
+msgid "None"
+msgstr "Nenhum"
+
+#: vertical_tabs.node_form.js:0
+msgid "Automatic alias"
+msgstr "Endereço automático"
+
+#: vertical_tabs.node_form.js:0
+msgid "Not in book"
+msgstr "Fora do livro"
+
+#: vertical_tabs.node_form.js:0
+msgid "New book"
+msgstr "Novo livro"
+
+#: vertical_tabs.node_form.js:0
+msgid "Not in menu"
+msgstr "Fora do menu"
+
+#: vertical_tabs.node_form.js:0
+msgid "By @name on @date"
+msgstr "Por @name em @date"
+
+#: vertical_tabs.node_form.js:0
+msgid "By @name"
+msgstr "Por @name"
+
+#: vertical_tabs.node_form.js:0
+msgid "Alias: @alias"
+msgstr "Endereço: @alias"
+
+#: vertical_tabs.node_form.js:0
+msgid "No alias"
+msgstr "Não há um endereço"
+
+#: vertical_tabs.module:158
+msgid "Vertical tabs"
+msgstr "Abas verticais"
+
+#: vertical_tabs.module:161
+msgid ""
+"The selected fieldsets will be rendered as vertical tabs for this "
+"content type. The tabs are rendered in the same version as the "
+"original form's fieldsets."
+msgstr ""
+"Os campos selecionados serão exibidos como abas verticais nesse tipo "
+"de conteúdo. As abas são exibidas com os grupos de campos originais "
+"do formulário."
+
+#: vertical_tabs.module:0
+msgid "vertical_tabs"
+msgstr "vertical_tabs"
+
+#: vertical_tabs.info:0
+msgid "Vertical Tabs"
+msgstr "Abas verticais"
+
+#: vertical_tabs.info:0
+msgid "Provides vertical tabs for the node form."
+msgstr "Cria abas verticais no formulário de edição de conteúdo."
+
+#: vertical_tabs.node_form.js:0
+msgid "<create a new book>"
+msgstr "<criar um novo livro>"
+
+#: vertical_tabs.node_form.js:0
+msgid "Don't create new revision"
+msgstr "Não criar nova revisão"
+
+#: vertical_tabs.node_form.js:0
+msgid "Sticky on top of lists"
+msgstr "Em destaque"
+
+#: vertical_tabs.node_form.js:0
+msgid "No attachments"
+msgstr "Sem anexos"
+
+#: vertical_tabs.node_form.js:0
+msgid "No flags"
+msgstr "Não há flags"
+
+#: vertical_tabs.node_form.js:0
+msgid "No terms"
+msgstr "Não há categorias"
+

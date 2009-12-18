@@ -1,0 +1,123 @@
+# $Id: fr.po,v 1.1.2.1 2009/04/15 10:46:25 slybud Exp $
+#
+# French translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  vertical_tabs.module: n/a
+#  vertical_tabs.info: n/a
+#  vertical_tabs.node_form.js: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: French translation for drupal6 vertical_tabs module\n"
+"POT-Creation-Date: 2009-04-15 12:27+0200\n"
+"PO-Revision-Date: 2009-04-15 12:40+0100\n"
+"Last-Translator: Sylvain Moreau <sylvain.moreau@ows.fr>\n"
+"Language-Team: Sylvain Moreau, OWS <sylvain.moreau@ows.fr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: vertical_tabs.module:158
+msgid "Vertical tabs"
+msgstr "Onglets verticaux"
+
+#: vertical_tabs.module:161
+msgid "The selected fieldsets will be rendered as vertical tabs for this content type. The tabs are rendered in the same version as the original form's fieldsets."
+msgstr "Les groupes de champs sélectionnés seront affichés en tant qu'onglets verticaux pour ce type de contenu. Les onglets sont affichés dans la même version que les groupes de champs du formulaire d'origine."
+
+#: vertical_tabs.module:0
+msgid "vertical_tabs"
+msgstr "vertical_tabs"
+
+#: vertical_tabs.info:0
+msgid "Vertical Tabs"
+msgstr "Vertical Tabs"
+
+#: vertical_tabs.info:0
+msgid "Provides vertical tabs for the node form."
+msgstr "Fournit des onglets verticaux pour le formulaire de noeud."
+
+#: vertical_tabs.node_form.js:0
+msgid "<none>"
+msgstr "<Aucun>"
+
+#: vertical_tabs.node_form.js:0
+msgid "Not in book"
+msgstr "Pas dans le livre"
+
+#: vertical_tabs.node_form.js:0
+msgid "<create a new book>"
+msgstr "<créer un nouveau livre>"
+
+#: vertical_tabs.node_form.js:0
+msgid "New book"
+msgstr "Nouveau livre"
+
+#: vertical_tabs.node_form.js:0
+msgid "Create new revision"
+msgstr "Créer une révision"
+
+#: vertical_tabs.node_form.js:0
+msgid "Don't create new revision"
+msgstr "Ne pas créer de nouvelle révision"
+
+#: vertical_tabs.node_form.js:0
+msgid "By @name on @date"
+msgstr "Par @name le @date"
+
+#: vertical_tabs.node_form.js:0
+msgid "By @name"
+msgstr "Par @name"
+
+#: vertical_tabs.node_form.js:0
+msgid "Published"
+msgstr "Publié"
+
+#: vertical_tabs.node_form.js:0
+msgid "Promoted to front page"
+msgstr "Promu en page d'accueil"
+
+#: vertical_tabs.node_form.js:0
+msgid "Sticky on top of lists"
+msgstr "Epinglé en haut des listes"
+
+#: vertical_tabs.node_form.js:0
+msgid "None"
+msgstr "Aucun"
+
+#: vertical_tabs.node_form.js:0
+msgid "Not in menu"
+msgstr "Pas dans le menu"
+
+#: vertical_tabs.node_form.js:0
+msgid "No attachments"
+msgstr "Aucune pièce jointe"
+
+#: vertical_tabs.node_form.js:0
+msgid "Automatic alias"
+msgstr "Alias automatique"
+
+#: vertical_tabs.node_form.js:0
+msgid "Alias: @alias"
+msgstr "Alias : @alias"
+
+#: vertical_tabs.node_form.js:0
+msgid "No alias"
+msgstr "Aucun alias"
+
+#: vertical_tabs.node_form.js:0
+msgid "No flags"
+msgstr "Aucun flag"
+
+#: vertical_tabs.node_form.js:0
+msgid "No terms"
+msgstr "Aucun terme"
+
+#: vertical_tabs.node_form.js:0
+msgid "1 attachment"
+msgid_plural "@count attachments"
+msgstr[0] "@count fichier attaché"
+msgstr[1] "@count fichiers attachés"
+

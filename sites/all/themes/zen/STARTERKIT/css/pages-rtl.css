@@ -1,0 +1,22 @@
+/* $Id: pages-rtl.css,v 1.3 2009/08/12 21:41:11 johnalbin Exp $ */
+
+/**
+ * @file
+ * RTL companion for the pages.css file.
+ */
+
+
+/*
+ * Header
+ */
+#logo /* Wrapping link for logo */ {
+  float: right;
+  margin: 0 0 0 10px;
+}
+
+/*
+ * Content
+ */
+.more-link /* Aggregator, blog, and forum more link */ {
+  text-align: left;
+}

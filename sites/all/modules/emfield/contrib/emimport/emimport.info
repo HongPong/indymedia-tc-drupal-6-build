@@ -1,0 +1,13 @@
+; $Id: emimport.info,v 1.1.4.4 2008/07/18 20:02:24 alexua Exp $
+name = Embedded Media Import
+core = 5.x
+description = Please use FeedAPI and the Feed API Element Mapper instead of emimport, which has been deprecated for Drupal 6.
+dependencies[] = emfield
+package = CCK
+
+; Information added by drupal.org packaging script on 2009-08-25
+version = "6.x-1.4"
+core = "6.x"
+project = "emfield"
+datestamp = "1251169832"
+

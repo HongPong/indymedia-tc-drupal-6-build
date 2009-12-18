@@ -1,0 +1,659 @@
+# $Id: uk.po,v 1.5 2009/07/17 17:50:03 soxofaan Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  captcha.admin.inc,v 1.5.2.6 2008/03/29 17:20:25 soxofaan
+#  image_captcha.admin.inc,v 1.3.2.1 2008/04/06 15:27:27 soxofaan
+#  captcha.module,v 1.58.2.6 2008/04/07 22:25:45 soxofaan
+#  captcha.info,v 1.5 2007/10/27 18:24:50 robloach
+#  image_captcha.user.inc,v 1.3.2.1 2008/04/06 15:27:27 soxofaan
+#  image_captcha.module,v 1.8.2.2 2008/04/07 22:25:45 soxofaan
+#  captcha.install,v 1.3.2.2 2008/03/20 10:27:53 soxofaan
+#  image_captcha.info,v 1.3 2007/12/11 12:05:32 soxofaan
+#  text_captcha.info,v 1.3 2008/01/04 14:29:58 soxofaan
+#  text_captcha.admin.inc,v 1.1 2008/01/04 14:29:58 soxofaan
+#  text_captcha.user.inc,v 1.1 2008/01/04 14:29:58 soxofaan
+#  text_captcha.module,v 1.3.2.2 2008/04/07 22:25:46 soxofaan
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Captcha uk Ukrainian Translation\n"
+"POT-Creation-Date: 2009-05-16 17:44+0300\n"
+"PO-Revision-Date: 2009-05-16 18:47+0300\n"
+"Last-Translator: Andriy Podanenko <podarok@ua.fm>\n"
+"Language-Team: uk <podarok@ua.fm>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?0:(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?1:2));\n"
+"X-Poedit-Language: Ukrainian\n"
+"X-Poedit-Country: UKRAINE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: captcha.admin.inc:13
+#: image_captcha/image_captcha.admin.inc:116;138
+msgid "none"
+msgstr "нічого"
+
+#: captcha.admin.inc:32;42
+#: captcha.module:39
+msgid "Add CAPTCHA administration links to forms"
+msgstr "Додати CAPTCHA адміністративні посилання до форм"
+
+#: captcha.admin.inc:34
+msgid "This option is very helpful to enable/disable challenges on forms. When enabled, users with the \"%admincaptcha\" permission will see CAPTCHA administration links on all forms (except on administrative pages, which shouldn't be accessible to untrusted users in the first place). These links make it possible to enable a challenge of the desired type or disable it."
+msgstr "Дана функциональність дуже корисна на перших порах налагодження вебсайтів. Коли увімкнена - користувачі з \"%admincaptcha\" доступом будуть бачити спеціальні посилання біля всіх форм, що дозволить швидко увімкнути-вимкнути капчу саме в потрібних місцях сайту. "
+
+#: captcha.admin.inc:34
+#: captcha.module:100
+msgid "administer CAPTCHA settings"
+msgstr "керування параметрами CAPTCHA"
+
+#: captcha.admin.inc:39
+msgid "Challenge type per form"
+msgstr "Типи в залежності від форм"
+
+#: captcha.admin.inc:41
+msgid "Select the challenge type you want for each of the listed forms (identified by their so called <em>form_id</em>'s). You can easily add arbitrary forms with the help of the '%CAPTCHA_admin_links' option or the <a href=\"!add_captcha_point\">the CAPTCHA point form</a>."
+msgstr "Виберіть тип запитання, яке ви бажаєте відображати на перерахованих формах ( ідентифікатори - так звані <em>form_id</em> ). Ви можете легко і просто додати будь-які форми з допомогою '%CAPTCHA_admin_links' параметру або <a href=\"!add_captcha_point\">CAPTCHA point форми</a>."
+
+#: captcha.admin.inc:65
+msgid "delete"
+msgstr "стерти"
+
+#: captcha.admin.inc:74;89
+msgid "Challenge description"
+msgstr "Опис типу капчі"
+
+#: captcha.admin.inc:75;90
+msgid "With this description you can explain the purpose of the challenge to the user."
+msgstr "Цей опис пояснюватиме користувачу вимогу виконання капчі."
+
+#: captcha.admin.inc:80
+msgid "For language %lang_name (code %lang_code)"
+msgstr "Для мови %lang_name ( код %lang_code )"
+
+#: captcha.admin.inc:98
+msgid "Persistence"
+msgstr "Стійкість"
+
+#: captcha.admin.inc:101
+msgid "Always add a challenge."
+msgstr "Завжди вмикати капчу"
+
+#: captcha.admin.inc:102
+msgid "Omit challenges for a form once the user has successfully responded to a challenge for that form."
+msgstr "Вмикати капчу для форми лише один раз до моменту правильної відповіді користувача."
+
+#: captcha.admin.inc:103
+msgid "Omit challenges for all forms once the user has successfully responded to a challenge."
+msgstr "Вмикати капчу для всіх форм лише один раз до моменту правильної видповіді користувача"
+
+#: captcha.admin.inc:105
+msgid "Define if challenges should be omitted during the rest of a session once the user successfully responses to a challenge."
+msgstr "Вказуєм чи потрібно вмикати капчу протягом подальшої сесії користувача після правильної відповіді одного разу"
+
+#: captcha.admin.inc:110
+msgid "Log wrong responses"
+msgstr "Логувати неправильні відповіді"
+
+#: captcha.admin.inc:111
+msgid "Report information about wrong responses to the !log."
+msgstr "Записувати інформацію про неправильні відповіді в !log"
+
+#: captcha.admin.inc:111
+msgid "log"
+msgstr "лог"
+
+#: captcha.admin.inc:117;227
+msgid "Save"
+msgstr "Зберегти"
+
+#: captcha.admin.inc:135
+msgid "Challenge type (module)"
+msgstr "Тип капчі ( субмобуль )"
+
+#: captcha.admin.inc:135
+msgid "Operations"
+msgstr "Дії"
+
+#: captcha.admin.inc:166
+msgid "The CAPTCHA settings were saved."
+msgstr "Параметри капчі було збережено"
+
+#: captcha.admin.inc:195;210
+msgid "Form ID"
+msgstr "Ідентифікатор форми"
+
+#: captcha.admin.inc:196;211
+msgid "The Drupal form_id of the form to add the CAPTCHA to."
+msgstr "Ідентифікатор форми form_id Друпала, до якого застосувати капчу"
+
+#: captcha.admin.inc:217
+msgid "Challenge type"
+msgstr "Тип капчі"
+
+#: captcha.admin.inc:218
+msgid "The CAPTCHA type to use for this form"
+msgstr "Тип капчі, що використовувати до цієї форми"
+
+#: captcha.admin.inc:237
+msgid "Illegal form_id"
+msgstr "Некоректний form_id"
+
+#: captcha.admin.inc:255
+msgid "Saved CAPTCHA point settings."
+msgstr "Збережено параметри балів капчі"
+
+#: captcha.admin.inc:272
+msgid "Are you sure you want to delete the CAPTCHA for form_id %form_id?"
+msgstr "Ви впевнені щодо видалення капчі для ідентифікатора форми form_id = %form_id ?"
+
+#: captcha.admin.inc:273
+msgid "Delete"
+msgstr "Стерти"
+
+#: captcha.admin.inc:276
+msgid "Are you sure you want to disable the CAPTCHA for form_id %form_id?"
+msgstr "Ви впевнені щодо вимкнення капчі для ідентифікатора форми form_id = %form_id ?"
+
+#: captcha.admin.inc:277
+msgid "Disable"
+msgstr "Вимкнути"
+
+#: captcha.admin.inc:290
+msgid "Deleted CAPTCHA for form %form_id."
+msgstr "Видалено капчу для форми %form_id."
+
+#: captcha.admin.inc:294
+msgid "Disabled CAPTCHA for form %form_id."
+msgstr "Вимкнено капчу для форми %form_id."
+
+#: captcha.admin.inc:320
+msgid "This page gives an overview of all available challenge types, generated with their current settings."
+msgstr "Ця сторінка надає опис всіх доступних типів капчі, згенерованих теперішніми параметрами."
+
+#: captcha.admin.inc:331
+msgid "Challenge \"%challenge\" by module \"%module\""
+msgstr "Капча \"%challenge\" модуля \"%module\""
+
+#: captcha.admin.inc:334
+msgid "10 more examples of this challenge."
+msgstr "Ще 10 прикладів даного типу капчі"
+
+#: captcha.module:24
+msgid "\"CAPTCHA\" is an acronym for \"Completely Automated Public Turing test to tell Computers and Humans Apart\". It is typically a challenge-response test to determine whether the user is human. The CAPTCHA module is a tool to fight automated submission by malicious users (spamming) of for example comments forms, user registration forms, guestbook forms, etc. You can extend the desired forms with an additional challenge, which should be easy for a human to solve correctly, but hard enough to keep automated scripts and spam bots out."
+msgstr "CAPTCHA (англ. «completely automated public turing test to tell computers and humans apart» — повністю автоматизований публічний тест Тюринга для розрізнення комп'ютерів і людей) — торгова марка Університет Карнегі — Меллона, комп'ютерний тест, який використовується для того, щоб визначити, хто використовує систему — людина чи комп'ютер. Термін з'явився в 2000 році. "
+
+#: captcha.module:25
+msgid "Note that the CAPTCHA module interacts with page caching (see <a href=\"!performancesettings\">performance settings</a>). Because the challenge should be unique for each generated form, the caching of the page it appears on is prevented. Make sure that these forms do not appear on too many pages or you will lose much caching efficiency. For example, if you put a CAPTCHA on the user login block, which typically appears on each page for anonymous visitors, caching will practically be disabled. The comment submission forms are another example. In this case you should set the \"%commentlocation\" to \"%separatepage\" in the comment settings of the relevant <a href=\"!contenttypes\">content types</a> for better caching efficiency."
+msgstr ""
+
+#: captcha.module:28
+msgid "Location of comment submission form"
+msgstr "Розміщення форми подання коментаря"
+
+#: captcha.module:29
+msgid "Display on separate page"
+msgstr "Показувати на окремій сторінці"
+
+#: captcha.module:33
+msgid "CAPTCHA is a trademark of Carnegie Mellon University."
+msgstr "CAPTCHA is a trademark of Carnegie Mellon University."
+
+#: captcha.module:38
+msgid "A CAPTCHA can be added to virtually each Drupal form. Some default forms are already provided in the form list, but arbitrary forms can be easily added and managed when the option \"%adminlinks\" is enabled."
+msgstr ""
+
+#: captcha.module:40
+msgid "Users with the \"%skipcaptcha\" <a href=\"@perm\">permission</a> won't be offered a challenge. Be sure to grant this permission to the trusted users (e.g. site administrators). If you want to test a protected form, be sure to do it as a user without the \"%skipcaptcha\" permission (e.g. as anonymous user)."
+msgstr ""
+
+#: captcha.module:41;100
+msgid "skip CAPTCHA"
+msgstr "обхід капчі"
+
+#: captcha.module:136
+msgid "This question is for testing whether you are a human visitor and to prevent automated spam submissions."
+msgstr "Дайте відповідь на це запитання, щоб ми знали що ви людина, а не тупий робот )."
+
+#: (duplicate) captcha.module:215;283;112
+#: ;202;344;53;64 captcha.info:0
+#: image_captcha/image_captcha.user.inc:28
+#: image_captcha/image_captcha.module:92
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
+
+#: captcha.module:288
+msgid "Untrusted users will see a CAPTCHA here (!settings)."
+msgstr ""
+
+#: captcha.module:289
+msgid "general CAPTCHA settings"
+msgstr "головні параметри капчі"
+
+#: captcha.module:293
+msgid "Enabled challenge"
+msgstr "Ввімкнена капча"
+
+#: captcha.module:294
+msgid "\"@type\" by module \"@module\" (!change, !disable)"
+msgstr ""
+
+#: captcha.module:297
+msgid "change"
+msgstr "зміна"
+
+#: captcha.module:298
+msgid "disable"
+msgstr "вимкнути"
+
+#: captcha.module:304
+msgid "Place a CAPTCHA here for untrusted users."
+msgstr "Вставляти Капчу тут для недовірених користувачів"
+
+#: captcha.module:330
+msgid "Invalid CAPTCHA token."
+msgstr "Неправильна Капча"
+
+#: captcha.module:339
+msgid "The answer you entered for the CAPTCHA was not correct."
+msgstr "ВІдповідь, введена вами для Капчі - некоректна"
+
+#: captcha.module:452
+msgid "Math Question"
+msgstr "Математичне завдання"
+
+#: captcha.module:453
+msgid "Solve this simple math problem and enter the result. E.g. for 1+3, enter 4."
+msgstr "Розв'яжіть цю просту задачку і введіть відповідь. Наприклад, для 1+3 введіть 4."
+
+#: captcha.module:454
+msgid "@x + @y = "
+msgstr "@x + @y = "
+
+#: (duplicate) captcha.module:113
+msgid "Already @counter blocked form submissions"
+msgstr "Вже блоковано @counter некоректних відповідей на капчу"
+
+#: captcha.module:202
+msgid "CAPTCHA problem: hook_captcha() of module %module returned nothing when trying to retrieve challenge type %type for form %form_id."
+msgstr ""
+
+#: captcha.module:344
+msgid "%form_id post blocked by CAPTCHA module: challenge \"%challenge\" (by module \"%module\"), user answered \"%response\", but the solution was \"%solution\"."
+msgstr ""
+
+#: captcha.module:54
+msgid "Administer how and where CAPTCHAs are used."
+msgstr ""
+
+#: captcha.module:70
+msgid "General settings"
+msgstr "Загальні налаштування"
+
+#: captcha.module:76
+msgid "Examples"
+msgstr "Приклади"
+
+#: captcha.module:77
+msgid "An overview of the available challenge types with examples."
+msgstr ""
+
+#: captcha.module:86
+msgid "CAPTCHA point adminstration"
+msgstr "Адміністрування балів капчі"
+
+#: captcha.module:0
+msgid "captcha"
+msgstr "капча"
+
+#: captcha.install:41
+msgid "You can now <a href=\"!captcha_admin\">configure the CAPTCHA module</a> for your site."
+msgstr ""
+
+#: captcha.install:82
+msgid "Unsupported database."
+msgstr "База даних не підтримується!"
+
+#: captcha.info:0
+msgid "Base CAPTCHA module for adding challenges to arbitrary forms."
+msgstr ""
+
+#: captcha.info:0
+#: image_captcha/image_captcha.info:0
+#: text_captcha/text_captcha.info:0
+msgid "Spam control"
+msgstr "КОнтроль спаму"
+
+#: image_captcha/image_captcha.admin.inc:8
+msgid "Built-in font"
+msgstr "Вбудований шрифт"
+
+#: image_captcha/image_captcha.admin.inc:26
+msgid "Images cannot be generated, because your PHP installation's GD library has no JPEG support."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:31
+msgid "Code settings"
+msgstr "Параметри коду"
+
+#: image_captcha/image_captcha.admin.inc:35
+msgid "Characters to use in the code"
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:40
+msgid "Code length"
+msgstr "Довжина коду"
+
+#: image_captcha/image_captcha.admin.inc:43
+msgid "The code length influences the size of the image. Note that larger values make the image generation more CPU intensive."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:49
+msgid "Font settings"
+msgstr "Параметри шрифтів"
+
+#: image_captcha/image_captcha.admin.inc:55
+msgid "Font"
+msgstr "Шрифт"
+
+#: image_captcha/image_captcha.admin.inc:57
+msgid "The TrueType font (.ttf) to use for the text in the image CAPTCHA."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:66
+msgid "Font size"
+msgstr "Розмір шрифта"
+
+#: image_captcha/image_captcha.admin.inc:68
+msgid "tiny"
+msgstr "дрібний"
+
+#: image_captcha/image_captcha.admin.inc:69;84;117
+msgid "small"
+msgstr "малий"
+
+#: image_captcha/image_captcha.admin.inc:70;85;141;179
+msgid "normal"
+msgstr "нормальний"
+
+#: image_captcha/image_captcha.admin.inc:71;86
+msgid "large"
+msgstr "великий"
+
+#: image_captcha/image_captcha.admin.inc:74
+msgid "The font size influences the size of the image. Note that larger values make the image generation more CPU intensive."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:80
+msgid "Character spacing"
+msgstr "Пропуски між символами"
+
+#: image_captcha/image_captcha.admin.inc:81
+msgid "Define the average spacing between characters. Note that larger values make the image generation more CPU intensive."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:93
+msgid "Color settings"
+msgstr "Параметри кольору"
+
+#: image_captcha/image_captcha.admin.inc:94
+msgid "Configuration of the background and text colors in the image CAPTCHA."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:98
+msgid "Background color"
+msgstr "Колір фону"
+
+#: image_captcha/image_captcha.admin.inc:99
+msgid "Enter the hexadecimal code for the background color (e.g. #FFF or #FFCE90)."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:106
+msgid "Text color"
+msgstr "Колір тексту"
+
+#: image_captcha/image_captcha.admin.inc:107
+msgid "Enter the hexadecimal code for the text color (e.g. #000 or #004283)."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:114
+msgid "Additional variation of text color"
+msgstr "Додаткові варіанти кольорів тексту"
+
+#: image_captcha/image_captcha.admin.inc:118;140
+msgid "moderate"
+msgstr "керувати"
+
+#: image_captcha/image_captcha.admin.inc:119;142;180
+msgid "high"
+msgstr "високо"
+
+#: image_captcha/image_captcha.admin.inc:120
+msgid "very high"
+msgstr "дуже високо"
+
+#: image_captcha/image_captcha.admin.inc:123
+msgid "The different characters will have randomized colors in the specified range around the text color."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:130
+msgid "Distortion and noise"
+msgstr "Розмивання та шум"
+
+#: image_captcha/image_captcha.admin.inc:131
+msgid "With these settings you can control the degree of obfuscation by distortion and added noise. Do not exaggerate the obfuscation and assure that the code in the image is reasonably readable. For example, do not combine high levels of distortion and noise."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:136
+msgid "Distortion level"
+msgstr "Рівень розмивання"
+
+#: image_captcha/image_captcha.admin.inc:139;178
+msgid "low"
+msgstr "низько"
+
+#: image_captcha/image_captcha.admin.inc:143;181
+msgid "severe"
+msgstr "середньо"
+
+#: image_captcha/image_captcha.admin.inc:146
+msgid "Set the degree of wave distortion in the image."
+msgstr "Встановити процент хвильового розмивання картинки"
+
+#: image_captcha/image_captcha.admin.inc:150
+msgid "Smooth distortion"
+msgstr "М'яке розмивання"
+
+#: image_captcha/image_captcha.admin.inc:152
+msgid "This option enables bilineair interpolation of the distortion which makes the image look smoother, but it is more CPU intensive."
+msgstr "Цей параметр вмикає білінійну інтерполяцію розмивання що робить картинку більш розмитою, але це створює більше навантаження на процесор!"
+
+#: image_captcha/image_captcha.admin.inc:157
+msgid "Double vision"
+msgstr "Подвійне відображення"
+
+#: image_captcha/image_captcha.admin.inc:159
+msgid "When enabled, characters appear twice in the image, overlayed onto each other."
+msgstr "Якщо увімкнено, символи малюються двічі на картинці, один над одним"
+
+#: image_captcha/image_captcha.admin.inc:164
+msgid "Add salt and peper noise"
+msgstr "Додати шум \"сіль і перець\""
+
+#: image_captcha/image_captcha.admin.inc:166
+msgid "This option adds randomly colored point noise."
+msgstr "Цей параметр додає випадкові кольорові точки шуму"
+
+#: image_captcha/image_captcha.admin.inc:170
+msgid "Add line noise"
+msgstr "Додати лінійний шум"
+
+#: image_captcha/image_captcha.admin.inc:172
+msgid "This option enables lines randomly drawn on top of the text code."
+msgstr "Цей параметр вмикає лінії, випадково намальовані поверх тексту"
+
+#: image_captcha/image_captcha.admin.inc:176
+msgid "Noise level"
+msgstr "Рівень шуму"
+
+#: image_captcha/image_captcha.admin.inc:194
+msgid "The image captcha module works best with a TrueType font file (TTF) for generating the images, but because of licencing issues it is not allowed to package fonts with the module. A simple built-in bitmap font is provided as default instead. You can install TrueType fonts yourself by putting them in the fonts directory of the image captcha module (directory \"%fontsdir\") or by uploading them to your Drupal file system (directory \"%filesdir\") with for example the upload module."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:197
+msgid "The usage of the built-in bitmap font it is not recommended because of its small size and missing UTF-8 support."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:208
+msgid "The list of characters to use should not contain spaces."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:213
+msgid "You need to select a font"
+msgstr "Вам потрібно обрати шрифт"
+
+#: image_captcha/image_captcha.admin.inc:216
+msgid "Font does not exist or is not readable."
+msgstr "Шрифт недоступний або нечитаємий"
+
+#: image_captcha/image_captcha.admin.inc:221
+msgid "Background color is not a valid hexadecimal color value."
+msgstr ""
+
+#: image_captcha/image_captcha.admin.inc:224
+msgid "Text color is not a valid hexadecimal color value."
+msgstr ""
+
+#: image_captcha/image_captcha.user.inc:28
+msgid "Generation of image CAPTCHA failed. Check your image CAPTCHA configuration and especially the used font."
+msgstr ""
+
+#: image_captcha/image_captcha.module:16
+msgid "The image CAPTCHA is a popular challenge where a random textual code is obfuscated in an image. The image is generated on the fly for each request, which is rather CPU intensive for the server. Be carefull with the size and computation related settings."
+msgstr ""
+
+#: image_captcha/image_captcha.module:20
+msgid "<p>Example image, generated with the current settings:</p>!img"
+msgstr ""
+
+#: image_captcha/image_captcha.module:140;140;33
+#: image_captcha/image_captcha.info:0
+msgid "Image CAPTCHA"
+msgstr "Фото Капча"
+
+#: image_captcha/image_captcha.module:145
+msgid "What code is in the image?"
+msgstr "Які символи ви бачите на малюнку?"
+
+#: image_captcha/image_captcha.module:146
+msgid "Copy the characters (respecting upper/lower case) from the image."
+msgstr "Впишіть символи із зображення ('а' та 'А' - це різні символи)."
+
+#: image_captcha/image_captcha.module:92
+msgid "Encountered an illegal byte while splitting an utf8 string in characters."
+msgstr ""
+
+#: image_captcha/image_captcha.module:0
+msgid "image_captcha"
+msgstr "image_captcha"
+
+#: image_captcha/image_captcha.info:0
+msgid "Provides an image based CAPTCHA."
+msgstr ""
+
+#: text_captcha/text_captcha.admin.inc:13
+msgid "Kind of words to use in the phrase"
+msgstr ""
+
+#: text_captcha/text_captcha.admin.inc:15
+msgid "Generate nonsense random words."
+msgstr ""
+
+#: text_captcha/text_captcha.admin.inc:16
+msgid "Use user defined words."
+msgstr "Використовувати слова, зазначені користувачем"
+
+#: text_captcha/text_captcha.admin.inc:23
+msgid "User defined words"
+msgstr "Користувацькі слова"
+
+#: text_captcha/text_captcha.admin.inc:25
+msgid "Enter a bunch of space separated words (at least @min)."
+msgstr ""
+
+#: text_captcha/text_captcha.admin.inc:30
+msgid "Number of words in the phrase"
+msgstr ""
+
+#: text_captcha/text_captcha.admin.inc:48
+msgid "You need to enter at least @min words if you want to use user defined words."
+msgstr ""
+
+#: text_captcha/text_captcha.admin.inc:57
+msgid "Number of words in the phrase should be between 4 and 10."
+msgstr ""
+
+#: text_captcha/text_captcha.user.inc:51
+msgid "first"
+msgstr "перший"
+
+#: text_captcha/text_captcha.user.inc:51
+msgid "second"
+msgstr "другий"
+
+#: text_captcha/text_captcha.user.inc:51
+msgid "third"
+msgstr "третій"
+
+#: text_captcha/text_captcha.user.inc:52
+msgid "fourth"
+msgstr "четвертий"
+
+#: text_captcha/text_captcha.user.inc:52
+msgid "fifth"
+msgstr "п'ятий"
+
+#: text_captcha/text_captcha.user.inc:52
+msgid "sixth"
+msgstr "шостий"
+
+#: text_captcha/text_captcha.user.inc:52
+msgid "seventh"
+msgstr "сьомий"
+
+#: text_captcha/text_captcha.user.inc:53
+msgid "eighth"
+msgstr "восьмий"
+
+#: text_captcha/text_captcha.user.inc:53
+msgid "ninth"
+msgstr "дев'ятий"
+
+#: text_captcha/text_captcha.user.inc:53
+msgid "tenth"
+msgstr "десятий"
+
+#: text_captcha/text_captcha.module:18
+msgid "In this challenge the visitor is asked for the n<sup>th</sup> word of a given phrase."
+msgstr "В даній капчі користувач зобов'язаний написати порядкове слово з цілої фрази"
+
+#: text_captcha/text_captcha.module:59
+msgid "What is the @nth word in the phrase \"@words\"?"
+msgstr "Напишіть @nth слово в фразі \"@words\""
+
+#: text_captcha/text_captcha.module:28
+#: text_captcha/text_captcha.info:0
+msgid "Text CAPTCHA"
+msgstr "Текстова Капча"
+
+#: text_captcha/text_captcha.module:0
+msgid "text_captcha"
+msgstr "text_captcha"
+
+#: text_captcha/text_captcha.info:0
+msgid "Provides a simple text based CAPTCHA."
+msgstr "Надає просту текстову капчу"
+

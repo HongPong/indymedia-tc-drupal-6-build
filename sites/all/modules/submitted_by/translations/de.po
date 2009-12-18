@@ -1,0 +1,64 @@
+# German translation of submitted_by (6.x-1.2)
+# Copyright (c) 2009 by the German translation team
+# Generated from files:
+#  submitted_by.module,v 1.5 2009/02/04 00:58:21 nancyw
+#  submitted_by.info,v 1.1 2008/06/09 02:22:01 eaton
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: submitted_by (6.x-1.2)\n"
+"POT-Creation-Date: 2009-03-25 17:47+0100\n"
+"PO-Revision-Date: 2009-03-25 17:47+0100\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Last-Translator: TobiasB <info@tobiasbaehr.de>\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+
+#: submitted_by.module:106,124
+msgid "Submitted by !username on @datetime"
+msgstr "Verfasst von !username am @datetime"
+
+#: submitted_by.module:38,74
+msgid "\"Submitted by\" Appearance"
+msgstr "„Verfasst von“ Erscheinung"
+
+#: submitted_by.module:43,79
+msgid "'Submitted by...' text"
+msgstr "„Verfasst von“ Text"
+
+#: submitted_by.module:45
+msgid "When a comment is displayed, text in this box will be used to override the normal attribution and date-posted text."
+msgstr "Wenn ein Kommentar angezeigt wird, wird der Text in dieser Box verwendet werden, um den Text der normalen Autor und Datumsangaben zu überschreiben."
+
+#: submitted_by.module:51,87
+msgid "Replacement tokens"
+msgstr "Ersetzungsmuster"
+
+#: submitted_by.module:52,88
+msgid "The following tokens can be used in the Submitted By... text. They will be replaced with the appropriate values."
+msgstr "Die folgenden Tokens können für den „Verfasst von...“ Text verwendet werden. Diese werden dann mit den entsprechenden Werten ersetzt."
+
+#: submitted_by.module:81
+msgid "When a node is displayed, text in this box will be used to override the normal attribution and date-posted text."
+msgstr "Wenn ein Beitrag angezeigt wird, wird der Text in dieser Box verwendet werden, um den Text der normalen Autor und Datumsangaben zu überschreiben."
+
+#: submitted_by.module:151
+msgid "Link to author"
+msgstr "Link zum Autor"
+
+#: submitted_by.module:0
+msgid "submitted_by"
+msgstr "submitted_by"
+
+#: submitted_by.info:0
+msgid "Submitted By"
+msgstr "Verfasst von"
+
+#: submitted_by.info:0
+msgid "Customize the <em>Submitted by username on date</em> text on a per-nodetype basis."
+msgstr "Anpassung des „<em>Verfasst von Benutzername am Datum</em>“ Text je Inhaltstyp."
+

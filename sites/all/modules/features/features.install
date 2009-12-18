@@ -1,0 +1,18 @@
+<?php
+// $Id: features.install,v 1.1 2009/03/13 21:59:23 yhahn Exp $
+
+/**
+ * Implementaton of hook_install().
+ */
+function features_install() {
+  _features_install_menu();
+  db_query("UPDATE {system} SET weight = 20 WHERE name = 'features' AND type = 'module'");
+}
+
+/**
+ * Create menu. See menu.install for an example.
+ */
+function _features_install_menu() {
+  $t = get_t();
+  db_query("INSERT INTO {menu_custom} (menu_name, title, description) VALUES ('%s', '%s', '%s')", 'features', $t('Features'), $t('Menu items for any enabled features.'));
+}

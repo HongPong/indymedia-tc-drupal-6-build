@@ -1,0 +1,9 @@
+name = Vertical Tabs
+description = Provides vertical tabs for the node form.
+core = 6.x
+; Information added by drupal.org packaging script on 2009-08-23
+version = "6.x-1.0-beta4"
+core = "6.x"
+project = "vertical_tabs"
+datestamp = "1251002152"
+

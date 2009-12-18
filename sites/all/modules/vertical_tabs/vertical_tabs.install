@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function vertical_tabs_install() {
+  // Make this module pretty heavy.
+  db_query("UPDATE {system} SET weight = 300 WHERE name = 'vertical_tabs'");
+
+  // Generate color stylesheet.
+  vertical_tabs_install_color_generate();
+}
+
+/**
+ * Reduce the module weight and remove the form settings variable.
+ */
+function vertical_tabs_update_6100() {
+  $ret = array();
+  $ret[] = update_sql("UPDATE {system} SET weight = 300 WHERE name = 'vertical_tabs'");
+  variable_del('vertical_tabs_settings_form');
+  return $ret;
+}
+
+/**
+ * Color-enable the module if using Garland.
+ */
+function vertical_tabs_update_6101() {
+  vertical_tabs_install_color_generate();
+  return array();
+}
+
+/**
+ * Regenerate the stylesheets if using Garland to accomidate for CSS changes.
+ */
+function vertical_tabs_update_6102() {
+  vertical_tabs_install_color_generate();
+  return array();
+}
+
+/**
+ * Initialize the color-enabled stylesheet if using Garland.
+ */
+function vertical_tabs_install_color_generate() {
+  if (variable_get('theme_default', 'garland') == 'garland' || variable_get('admin_theme', '0') == 'garland') {
+    if (module_exists('color')) {
+      $theme = 'garland';
+      $info = color_get_info($theme);
+      $palette = color_get_palette($theme);
+      drupal_load('module', 'vertical_tabs');
+      vertical_tabs_generate_stylesheet('garland', $info, $palette);
+    }
+  }
+}

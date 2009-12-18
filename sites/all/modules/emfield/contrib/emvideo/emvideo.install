@@ -1,0 +1,267 @@
+<?php
+// $Id: emvideo.install,v 1.1.2.17 2009/08/25 02:32:04 aaron Exp $
+
+/**
+ * @file
+ * Installation, configuration, and removal of the emvideo module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function emvideo_install() {
+  // Build any necessary tables.
+  drupal_load('module', 'content');
+  content_notify('install', 'emvideo');
+
+  // Fix up our mess from video_cck, if necessary.
+  return _emvideo_upgrade_from_video_cck();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function emvideo_uninstall() {
+  drupal_load('module', 'content');
+  content_notify('uninstall', 'emvideo');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function emvideo_enable() {
+  drupal_load('module', 'content');
+  content_notify('enable', 'emvideo');
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function emvideo_disable() {
+  drupal_load('module', 'content');
+  content_notify('disable', 'emvideo');
+}
+
+/**
+ *  Implementation of hook_requirements().
+ */
+// function emvideo_requirements($phase) {
+//   $requirements = array();
+//   // Ensure translations don't break at install time
+//   $t = get_t();
+//
+//   if ($phase == 'install') {
+//     if (drupal_get_installed_schema_version('content') < 6000) {
+//       drupal_set_message($t("Some updates are still pending. Please return to !update and run the remaining updates.", array('!update' => l($t('update.php'), 'update.php', array('query' => 'op=selection')))), 'warning');
+//       $requirements['cck'] = array(
+//         'title' => $t('CCK'),
+//         'description' => $t('Updates for content.module need to be run first.<br/>Please re-run the update script.'),
+//         'severity' => REQUIREMENT_ERROR,
+//       );
+//     }
+//   }
+//
+//   return $requirements;
+// }
+
+/**
+ *  Clean up our messes when migrating from video_cck.
+ */
+function _emvideo_upgrade_from_video_cck() {
+  $ret = array();
+
+  // Do nothing if this is a new install. We know that if there are no existing fields with video_cck type.
+  // if ($__TODO_REPLACE_WITH_PROPER_CHECK) {
+  //  return $ret;
+  // }
+
+
+  // Change any fields from 'video_cck' to 'emvideo' type.
+  db_query("UPDATE {content_node_field} SET type='emvideo' WHERE type='video_cck'");
+  db_query("UPDATE {content_node_field_instance} SET widget_type='emvideo_textfields' WHERE widget_type='video_cck_textfields'");
+
+
+  // Rebuild our content types.
+  content_clear_type_cache();
+
+  // Make sure the previous updates have been run. Some people may have been holding onto a really old version.
+  // On the one hand, we could tell them on the project page not to do that. But then we get to hear them complain
+  // in the issue queue. We're already half way there; I'd rather just take care of it.
+
+  // Load our existing fields.
+  $fields = content_fields();
+
+  // Some lazy folks may be upgrading from a pre-video_cck_update_2 site. Bad developer, bad!
+  // @TODO: decide if we want to figure this out or force people to update entirely in d5 first...
+//   foreach ($fields as $field) {
+//     switch ($field['type']) {
+//       case 'emvideo':
+//         $columns = array(
+//           'data' => array('type' => 'longtext', 'not null' => TRUE, 'default' => "''", 'sortable' => FALSE),
+//         );
+//         // The following line will actually trigger (negligible) warnings if we did things right.
+//         // Thus we suppress the warnings. Good developer, good!
+//         @content_alter_db_field(array(), array(), $field, $columns);
+//       break;
+//     }
+//   }
+
+  // Fix any provider variables. Note that we may be updating from a pre video_cck_update_3 site,
+  // so we fix those sites too. Shame on them for not updating d5 first...
+  drupal_load('module', 'emfield');
+  foreach (emfield_system_list('emvideo') as $provider) {
+    $test = variable_get('emfield_video_cck_allow_'. $provider->name, NULL);
+    $test = (isset($test)) ? $test : variable_get('video_cck_allow_'. $provider->name, NULL);
+    if (isset($test)) {
+      variable_set('emfield_emvideo_allow_'. $provider->name, $test);
+      variable_del('emfield_video_cck_allow_'. $provider->name);
+      variable_del('video_cck_allow_'. $provider->name);
+    }
+  }
+
+  // </Fancy Hand-Waving>
+  return TRUE;
+}
+
+/**
+ * We need to make sure to show our new 'embed code' filter on Views.
+ */
+function emvideo_update_1() {
+  return _emvideo_update_reset_cache();
+}
+
+/**
+ * We need a new data field for extra info stored by certain providers, such as blip.tv.
+ */
+function emvideo_update_2() {
+  $ret = array();
+
+  include_once('./'. drupal_get_path('module', 'content') .'/content.module');
+  include_once('./'. drupal_get_path('module', 'content') .'/includes/content.admin.inc');
+
+  content_clear_type_cache();
+  $fields = content_fields();
+
+  foreach ($fields as $field) {
+    switch ($field['type']) {
+      case 'emvideo':
+        $columns = array(
+          'data' => array('type' => 'longtext', 'not null' => TRUE, 'default' => "''", 'sortable' => FALSE),
+        );
+        // the following line will trigger (negligible) warnings if emvideo_update_2 was run before
+        // (column already exists)
+        @content_alter_db_field(array(), array(), $field, $columns);
+      break;
+    }
+  }
+  $ret = _emvideo_update_reset_cache();
+  $ret[] = update_sql("DELETE FROM {cache}");
+
+  return $ret;
+}
+
+function _emvideo_update_reset_cache() {
+  $ret = _emvideo_update_reset_cache_views();
+  $ret[] = update_sql("DELETE FROM {cache_content}");
+
+  return $ret;
+}
+
+/**
+ * Since we made our engine dependent on emfield, we need to change some variables accordingly.
+ */
+function emvideo_update_3() {
+  $ret = array();
+  foreach (emfield_system_list('emvideo') as $provider) {
+    // TODO: this will need some attention when we upgrade to d6
+    $test = variable_get('emvideo_allow_'. $provider->name, NULL);
+
+    if (isset($test)) {
+      variable_set('emfield_'. $module .'_allow_'. $provider->name, variable_get('emvideo_allow_'. $provider->name, TRUE));
+    }
+  }
+  $ret[] = array(
+    'query' => t('The Embedded Video Field allowed provider variables have been updated.'),
+    'success' => TRUE
+  );
+  $ret = array_merge($ret, _emvideo_update_reset_cache());
+
+  // now we need to depend on emfield's menu. remove our old admin menu path
+  menu_rebuild();
+
+  return $ret;
+}
+
+/**
+ * Oops. Cleanup from update 3 -- we don't want to accidentally reset our
+ * variables if we have to run update 3 again.
+ */
+function emvideo_update_4() {
+  $ret = array();
+  foreach (emfield_system_list('emvideo') as $provider) {
+    // TODO: this will need some attention when we upgrade to d6
+    $test = variable_get('emvideo_allow_'. $provider->name, NULL);
+    if (isset($test)) {
+      variable_set('emvideo_allow_'. $provider->name, NULL);
+    }
+  }
+  $ret[] = array(
+    'query' => t('The old Embedded Video Field allowed provider variables have been cleaned up.'),
+    'success' => TRUE
+  );
+
+  return $ret;
+}
+
+/**
+ * Changed the data structure for blip.tv
+ *
+ * TODO: This doesn't work. Thought data was cached?
+ */
+function emvideo_update_5() {
+  $ret = _emvideo_update_reset_cache();
+  $ret[] = update_sql("DELETE FROM {cache}");
+
+  return $ret;
+}
+
+function emvideo_update_6() {
+  $ret = _emvideo_update_reset_cache_views();
+
+  return $ret;
+}
+
+function emvideo_update_6001() {
+  // We added the archive.org provider file, so need to rebuild the theme.
+  drupal_rebuild_theme_registry();
+
+  $ret[] = array(
+    'query' => t('Rebuilt the theme to accommodate new third party video providers.'),
+    'success' => TRUE
+  );
+
+  return $ret;
+}
+
+function emvideo_update_6002() {
+  // We changed the YouTube provider theme arguments, so need to rebuild the theme.
+  drupal_rebuild_theme_registry();
+
+  $ret[] = array(
+    'query' => t('Rebuilt the theme to accommodate changes to the YouTube video provider theme.'),
+    'success' => TRUE
+  );
+
+  return $ret;
+}
+
+/**
+ * I'd like this to be conditional, so it only runs if they don't have Views
+ * installed. However, module_exists doesn't actually work in the update scripts.
+ */
+function _emvideo_update_reset_cache_views() {
+  $ret = array();
+  $ret[] = update_sql("DELETE FROM {cache_views}");
+
+  return $ret;
+}

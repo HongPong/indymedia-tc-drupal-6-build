@@ -1,0 +1,248 @@
+/* $Id: layout-liquid.css,v 1.6 2009/08/12 22:17:26 johnalbin Exp $ */
+
+/**
+ * @file
+ * Layout Styling (DIV Positioning)
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout is based on the Zen Columns layout method.
+ *   http://drupal.org/node/201428
+ *
+ * Only CSS that affects the layout (positioning) of major elements should be
+ * listed here.  Such as:
+ *   display, position, float, clear, width, height, min-width, min-height
+ *   margin, border, padding, overflow
+ */
+
+
+/*
+ * Body
+ */
+body {
+}
+
+#page,
+#closure-blocks {
+  min-width: 960px; /* Don't allow the browser to make the site unreadable. */
+}
+
+#page-inner {
+}
+
+#navigation-top,
+#navigation {
+  position: absolute; /* Take the named anchors out of the doc flow    */
+  left: -10000px;     /* and prevent any anchor styles from appearing. */
+}
+
+#skip-to-nav {
+  float: right; /* LTR */
+  margin: 0 !important;
+  font-size: 0.8em;
+}
+
+#skip-to-nav a:link,
+#skip-to-nav a:visited {
+  color: #fff; /* Same as background color of page */
+}
+
+#skip-to-nav a:hover {
+  color: #000;
+  text-decoration: none;
+}
+
+/* Alternatively, the skip-to-nav link can be completely hidden until a user tabs
+   to the link. Un-comment the following CSS to use this technique. */
+/*
+#skip-to-nav a,
+#skip-to-nav a:hover,
+#skip-to-nav a:visited {
+  position: absolute;
+  left: 0;
+  top: -500px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+#skip-to-nav a:active,
+#skip-to-nav a:focus {
+  position: static;
+  width: auto;
+  height: auto;
+}
+*/
+
+/*
+ * Header
+ */
+#header {
+}
+
+#header-inner {
+}
+
+#search-box {
+}
+
+#header-blocks {
+  clear: both; /* Clear the logo */
+}
+
+/*
+ * Main (container for everything else)
+ */
+#main {
+  position: relative;
+}
+
+#main-inner {
+}
+
+/*
+ * Content
+ */
+#content {
+  float: left; /* LTR */
+  width: 100%;
+  margin-left: 0; /* LTR */
+  margin-right: -100%; /* LTR */ /* Negative value of #content's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to #content-inner. */
+}
+
+#content-inner,
+.no-sidebars #content-inner {
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-first #content-inner {
+  padding-left: 200px; /* LTR */ /* The width + left margin of #sidebar-first. */
+  padding-right: 0; /* LTR */
+}
+
+.sidebar-second #content-inner {
+  padding-left: 0; /* LTR */
+  padding-right: 200px; /* LTR */ /* The width + right margin of #sidebar-second. */
+}
+
+.two-sidebars #content-inner {
+  padding-left: 200px; /* The width + left margin of #sidebar-first. */
+  padding-right: 200px; /* The width + right margin of #sidebar-second. */
+}
+
+/*
+ * Navbar
+ */
+#navbar {
+  float: left; /* LTR */
+  width: 100%;
+  margin-left: 0; /* LTR */
+  margin-right: -100%; /* LTR */ /* Negative value of #navbar's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to #navbar-inner. */
+  height: 2.3em; /* The navbar can have any arbritrary height. We picked one
+                    that is the line-height plus 1em: 1.3 + 1 = 2.3
+                    Set this to the same value as the margin-top below. */
+}
+
+.with-navbar #content,
+.with-navbar #sidebar-first,
+.with-navbar #sidebar-second {
+  margin-top: 2.3em; /* Set this to the same value as the navbar height above. */
+}
+
+#navbar-inner {
+}
+
+#navbar ul /* Primary and secondary links */ {
+  margin: 0;
+  padding: 0;
+  text-align: left; /* LTR */
+}
+
+#navbar li /* A simple method to get navbar links to appear in one line. */ {
+  float: left; /* LTR */
+  padding: 0 10px 0 0; /* LTR */
+}
+
+/*
+ * First sidebar
+ */
+#sidebar-first {
+  float: left; /* LTR */
+  width: 200px;
+  margin-left: 0; /* LTR */
+  margin-right: -200px; /* LTR */ /* Negative value of #sidebar-first's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to #sidebar-first-inner. */
+}
+
+#sidebar-first-inner {
+  margin: 0 20px 0 0; /* LTR */
+  padding: 0;
+}
+
+/*
+ * Second sidebar
+ */
+#sidebar-second {
+  float: right; /* LTR */
+  width: 200px;
+  margin-left: -200px; /* LTR */ /* Negative value of #sidebar-second's width + right margin. */
+  margin-right: 0; /* LTR */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to #sidebar-second-inner. */
+}
+
+#sidebar-second-inner {
+  margin: 0 0 0 20px; /* LTR */
+  padding: 0;
+}
+
+/*
+ * Footer
+ */
+#footer {
+}
+
+#footer-inner {
+}
+
+/*
+ * Closure
+ */
+#closure-blocks /* See also the #page declaration above that this div shares. */ {
+}
+
+/*
+ * Prevent overflowing content
+ */
+#header,
+#content,
+#navbar,
+#sidebar-first,
+#sidebar-second,
+#footer,
+#closure-blocks {
+  overflow: visible;
+  word-wrap: break-word; /* A very nice CSS3 property */
+}
+
+#navbar {
+  overflow: hidden; /* May need to be removed if using a dynamic drop-down menu */
+}
+
+/*
+ * If a div.clear-block doesn't have any content after it and its bottom edge
+ * touches the bottom of the viewport, Firefox and Safari will mistakenly
+ * place several pixels worth of space between the bottom of the div and the
+ * bottom of the viewport. Uncomment this CSS property to fix this.
+ * Note: with some over-large content, this property might cause scrollbars
+ * to appear on the #page div.
+ */
+/*
+#page {
+  overflow-y: hidden;
+}
+*/
