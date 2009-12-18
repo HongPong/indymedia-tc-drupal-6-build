@@ -1,0 +1,14 @@
+<?php
+// $Id: taxonomy_role.install,v 1.3 2008/07/06 16:42:40 der Exp $
+
+/**
+ * Implementation of hook_install().
+ *
+ * Sets taxonomy_role 'weight' to 99. This ensures that its hook_form_alter()
+ * runs after taxonomy.
+ */
+function taxonomy_role_install() {
+  $ret = array();
+  $ret[] = db_query("UPDATE {system} SET weight = 99 WHERE name = 'taxonomy_role'");
+  return $ret;
+}
