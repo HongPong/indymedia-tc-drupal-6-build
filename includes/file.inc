@@ -1,5 +1,5 @@
 <?php
-// $Id: file.inc,v 1.121.2.9 2009/09/16 19:34:14 goba Exp $
+// $Id: file.inc,v 1.121.2.13 2010/08/11 17:40:55 goba Exp $
 
 /**
  * @file
@@ -195,23 +195,31 @@ function file_check_location($source, $directory = '') {
 }
 
 /**
- * Copies a file to a new location. This is a powerful function that in many ways
- * performs like an advanced version of copy().
+ * Copies a file to a new location.
+ *
+ * This is a powerful function that in many ways performs like an advanced
+ * version of copy().
  * - Checks if $source and $dest are valid and readable/writable.
  * - Performs a file copy if $source is not equal to $dest.
  * - If file already exists in $dest either the call will error out, replace the
  *   file or rename the file based on the $replace parameter.
  *
- * @param $source A string specifying the file location of the original file.
- *   This parameter will contain the resulting destination filename in case of
+ * @param $source
+ *   Either a string specifying the file location of the original file or an
+ *   object containing a 'filepath' property. This parameter is passed by
+ *   reference and will contain the resulting destination filename in case of
  *   success.
- * @param $dest A string containing the directory $source should be copied to.
- *   If this value is omitted, Drupal's 'files' directory will be used.
- * @param $replace Replace behavior when the destination file already exists.
- *   - FILE_EXISTS_REPLACE - Replace the existing file
- *   - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
- *   - FILE_EXISTS_ERROR - Do nothing and return FALSE.
- * @return True for success, FALSE for failure.
+ * @param $dest
+ *   A string containing the directory $source should be copied to. If this
+ *   value is omitted, Drupal's 'files' directory will be used.
+ * @param $replace
+ *   Replace behavior when the destination file already exists.
+ *   - FILE_EXISTS_REPLACE: Replace the existing file.
+ *   - FILE_EXISTS_RENAME: Append _{incrementing number} until the filename is
+ *     unique.
+ *   - FILE_EXISTS_ERROR: Do nothing and return FALSE.
+ * @return
+ *   TRUE for success, FALSE for failure.
  */
 function file_copy(&$source, $dest = 0, $replace = FILE_EXISTS_RENAME) {
   $dest = file_create_path($dest);
@@ -311,21 +319,28 @@ function file_destination($destination, $replace) {
 
 /**
  * Moves a file to a new location.
+ *
  * - Checks if $source and $dest are valid and readable/writable.
  * - Performs a file move if $source is not equal to $dest.
  * - If file already exists in $dest either the call will error out, replace the
  *   file or rename the file based on the $replace parameter.
  *
- * @param $source A string specifying the file location of the original file.
- *   This parameter will contain the resulting destination filename in case of
+ * @param $source
+ *   Either a string specifying the file location of the original file or an
+ *   object containing a 'filepath' property. This parameter is passed by
+ *   reference and will contain the resulting destination filename in case of
  *   success.
- * @param $dest A string containing the directory $source should be copied to.
- *   If this value is omitted, Drupal's 'files' directory will be used.
- * @param $replace Replace behavior when the destination file already exists.
- *   - FILE_EXISTS_REPLACE - Replace the existing file
- *   - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
- *   - FILE_EXISTS_ERROR - Do nothing and return FALSE.
- * @return True for success, FALSE for failure.
+ * @param $dest
+ *   A string containing the directory $source should be copied to. If this
+ *   value is omitted, Drupal's 'files' directory will be used.
+ * @param $replace
+ *   Replace behavior when the destination file already exists.
+ *   - FILE_EXISTS_REPLACE: Replace the existing file.
+ *   - FILE_EXISTS_RENAME: Append _{incrementing number} until the filename is
+ *     unique.
+ *   - FILE_EXISTS_ERROR: Do nothing and return FALSE.
+ * @return
+ *   TRUE for success, FALSE for failure.
  */
 function file_move(&$source, $dest = 0, $replace = FILE_EXISTS_RENAME) {
   $path_original = is_object($source) ? $source->filepath : $source;
@@ -342,15 +357,36 @@ function file_move(&$source, $dest = 0, $replace = FILE_EXISTS_RENAME) {
 }
 
 /**
- * Munge the filename as needed for security purposes. For instance the file
- * name "exploit.php.pps" would become "exploit.php_.pps".
+ * Modify a filename as needed for security purposes.
  *
- * @param $filename The name of a file to modify.
- * @param $extensions A space separated list of extensions that should not
- *   be altered.
- * @param $alerts Whether alerts (watchdog, drupal_set_message()) should be
- *   displayed.
- * @return $filename The potentially modified $filename.
+ * Munging a file name prevents unknown file extensions from masking exploit
+ * files. When web servers such as Apache decide how to process a URL request,
+ * they use the file extension. If the extension is not recognized, Apache
+ * skips that extension and uses the previous file extension. For example, if
+ * the file being requested is exploit.php.pps, and Apache does not recognize
+ * the '.pps' extension, it treats the file as PHP and executes it. To make
+ * this file name safe for Apache and prevent it from executing as PHP, the
+ * .php extension is "munged" into .php_, making the safe file name
+ * exploit.php_.pps.
+ *
+ * Specifically, this function adds an underscore to all extensions that are
+ * between 2 and 5 characters in length, internal to the file name, and not
+ * included in $extensions.
+ *
+ * Function behavior is also controlled by the Drupal variable
+ * 'allow_insecure_uploads'. If 'allow_insecure_uploads' evaluates to TRUE, no
+ * alterations will be made, if it evaluates to FALSE, the filename is 'munged'.
+ *
+ * @param $filename
+ *   File name to modify.
+ * @param $extensions
+ *   A space-separated list of extensions that should not be altered.
+ * @param $alerts
+ *   If TRUE, drupal_set_message() will be called to display a message if the
+ *   file name was changed.
+ *
+ * @return
+ *   The potentially modified $filename.
  */
 function file_munge_filename($filename, $extensions, $alerts = TRUE) {
   $original = $filename;
@@ -549,7 +585,7 @@ function file_save_upload($source, $validators = array(), $dest = FALSE, $replac
     }
 
     // Rename potentially executable files, to help prevent exploits.
-    if (preg_match('/\.(php|pl|py|cgi|asp|js)$/i', $file->filename) && (substr($file->filename, -4) != '.txt')) {      
+    if (preg_match('/\.(php|pl|py|cgi|asp|js)$/i', $file->filename) && (substr($file->filename, -4) != '.txt')) {
       $file->filemime = 'text/plain';
       $file->filepath .= '.txt';
       $file->filename .= '.txt';
@@ -1194,6 +1230,7 @@ function file_get_mimetype($filename, $mapping = NULL) {
       'au|snd' => 'audio/basic',
       'mid|midi|kar' => 'audio/midi',
       'mpga|mpega|mp2|mp3|m4a' => 'audio/mpeg',
+      'f4a|f4b' => 'audio/mp4',
       'm3u' => 'audio/x-mpegurl',
       'oga|spx' => 'audio/ogg',
       'sid' => 'audio/prs.sid',
@@ -1332,7 +1369,8 @@ function file_get_mimetype($filename, $mapping = NULL) {
       'fli' => 'video/fli',
       'gl' => 'video/gl',
       'mpeg|mpg|mpe' => 'video/mpeg',
-      'mp4' => 'video/mp4',
+      'mp4|f4v|f4p' => 'video/mp4',
+      'flv' => 'video/x-flv',
       'ogv' => 'video/ogg',
       'qt|mov' => 'video/quicktime',
       'mxu' => 'video/vnd.mpegurl',
