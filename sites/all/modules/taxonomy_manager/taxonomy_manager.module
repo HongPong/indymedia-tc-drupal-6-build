@@ -1,6 +1,6 @@
 <?php
 
-// $Id: taxonomy_manager.module,v 1.5.2.17.2.14.2.15 2009/09/05 10:09:41 mh86 Exp $ 
+// $Id: taxonomy_manager.module,v 1.5.2.17.2.14.2.16 2010/01/30 15:52:57 mh86 Exp $ 
 
 /**
  * 
@@ -1001,7 +1001,7 @@ function _taxonomy_manager_term_get_lang($tid) {
  * @param $element
  * @return html output
  */
-function theme_taxonomy_manager_tree(&$element) {
+function theme_taxonomy_manager_tree($element) {
   $tree = theme('taxonomy_manager_tree_elements', $element['#elements']);
   if ((!$element['#parent'] && !$element['#siblings_page']) || $element['#render_whole_tree']) {
     $output = '<div id="'. $element['#id'] .'">';
