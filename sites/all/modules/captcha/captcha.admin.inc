@@ -1,5 +1,5 @@
 <?php
-// $Id: captcha.admin.inc,v 1.30 2009/08/10 22:33:34 soxofaan Exp $
+// $Id: captcha.admin.inc,v 1.32 2009/10/27 16:11:17 soxofaan Exp $
 
 /**
  * Return an array with the available CAPTCHA types, for use as options array
@@ -16,8 +16,10 @@ function _captcha_available_challenge_types($add_special_options=TRUE) {
     $captcha_types['none'] = '['. t('none') .']';
     $captcha_types['default'] = '['. t('default challenge type') .']';
   }
+  // We do our own version of Drupal's module_invoke_all() here because
+  // we want to build an array with custom keys and values.
   foreach (module_implements('captcha') as $module) {
-    $result = call_user_func_array($module .'_captcha', 'list');
+    $result = call_user_func_array($module .'_captcha', array('list'));
     if (is_array($result)) {
       foreach ($result as $type) {
         $captcha_types["$module/$type"] = t('@type (from module @module)', array('@type' => $type, '@module' => $module));
@@ -451,7 +453,7 @@ function captcha_examples($form_state, $module, $challenge) {
       '#value' => t('This page gives an overview of all available challenge types, generated with their current settings.'),
     );
     foreach (module_implements('captcha') as $mkey => $module) {
-      $challenges = call_user_func_array($module .'_captcha', 'list');
+      $challenges = call_user_func_array($module .'_captcha', array('list'));
       if ($challenges) {
         foreach ($challenges as $ckey => $challenge) {
           $form["captcha_{$mkey}_{$ckey}"] = array(

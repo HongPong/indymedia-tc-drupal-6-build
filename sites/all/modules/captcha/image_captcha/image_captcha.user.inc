@@ -1,5 +1,5 @@
 <?php
-// $Id: image_captcha.user.inc,v 1.21 2009/09/22 22:51:00 soxofaan Exp $
+// $Id: image_captcha.user.inc,v 1.25 2010/01/30 21:53:13 soxofaan Exp $
 
 /**
  * @file
@@ -62,17 +62,13 @@ function _image_captcha_hex_to_rgb($hex) {
   return $rgb;
 }
 
-
 /**
  * Base function for generating a image CAPTCHA.
  */
 function _image_captcha_generate_image($code) {
   // Get font.
-  list($font, $errno) = _image_captcha_get_font();
-  if ($errno != 0) {
-    watchdog('CAPTCHA', 'Could not find or read the configured font ("%font") for the image CAPTCHA.', array('%font' => $font), WATCHDOG_ERROR);
-    exit();
-  }
+  $fonts = _image_captcha_get_enabled_fonts();
+
   // get other settings
   $font_size = (int) variable_get('image_captcha_font_size', 30);
   $character_spacing = (float) variable_get('image_captcha_character_spacing', '1.2');
@@ -98,7 +94,7 @@ function _image_captcha_generate_image($code) {
   imagefilledrectangle($image, 0, 0, $width, $height, $background_color);
 
   // draw text
-  $result = _image_captcha_image_generator_print_string($image, $width, $height, $font, $font_size, $code);
+  $result = _image_captcha_image_generator_print_string($image, $width, $height, $fonts, $font_size, $code);
   if (!$result) {
     return FALSE;
   }
@@ -231,17 +227,10 @@ function _image_captcha_image_generator_add_dots(&$image, $width, $height, $colo
 /**
  * Helper function for drawing text on the image.
  */
-function _image_captcha_image_generator_print_string(&$image, $width, $height, $font, $font_size, $text) {
+function _image_captcha_image_generator_print_string(&$image, $width, $height, $fonts, $font_size, $text) {
   // get characters
   $characters = _image_captcha_utf8_split($text);
   $character_quantity = count($characters);
-
-  // get character width for builtin font
-  if ($font == 'BUILTIN') {
-    $character_width = imagefontwidth(5);
-    $character_height = imagefontheight(5);
-    $bbox = array(0, $character_height, $character_width, $character_height, $character_width, 0, 0, 0);
-  }
 
   // get colors
   $background_rgb = _image_captcha_hex_to_rgb(variable_get('image_captcha_background_color', '#ffffff'));
@@ -270,20 +259,47 @@ function _image_captcha_image_generator_print_string(&$image, $width, $height, $
     $center_x = ($c + 0.5) * $ccage_width;
     $center_y = 0.5 * $height;
 
-    // get character dimensions for ttf fonts
+    // Pick a random font from the list.
+    $font = $fonts[array_rand($fonts)];
+
+    // Get character dimensions for TrueType fonts.
     if ($font != 'BUILTIN') {
       $bbox = imagettfbbox($font_size, 0, realpath($font), $character);
+      // In very rare cases with some versions of the GD library, the x-value
+      // of the left side of the bounding box as returned by the first call of
+      // imagettfbbox is corrupt (value -2147483648 = 0x80000000).
+      // The weird thing is that calling the function a second time
+      // can be used as workaround.
+      // This issue is discussed at http://drupal.org/node/349218.
+      if ($bbox[2] < 0) {
+        $bbox = imagettfbbox($font_size, 0, realpath($font), $character);
+      }
+    }
+    else {
+      $character_width = imagefontwidth(5);
+      $character_height = imagefontheight(5);
+      $bbox = array(0, $character_height, $character_width, $character_height, $character_width, 0, 0, 0);
     }
 
-    // determine print position: at what coordinate should the character be
-    // printed so that the bounding box would be nicely centered in the cage?
-    $pos_x = $center_x - .5 * ($bbox[0] + $bbox[2]);
-    $pos_y = $center_y - .5 * ($bbox[1] + $bbox[7]);
+    // Random (but small) rotation of the character.
+    // TODO: add a setting for this?
+    $angle = mt_rand(-10, 10);
 
-    // calculate available room to jitter: how much can the character be moved
+    // Determine print position: at what coordinate should the character be
+    // printed so that the bounding box would be nicely centered in the cage?
+    $bb_center_x = .5 * ($bbox[0] + $bbox[2]);
+    $bb_center_y = .5 * ($bbox[1] + $bbox[7]);
+    $angle_cos = cos($angle*3.1415/180);
+    $angle_sin = sin($angle*3.1415/180);
+    $pos_x = $center_x - ($angle_cos * $bb_center_x + $angle_sin * $bb_center_y);
+    $pos_y = $center_y - (-$angle_sin * $bb_center_x + $angle_cos * $bb_center_y);
+
+    // Calculate available room to jitter: how much can the character be moved
     // so that it stays inside its cage?
-    $dev_x = .5 * max(0, $ccage_width - ($bbox[2] - $bbox[0]));
-    $dev_y = .5 * max(0, $ccage_height - ($bbox[1] - $bbox[7]));
+    $bb_width = $bbox[2] - $bbox[0];
+    $bb_height = $bbox[1] - $bbox[7];
+    $dev_x = .5 * max(0, $ccage_width - abs($angle_cos) * $bb_width - abs($angle_sin) * $bb_height);
+    $dev_y = .5 * max(0, $ccage_height - abs($angle_cos) * $bb_height - abs($angle_sin) * $bb_width);
 
     // add jitter to position
     $pos_x = $pos_x + mt_rand(-$dev_x, $dev_x);
@@ -303,10 +319,10 @@ function _image_captcha_image_generator_print_string(&$image, $width, $height, $
       imagestring($image, 5, $pos_x, $pos_y, $character, $color);
     }
     else {
-      imagettftext($image, $font_size, 0, $pos_x, $pos_y, $color, realpath($font), $character);
+      imagettftext($image, $font_size, $angle, $pos_x, $pos_y, $color, realpath($font), $character);
     }
 
-    // for debugging purposes: draw character bounding box
+    // For debugging purposes: draw character bounding box (only valid when rotation is disabled).
     // imagerectangle($image, $pos_x + $bbox[0], $pos_y + $bbox[1], $pos_x + $bbox[2], $pos_y + $bbox[7], $color);
 
   }

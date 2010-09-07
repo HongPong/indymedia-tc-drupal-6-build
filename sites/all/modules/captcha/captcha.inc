@@ -1,5 +1,5 @@
 <?php
-// $Id: captcha.inc,v 1.11 2009/08/27 22:21:56 soxofaan Exp $
+// $Id: captcha.inc,v 1.11.2.2 2010/05/19 06:14:31 soxofaan Exp $
 
 /**
  * Helper function for adding/updating a CAPTCHA point.
@@ -151,7 +151,7 @@ function _captcha_get_description($lang_code=NULL) {
   else {
     $description = variable_get('captcha_description', $default);
   }
-  return $description;
+  return filter_xss_admin($description);
 }
 
 /**
@@ -217,7 +217,7 @@ function _captcha_get_captcha_placement($form_id, $form) {
     $buttons = _captcha_search_buttons($form);
     if (count($buttons)) {
       // Pick first button.
-      // TODO: make this more sofisticated? Use cases needed.
+      // TODO: make this more sophisticated? Use cases needed.
       $placement = $buttons[0];
     }
     else {

@@ -1,5 +1,5 @@
 <?php
-// $Id: captcha.module,v 1.100 2009/09/20 10:57:07 soxofaan Exp $
+// $Id: captcha.module,v 1.103.2.3 2010/05/09 00:28:07 soxofaan Exp $
 
 /**
  * @file
@@ -191,17 +191,19 @@ function captcha_process($element, $edit, &$form_state, $complete_form) {
   global $conf;
   $conf['cache'] = FALSE;
 
-  // Retrieve CAPTCHA session ID from posted data or generate it, if not available.
+  // Get the form ID of the form we are currently processing (which is not
+  // necessary the same form that is submitted (if any).
   $this_form_id = $complete_form['form_id']['#value'];
-  // Previously $element['#post']['form_id'] and $element['#post']['captcha_sid']
-  // were used here, but those entry are not available in node preview situations so
-  // we use $form_state['clicked_button']['#post']['form_id'] and
-  // $form_state['clicked_button']['#post']['captcha_sid'] instead.
-  $posted_form_id = (isset($form_state['clicked_button']['#post']['form_id']) ? $form_state['clicked_button']['#post']['form_id'] : NULL);
-  if ($this_form_id == $posted_form_id && isset($form_state['clicked_button']['#post']['captcha_sid'])) {
-    $captcha_sid = $form_state['clicked_button']['#post']['captcha_sid'];
-  } else {
-    // Generate new CAPTCHA session.
+
+  // Get the CAPTCHA session ID.
+  // If there is a submitted form: try to retrieve and reuse the
+  // CAPTCHA session ID from the posted data.
+  list($posted_form_id, $posted_captcha_sid) = _captcha_get_posted_captcha_info($element, $form_state);
+  if ($this_form_id == $posted_form_id && isset($posted_captcha_sid)) {
+    $captcha_sid = $posted_captcha_sid;
+  }
+  else {
+    // Generate a new CAPTCHA session if we could not reuse one from a posted form.
     $captcha_sid = _captcha_generate_captcha_session($this_form_id, CAPTCHA_STATUS_UNSOLVED);
   }
 
@@ -213,14 +215,23 @@ function captcha_process($element, $edit, &$form_state, $complete_form) {
 
   // Get implementing module and challenge for CAPTCHA.
   list($captcha_type_module, $captcha_type_challenge) = _captcha_parse_captcha_type($element['#captcha_type']);
+
+  // Store CAPTCHA information (e.g. for usage in the validation and pre_render phases).
+  $element['#captcha_info'] = array(
+    'form_id' => $this_form_id,
+    'module' => $captcha_type_module,
+    'type' => $captcha_type_challenge,
+    'captcha_sid' => $captcha_sid,
+  );
+
   if (_captcha_required_for_user($captcha_sid, $this_form_id) || $element['#captcha_admin_mode']) {
     // Generate a CAPTCHA and its solution
     // (note that the CAPTCHA session ID is given as third argument).
     $captcha = module_invoke($captcha_type_module, 'captcha', 'generate', $captcha_type_challenge, $captcha_sid);
-    if (!$captcha) {
-      // The selected module returned nothing, maybe it is disabled or it's wrong, we should watchdog that and then quit.
+    if (!isset($captcha['form']) || !isset($captcha['solution'])) {
+      // The selected module did not return what we expected: log about it and quit.
       watchdog('CAPTCHA',
-        'CAPTCHA problem: hook_captcha() of module %module returned nothing when trying to retrieve challenge type %type for form %form_id.',
+        'CAPTCHA problem: unexpected result from hook_captcha() of module %module when trying to retrieve challenge type %type for form %form_id.',
         array('%type' => $captcha_type_challenge, '%module' => $captcha_type_module, '%form_id' => $this_form_id),
         WATCHDOG_ERROR);
       return $element;
@@ -241,16 +252,11 @@ function captcha_process($element, $edit, &$form_state, $complete_form) {
     // Add pre_render callback for additional CAPTCHA processing.
     $element['#pre_render'] = array('captcha_pre_render_process');
 
+    // Store the solution in the #captcha_info array.
+    $element['#captcha_info']['solution'] = $captcha['solution'];
+
   }
 
-  // Store information for usage in the validation and pre_render phase.
-  $element['#captcha_info'] = array(
-    'form_id' => $this_form_id,
-    'module' => $captcha_type_module,
-    'type' => $captcha_type_challenge,
-    'captcha_sid' => $captcha_sid,
-    'solution' => $captcha['solution'],
-  );
 
   return $element;
 }
@@ -394,6 +400,69 @@ function captcha_validate_case_insensitive_equality($solution, $response) {
 }
 
 /**
+ * CAPTCHA validation function to tests equality while ignoring spaces.
+ * @param $solution the solution of the test.
+ * @param $response the response to the test.
+ * @return TRUE when equal (ignoring spaces), FALSE otherwise.
+ */
+function captcha_validate_ignore_spaces($solution, $response) {
+  return preg_replace('/\s/', '', $solution) == preg_replace('/\s/', '', $response);
+}
+
+/**
+ * CAPTCHA validation function to tests case insensitive equality while ignoring spaces.
+ * @param $solution the solution of the test.
+ * @param $response the response to the test.
+ * @return TRUE when equal (ignoring spaces), FALSE otherwise.
+ */
+function captcha_validate_case_insensitive_ignore_spaces($solution, $response) {
+  return preg_replace('/\s/', '', strtolower($solution)) == preg_replace('/\s/', '', strtolower($response));
+}
+
+/**
+ * Helper function for getting the posted CAPTCHA info (posted form_id and
+ * CAPTCHA sessions ID) from the posted form.
+ *
+ * This function hides the form processing mess for several use cases an
+ * browser bug workarounds.
+ * For example: $element['#post'] can typically be used to get the posted
+ * form_id and captcha_sid, but in the case of node preview situations
+ * (with correct CAPTCHA response) that does not work and we can get them from
+ * $form_state['clicked_button']['#post'].
+ * However with Internet Explorer 7, the latter does not work either when
+ * submitting the forms (with only one text field) with the enter key
+ * (see http://drupal.org/node/534168), in which case we also have to check
+ * $form_state['buttons']['button']['0']['#post'].
+ *
+ * @todo for Drupal 7 version: is this IE7 workaround still needed?
+ *
+ * @param $element the CAPTCHA element.
+ * @param $form_state the form state structure to extract the info from.
+ *
+ * @return an array with $posted_form_id and $post_captcha_sid with NULL values
+ *     if the values could not be found.
+ */
+function _captcha_get_posted_captcha_info($element, $form_state) {
+  // Get the post data from where we can find it.
+  if (isset($element['#post']) && count($element['#post'])) {
+    $post_data = $element['#post'];
+  }
+  else if (isset($form_state['clicked_button']['#post'])) {
+    $post_data = $form_state['clicked_button']['#post'];
+  }
+  else if (isset($form_state['buttons']['button']['0']['#post'])) {
+    $post_data = $form_state['buttons']['button']['0']['#post'];
+  }
+  else {
+    // TODO: raise a warning here?
+  }
+  // Return the posted form_id and CAPTCHA session ID.
+  $posted_form_id = isset($post_data['form_id']) ? $post_data['form_id'] : NULL;
+  $posted_captcha_sid = isset($post_data['captcha_sid']) ? $post_data['captcha_sid'] : NULL;
+  return array($posted_form_id, $posted_captcha_sid);
+}
+
+/**
  * CAPTCHA validation handler.
  *
  * This function is placed in the main captcha.module file to make sure that
@@ -401,7 +470,6 @@ function captcha_validate_case_insensitive_equality($solution, $response) {
  * captcha_form_alter(), and subsequently don't include additional include
  * files).
  */
-
 function captcha_validate($element, &$form_state) {
   $captcha_info = $element['#captcha_info'];
   $form_id = $captcha_info['form_id'];
@@ -409,15 +477,16 @@ function captcha_validate($element, &$form_state) {
   // Get CAPTCHA response.
   $captcha_response = $form_state['values']['captcha_response'];
 
-  // We use $form_state['clicked_button']['#post']['captcha_sid']
-  // instead of $form_state['values']['captcha_sid'] because the latter
-  // contains the captcha_sid associated to the 'newly' generated element,
+  // We use the posted CAPTCHA session ID instead of
+  // $form_state['values']['captcha_sid'] because the latter contains the
+  // captcha_sid associated to the 'newly' generated element,
   // while the former contains the captcha_sid of the posted form.
   // In most cases both will be the same because of persistence.
   // However, they will differ when the life span of the CAPTCHA session
   // does not equal the life span of a multipage form and then we have to
   // pick the right one.
-  $csid = $form_state['clicked_button']['#post']['captcha_sid'];
+  list($posted_form_id, $posted_captcha_sid) = _captcha_get_posted_captcha_info($element, $form_state);
+  $csid = $posted_captcha_sid;
 
   $solution = db_result(db_query('SELECT solution FROM {captcha_sessions} WHERE csid = %d AND status = %d', $csid, CAPTCHA_STATUS_UNSOLVED));
 
@@ -427,13 +496,14 @@ function captcha_validate($element, &$form_state) {
     watchdog('CAPTCHA',
       'CAPTCHA validation error: unknown CAPTCHA session ID (%csid).',
       array('%csid' => var_export($csid, TRUE)),
-      WATCHDOG_ERROR);
+      WATCHDOG_ERROR
+    );
   }
   else {
     // Get CAPTCHA validate function or fall back on strict equality.
     $captcha_validate = $element['#captcha_validate'];
     if (!function_exists($captcha_validate)) {
-       $captcha_validate = 'captcha_validate_strict_equality';
+      $captcha_validate = 'captcha_validate_strict_equality';
     }
     // Check the response with the CAPTCHA validation function.
     // Apart from the traditional expected $solution and received $response,
@@ -459,7 +529,8 @@ function captcha_validate($element, &$form_state) {
             '%response' => $captcha_response, '%solution' => $solution,
             '%challenge' => $captcha_info['type'], '%module' => $captcha_info['module'],
           ),
-          WATCHDOG_NOTICE);
+          WATCHDOG_NOTICE
+        );
       }
       // If CAPTCHA was on a login form: stop validating, quit the current request
       // and forward to the current page (like a reload) to prevent loging in.

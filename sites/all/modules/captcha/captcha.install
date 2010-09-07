@@ -1,5 +1,5 @@
 <?php
-// $Id: captcha.install,v 1.10 2009/05/26 20:17:40 soxofaan Exp $
+// $Id: captcha.install,v 1.11 2009/12/19 00:24:36 soxofaan Exp $
 
 /**
  * Implementation of hook_schema().
@@ -255,5 +255,16 @@ function captcha_update_6200() {
 
   db_create_table($items, 'captcha_sessions', $schema['captcha_sessions']);
 
+  return $items;
+}
+
+/**
+ * Implementation of hook_update_N()
+ * Change the captcha points with the old text CAPTCHA, which was
+ * removed from the 6.x-2.x branch, to the simple math CAPTCHA.
+ */
+function captcha_update_6201() {
+  $items = array();
+  $items[] = update_sql("UPDATE {captcha_points} SET module = 'captcha', type = 'Math' WHERE module = 'text_captcha' AND type = 'Text';");
   return $items;
 }

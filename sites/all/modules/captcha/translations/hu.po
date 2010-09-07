@@ -1,137 +1,99 @@
-# Hungarian translation of captcha (6.x-2.0-beta5)
-# Copyright (c) 2009 by the Hungarian translation team
-# Generated from files:
-#  captcha.admin.inc,v 1.24 2009/05/14 22:47:37 soxofaan
-#  image_captcha.admin.inc,v 1.19 2009/05/14 22:47:38 soxofaan
-#  captcha.module,v 1.89 2009/05/17 17:02:20 soxofaan
-#  captcha.info,v 1.7 2008/02/17 12:49:24 soxofaan
-#  image_captcha.user.inc,v 1.19 2009/04/24 22:16:48 soxofaan
-#  image_captcha.module,v 1.25 2009/05/14 22:47:38 soxofaan
-#  captcha.inc,v 1.4 2009/05/03 21:20:46 soxofaan
-#  captcha.install,v 1.9 2009/03/22 20:06:39 soxofaan
-#  image_captcha.info,v 1.5 2008/02/17 12:49:24 soxofaan
+# Hungarian translation of CAPTCHA (6.x-2.1)
+# Copyright (c) 2010 by the Hungarian translation team
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: captcha (6.x-2.0-beta5)\n"
-"POT-Creation-Date: 2009-05-30 22:37+0200\n"
-"PO-Revision-Date: 2009-05-28 21:53+0200\n"
-"Last-Translator: Balogh Zoltán\n"
-"Language-Team: Hungarian http://forditas.mindworks.hu\n"
+"Project-Id-Version: CAPTCHA (6.x-2.1)\n"
+"POT-Creation-Date: 2010-01-08 20:46+0000\n"
+"PO-Revision-Date: 2010-01-08 20:45+0000\n"
+"Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 
-#: captcha.admin.inc:176
 msgid "Save configuration"
 msgstr "Beállítások mentése"
-
-#: captcha.admin.inc:83
 msgid "delete"
 msgstr "törlés"
-
-#: captcha.admin.inc:186
-msgid "Operations"
-msgstr "Műveletek"
-
-#: captcha.admin.inc:359
 msgid "Delete"
 msgstr "Törlés"
-
-#: captcha.admin.inc:318
-msgid "Save"
-msgstr "Mentés"
-
-#: captcha.admin.inc:16; image_captcha/image_captcha.admin.inc:148,170
-msgid "none"
-msgstr "nincs"
-
-#: image_captcha/image_captcha.admin.inc:138
-msgid "Text color"
-msgstr "Szövegszín"
-
-#: captcha.module:34
-msgid "Location of comment submission form"
-msgstr "Hozzászólás-beküldő űrlap helyzete"
-
-#: captcha.module:35
-msgid "Display on separate page"
-msgstr "Megjelenítés külön oldalon"
-
-#: captcha.module:76
-msgid "General settings"
-msgstr "Általános beállítások"
-
-#: captcha.module:263,311,118,211,413,59,70; captcha.info:0; image_captcha/image_captcha.user.inc:29,72; image_captcha/image_captcha.module:94
-msgid "CAPTCHA"
-msgstr "CAPTCHA"
-
-#: captcha.admin.inc:363
+msgid "Operations"
+msgstr "Műveletek"
 msgid "Disable"
 msgstr "Letilt"
-
-#: image_captcha/image_captcha.admin.inc:151,174
-msgid "high"
-msgstr "magas"
-
-#: image_captcha/image_captcha.admin.inc:96,117,173
+msgid "none"
+msgstr "nincs"
+msgid "General settings"
+msgstr "Általános beállítások"
+msgid "Save"
+msgstr "Mentés"
+msgid "Form ID"
+msgstr "Űrlap azonosító"
+msgid "Example"
+msgstr "Példa"
+msgid "Background color"
+msgstr "Háttérszín"
+msgid "Text color"
+msgstr "Szövegszín"
+msgid "Unsupported database."
+msgstr "Nem támogatott adatbázis."
 msgid "normal"
 msgstr "normál"
-
-#: image_captcha/image_captcha.admin.inc:171
-msgid "low"
-msgstr "alacsony"
-
-#: captcha.admin.inc:41,105; captcha.module:45
-msgid "Add CAPTCHA administration links to forms"
-msgstr "CAPTCHA adminisztrációs hivatkozás hozzáadása az űrlapokhoz"
-
-#: captcha.admin.inc:107; captcha.module:106
-msgid "administer CAPTCHA settings"
-msgstr "CAPTCHA beállítások adminisztrációja"
-
-#: captcha.admin.inc:122,137
-msgid "Challenge description"
-msgstr "Feladat leírása"
-
-#: captcha.admin.inc:123,138
+msgid "Code length"
+msgstr "Kód hossza"
+msgid "Font size"
+msgstr "Betűméret"
+msgid "Spam control"
+msgstr "Reklámszemét felügyelet"
+msgid "Characters to use in the code"
+msgstr "A kódban használt karakterek"
+msgid "The list of characters to use should not contain spaces."
+msgstr "A használt karakterek felsorolása nem tartalmazhat szóközt."
+msgid "Math question"
+msgstr "Matematikai kérdés"
 msgid ""
-"With this description you can explain the purpose of the challenge to "
-"the user."
+"Encountered an illegal byte while splitting an utf8 string in "
+"characters."
 msgstr ""
-"Evvel a leírással lehet elmagyarázni a felhasználónak, hogy "
-"milyen céllal kell a feladatot megoldania."
-
-#: captcha.admin.inc:128
+"Az UTF-8 karaktersorozat átalakítása közben egy érvénytelen "
+"bájt fordult elő."
 msgid "For language %lang_name (code %lang_code)"
 msgstr "%lang_name nyelven (kód %lang_code)"
-
-#: captcha.admin.inc:155
+msgid "change"
+msgstr "változtat"
+msgid "disable"
+msgstr "letiltás"
+msgid "low"
+msgstr "alacsony"
+msgid "medium"
+msgstr "közepes"
+msgid "high"
+msgstr "magas"
+msgid "Display on separate page"
+msgstr "Megjelenítés külön oldalon"
+msgid "Add CAPTCHA administration links to forms"
+msgstr "CAPTCHA adminisztrációs hivatkozás hozzáadása az űrlapokhoz"
+msgid "administer CAPTCHA settings"
+msgstr "CAPTCHA beállítások adminisztrációja"
+msgid "Challenge description"
+msgstr "Feladat leírása"
 msgid "Persistence"
 msgstr "Szívósság"
-
-#: captcha.admin.inc:158
 msgid "Always add a challenge."
 msgstr "Mindig adja hozzá a feladatot."
-
-#: captcha.admin.inc:159
 msgid ""
 "Omit challenges for a form once the user has successfully responded to "
 "a challenge for that form."
 msgstr ""
 "Mellőzi a feladatot az adott űrlap mellől, ha a felhasználó "
 "egyszer már jól válaszolt."
-
-#: captcha.admin.inc:160
 msgid ""
 "Omit challenges for all forms once the user has successfully responded "
 "to a challenge."
 msgstr ""
 "Mellőzi a feladatot minden űrlap mellől, ha a felhasználó egyszer "
 "már jól válaszolt."
-
-#: captcha.admin.inc:162
 msgid ""
 "Define if challenges should be omitted during the rest of a session "
 "once the user successfully responses to a challenge."
@@ -139,84 +101,46 @@ msgstr ""
 "Megadható, hogy amennyiben a felhasználó sikeresen megoldott egy "
 "feladatot, látogatásának további szakaszában már ne kapjon "
 "többet."
-
-#: captcha.admin.inc:168
 msgid "Log wrong responses"
 msgstr "Hibás válaszok naplózása"
-
-#: captcha.admin.inc:169
 msgid "Report information about wrong responses to the !log."
 msgstr ""
 "Kerüljön információ a rossz válaszokról a rendszernaplóba. "
 "(!log)"
-
-#: captcha.admin.inc:169
 msgid "log"
 msgstr "napló"
-
-#: captcha.admin.inc:255
 msgid "The CAPTCHA settings were saved."
 msgstr "A CAPTCHA beállítások elmentve."
-
-#: captcha.admin.inc:287,301
-msgid "Form ID"
-msgstr "Űrlap azonosító"
-
-#: captcha.admin.inc:288,302
 msgid "The Drupal form_id of the form to add the CAPTCHA to."
 msgstr ""
 "A Drupal űrlap azonosítója, amihez a CAPTCHA feladatot hozzá kell "
 "adni."
-
-#: captcha.admin.inc:186,308
 msgid "Challenge type"
 msgstr "Feladat típusa"
-
-#: captcha.admin.inc:309
 msgid "The CAPTCHA type to use for this form"
 msgstr "Az űrlaphoz használt CAPTCHA típusa"
-
-#: captcha.admin.inc:213,329
 msgid "Illegal form_id"
 msgstr "Érvénytelen form_id"
-
-#: captcha.admin.inc:341
 msgid "Saved CAPTCHA point settings."
 msgstr "Mentett CAPTCHA pont beállítások."
-
-#: captcha.admin.inc:358
 msgid "Are you sure you want to delete the CAPTCHA for form_id %form_id?"
-msgstr "%form_id CAPTCHA védelme biztosan törölhető?"
-
-#: captcha.admin.inc:362
+msgstr "„%form_id” <em>CAPTCHA</em> védelme biztosan törölhető?"
 msgid "Are you sure you want to disable the CAPTCHA for form_id %form_id?"
-msgstr "%form_id CAPTCHA védelme biztosan letiltható?"
-
-#: captcha.admin.inc:376
+msgstr "„%form_id” <em>CAPTCHA</em> védelme biztosan letiltható?"
 msgid "Deleted CAPTCHA for form %form_id."
 msgstr "%form_id űrlapról a CAPTCHA eltávolítva."
-
-#: captcha.admin.inc:380
 msgid "Disabled CAPTCHA for form %form_id."
 msgstr "%form_id űrlapról a CAPTCHA letiltva."
-
-#: captcha.admin.inc:417
 msgid ""
 "This page gives an overview of all available challenge types, "
 "generated with their current settings."
 msgstr ""
 "Ez a lap egy átfogó képet ad a rendelkezésre álló feladat "
 "típusokról, azok aktuális beállításaival létrehozva."
-
-#: captcha.admin.inc:425
 msgid "Challenge \"%challenge\" by module \"%module\""
 msgstr "„%module” számára „%challenge” feladat"
-
-#: captcha.admin.inc:428
 msgid "10 more examples of this challenge."
 msgstr "10 további példa ebből a feladatból."
-
-#: captcha.module:30
 msgid ""
 "\"CAPTCHA\" is an acronym for \"Completely Automated Public Turing "
 "test to tell Computers and Humans Apart\". It is typically a "
@@ -238,8 +162,6 @@ msgstr ""
 "egyszerű feladattal, melyet az emberek könnyedén meg tudnak oldani, "
 "de elég nehéz feladat elé állítják az automatikus programokat "
 "és a szemétküldő robotokat."
-
-#: captcha.module:31
 msgid ""
 "Note that the CAPTCHA module interacts with page caching (see <a "
 "href=\"!performancesettings\">performance settings</a>). Because the "
@@ -267,12 +189,10 @@ msgstr ""
 "„%commentlocation” helyét „%separatepage” lehetőségre "
 "állítani a <a href=\"!contenttypes\">tartalomtípusok</a> oldalán a "
 "jobb gyorstárazás érdekében."
-
-#: captcha.module:39
+msgid "Location of comment submission form"
+msgstr "Hozzászólás-beküldő űrlap helyzete"
 msgid "CAPTCHA is a trademark of Carnegie Mellon University."
 msgstr "A CAPTCHA a Carnegie Mellon University védjegye."
-
-#: captcha.module:44
 msgid ""
 "A CAPTCHA can be added to virtually each Drupal form. Some default "
 "forms are already provided in the form list, but arbitrary forms can "
@@ -283,8 +203,6 @@ msgstr ""
 "alapértelmezett űrlap már fel van kínálva az űrlaplistán, de "
 "bármelyik űrlapot könnyen hozzá lehet adni, ha „%adminlinks” "
 "engedélyezett."
-
-#: captcha.module:46
 msgid ""
 "Users with the \"%skipcaptcha\" <a href=\"@perm\">permission</a> won't "
 "be offered a challenge. Be sure to grant this permission to the "
@@ -298,64 +216,36 @@ msgstr ""
 "adminisztrátorok). Egy védett űrlap tesztelését olyan "
 "felhasználóval kell elvégezni, aki nem rendelkezik "
 "„%skipcaptcha” jogosultsággal (Például a vendégek)."
-
-#: captcha.module:47,106
 msgid "skip CAPTCHA"
 msgstr "CAPTCHA mellőzése"
-
-#: captcha.inc:131
 msgid ""
 "This question is for testing whether you are a human visitor and to "
 "prevent automated spam submissions."
 msgstr ""
 "A kérdés azt vizsgálja, hogy valós látogató, vagy robot "
 "szeretné az űrlapot beküldeni."
-
-#: captcha.module:317
+msgid "CAPTCHA"
+msgstr "CAPTCHA"
 msgid "Untrusted users will see a CAPTCHA here (!settings)."
 msgstr ""
 "Megbízhatatlan felhasználók fognak látni egy CAPTCHA védelmet itt "
 "(!settings)."
-
-#: captcha.module:318
 msgid "general CAPTCHA settings"
 msgstr "általános CAPTCHA beállítások"
-
-#: captcha.module:322
 msgid "Enabled challenge"
 msgstr "Engedélyezett feladat"
-
-#: captcha.module:323
 msgid "\"@type\" by module \"@module\" (!change, !disable)"
 msgstr "„@type” modul „@module” (!change, !disable)"
-
-#: captcha.module:326
-msgid "change"
-msgstr "változtat"
-
-#: captcha.module:327
-msgid "disable"
-msgstr "letiltás"
-
-#: captcha.module:344
 msgid "Place a CAPTCHA here for untrusted users."
 msgstr "CAPTCHA elhelyezése ide megbízhatatlan felhasználók ellen."
-
-#: captcha.module:408
 msgid "The answer you entered for the CAPTCHA was not correct."
 msgstr "A CAPTCHA feladatra adott válasz helytelen volt."
-
-#: captcha.module:497
 msgid ""
 "Solve this simple math problem and enter the result. E.g. for 1+3, "
 "enter 4."
 msgstr "A fenti művelet eredményét kell beírni. Pl.: 1+3 esetén 4-et."
-
-#: captcha.module:498
 msgid "@x + @y = "
 msgstr "@x + @y = "
-
-#: captcha.module:211
 msgid ""
 "CAPTCHA problem: hook_captcha() of module %module returned nothing "
 "when trying to retrieve challenge type %type for form %form_id."
@@ -363,8 +253,6 @@ msgstr ""
 "CAPTCHA hiba: %modul modul hook_captcha() függvénye nem adott vissza "
 "semmit amikor próbálta kinyerni a %type feladat típusát a %form_id "
 "űrlapról."
-
-#: captcha.module:413
 msgid ""
 "%form_id post blocked by CAPTCHA module: challenge \"%challenge\" (by "
 "module \"%module\"), user answered \"%response\", but the solution was "
@@ -374,60 +262,22 @@ msgstr ""
 "feladat „%challenge” (modul „%module”), a felhasználó "
 "válasza „%response” volt, bár helyes a megoldás „%solution” "
 "lett volna."
-
-#: captcha.module:60
 msgid "Administer how and where CAPTCHAs are used."
 msgstr "Adminisztráció, hogyan és hol használja a CAPTCHA-t."
-
-#: captcha.module:82
 msgid "Examples"
 msgstr "Példák"
-
-#: captcha.module:83
 msgid "An overview of the available challenge types with examples."
 msgstr "Egy áttekintés az elérhető feladat típusokról, példákkal."
-
-#: captcha.module:0
-msgid "captcha"
-msgstr "captcha"
-
-#: captcha.install:115
 msgid ""
 "You can now <a href=\"!captcha_admin\">configure the CAPTCHA "
 "module</a> for your site."
 msgstr ""
 "Most <a href=\"!captcha_admin\">be lehet állítani a <em>CAPTCHA</em> "
 "modult</a> a webhelyen."
-
-#: captcha.install:156
-msgid "Unsupported database."
-msgstr "Nem támogatott adatbázis."
-
-#: captcha.info:0
 msgid "Base CAPTCHA module for adding challenges to arbitrary forms."
 msgstr "Alap CAPTCHA modul, mely feladatokat ad tetszőleges űrlapokhoz."
-
-#: captcha.info:0; image_captcha/image_captcha.info:0
-msgid "Spam control"
-msgstr "Reklámszemét felügyelet"
-
-#: image_captcha/image_captcha.admin.inc:13
-msgid "Built-in font"
-msgstr "Beépített betűkészlet"
-
-#: image_captcha/image_captcha.admin.inc:57
 msgid "Code settings"
 msgstr "Kód beállítások"
-
-#: image_captcha/image_captcha.admin.inc:61
-msgid "Characters to use in the code"
-msgstr "A kódban használt karakterek"
-
-#: image_captcha/image_captcha.admin.inc:66
-msgid "Code length"
-msgstr "Kód hossza"
-
-#: image_captcha/image_captcha.admin.inc:69
 msgid ""
 "The code length influences the size of the image. Note that larger "
 "values make the image generation more CPU intensive."
@@ -435,38 +285,14 @@ msgstr ""
 "A kód hossza befolyásolja a kép méretét. Nagyobb értékek "
 "esetén a kép előállítása intenzív processzor használatot "
 "eredményez."
-
-#: image_captcha/image_captcha.admin.inc:75
 msgid "Font settings"
 msgstr "Betűkészlet beállítások"
-
-#: image_captcha/image_captcha.admin.inc:81
-msgid "Font"
-msgstr "Betűtípus"
-
-#: image_captcha/image_captcha.admin.inc:83
-msgid "The TrueType font (.ttf) to use for the text in the image CAPTCHA."
-msgstr ""
-"A <em>kép CAPTCHA</em> szövegéhez használt TrueType betűkészlet. "
-"(.ttf)"
-
-#: image_captcha/image_captcha.admin.inc:92
-msgid "Font size"
-msgstr "Betűméret"
-
-#: image_captcha/image_captcha.admin.inc:94
 msgid "tiny"
 msgstr "apró"
-
-#: image_captcha/image_captcha.admin.inc:95,116,149
 msgid "small"
 msgstr "kicsi"
-
-#: image_captcha/image_captcha.admin.inc:97,118
 msgid "large"
 msgstr "nagy"
-
-#: image_captcha/image_captcha.admin.inc:100
 msgid ""
 "The font size influences the size of the image. Note that larger "
 "values make the image generation more CPU intensive."
@@ -474,12 +300,8 @@ msgstr ""
 "A betűméret befolyásolja a kép méretét. Nagyobb értékek "
 "esetén a kép előállítása intenzív processzor használatot "
 "eredményez."
-
-#: image_captcha/image_captcha.admin.inc:112
 msgid "Character spacing"
 msgstr "Karakter ritkítás"
-
-#: image_captcha/image_captcha.admin.inc:113
 msgid ""
 "Define the average spacing between characters. Note that larger values "
 "make the image generation more CPU intensive."
@@ -487,54 +309,22 @@ msgstr ""
 "A karakterek közötti átlagos távolságot szabályozza. Nagyobb "
 "értékek esetén a kép előállítása intenzív processzor "
 "használatot eredményez."
-
-#: image_captcha/image_captcha.admin.inc:125
-msgid "Color settings"
-msgstr "Színbeállítások"
-
-#: image_captcha/image_captcha.admin.inc:126
-msgid "Configuration of the background and text colors in the image CAPTCHA."
-msgstr "A <em>kép CAPTCHA</em> háttér- és szövegszínének beállítása."
-
-#: image_captcha/image_captcha.admin.inc:130
-msgid "Background color"
-msgstr "Háttérszín"
-
-#: image_captcha/image_captcha.admin.inc:131
-msgid ""
-"Enter the hexadecimal code for the background color (e.g. #FFF or "
-"#FFCE90)."
-msgstr "A háttérszín hexadecimális kódja (Pl. #FFF vagy #FFCE90)."
-
-#: image_captcha/image_captcha.admin.inc:139
 msgid "Enter the hexadecimal code for the text color (e.g. #000 or #004283)."
 msgstr "A szöveg színének hexadecimális kódja (Pl. #FFF vagy #FFCE90)."
-
-#: image_captcha/image_captcha.admin.inc:146
 msgid "Additional variation of text color"
 msgstr "A szöveg színének változtatása"
-
-#: image_captcha/image_captcha.admin.inc:150,172
 msgid "moderate"
 msgstr "mérsékelt"
-
-#: image_captcha/image_captcha.admin.inc:152
 msgid "very high"
 msgstr "nagyon magas"
-
-#: image_captcha/image_captcha.admin.inc:155
 msgid ""
 "The different characters will have randomized colors in the specified "
 "range around the text color."
 msgstr ""
 "A különböző karakterek véletlenszerű színt vesznek fel a "
 "megadott szövegszín tartomány környékéről."
-
-#: image_captcha/image_captcha.admin.inc:162
 msgid "Distortion and noise"
 msgstr "Torzítás és zaj"
-
-#: image_captcha/image_captcha.admin.inc:163
 msgid ""
 "With these settings you can control the degree of obfuscation by "
 "distortion and added noise. Do not exaggerate the obfuscation and "
@@ -546,70 +336,28 @@ msgstr ""
 "győződni arról, hogy a kód a képről egyértelműen leolvasható "
 "maradt. Például nem érdemes kombinálni a nagyszintű torzítást "
 "és a zajt."
-
-#: image_captcha/image_captcha.admin.inc:168
 msgid "Distortion level"
 msgstr "Torzítási szint"
-
-#: image_captcha/image_captcha.admin.inc:175
 msgid "severe"
 msgstr "szigorú"
-
-#: image_captcha/image_captcha.admin.inc:178
 msgid "Set the degree of wave distortion in the image."
 msgstr "A hullámtorzítás szögének beállítása a képen."
-
-#: image_captcha/image_captcha.admin.inc:182
 msgid "Smooth distortion"
 msgstr "Egyenletes torzítás"
-
-#: image_captcha/image_captcha.admin.inc:191
 msgid "This option adds randomly colored point noise."
 msgstr "Ez a lehetőség véletlenszerű, színes pontokat ad."
-
-#: image_captcha/image_captcha.admin.inc:195
 msgid "Add line noise"
 msgstr "Vonalzaj hozzáadása"
-
-#: image_captcha/image_captcha.admin.inc:197
 msgid "This option enables lines randomly drawn on top of the text code."
 msgstr ""
 "Ez a lehetőség véletlenszerű vonalakat rajzol a szövegkód "
 "fölé."
-
-#: image_captcha/image_captcha.admin.inc:201
 msgid "Noise level"
 msgstr "Zajszint"
-
-#: image_captcha/image_captcha.admin.inc:234
-msgid ""
-"The usage of the built-in bitmap font it is not recommended because of "
-"its small size and missing UTF-8 support."
-msgstr ""
-"A beépített bittérképes betűkészlet használata nem ajánlott, "
-"mert kicsi a mérete és nem támogatja az UTF-8 szabványt."
-
-#: image_captcha/image_captcha.admin.inc:245
-msgid "The list of characters to use should not contain spaces."
-msgstr "A használt karakterek felsorolása nem tartalmazhat szóközt."
-
-#: image_captcha/image_captcha.admin.inc:250
-msgid "You need to select a font"
-msgstr "Ki kell választani a betűkészletet"
-
-#: image_captcha/image_captcha.admin.inc:253
-msgid "Font does not exist or is not readable."
-msgstr "A betűkészlet nem létezik, vagy nem olvasható."
-
-#: image_captcha/image_captcha.admin.inc:258
 msgid "Background color is not a valid hexadecimal color value."
 msgstr "A háttérszín hexadecimális értéke érvénytelen."
-
-#: image_captcha/image_captcha.admin.inc:261
 msgid "Text color is not a valid hexadecimal color value."
 msgstr "A szöveg színének hexadecimális értéke érvénytelen."
-
-#: image_captcha/image_captcha.user.inc:29
 msgid ""
 "Generation of image CAPTCHA failed. Check your image CAPTCHA "
 "configuration and especially the used font."
@@ -617,40 +365,16 @@ msgstr ""
 "A kép CAPTCHA előállítása nem sikerült. Ellenőrizni kell a "
 "<em>kép CAPTCHA</em> beállítását, különös tekintettel a "
 "használt betűkészletre."
-
-#: image_captcha/image_captcha.module:179,40; image_captcha/image_captcha.info:0
 msgid "Image CAPTCHA"
 msgstr "Kép CAPTCHA"
-
-#: image_captcha/image_captcha.module:184
 msgid "What code is in the image?"
 msgstr "A képen látható kód"
-
-#: image_captcha/image_captcha.module:94
-msgid ""
-"Encountered an illegal byte while splitting an utf8 string in "
-"characters."
-msgstr ""
-"Az UTF-8 karaktersorozat átalakítása közben egy érvénytelen "
-"bájt fordult elő."
-
-#: image_captcha/image_captcha.module:0
-msgid "image_captcha"
-msgstr "image_captcha"
-
-#: image_captcha/image_captcha.info:0
 msgid "Provides an image based CAPTCHA."
 msgstr "Kép alapú CAPTCHA-t nyújt."
-
-#: captcha.module:517
-msgid "Test"
-msgstr "Teszt"
-
-#: captcha.module:92
-msgid "CAPTCHA point administration"
-msgstr "CAPTCHA pont adminisztrációja"
-
-#: image_captcha/image_captcha.admin.inc:184
+msgid "File format"
+msgstr "Fájlformátum"
+msgid "Fonts"
+msgstr "Betűtípusok"
 msgid ""
 "This option enables bilinear interpolation of the distortion which "
 "makes the image look smoother, but it is more CPU intensive."
@@ -658,12 +382,8 @@ msgstr ""
 "Ez a lehetőség engedélyezi a torzítás bilineráris "
 "interpolációját, mely a képet jobban láthatóvá teszi, de "
 "intenzív processzor használatot eredményez."
-
-#: image_captcha/image_captcha.admin.inc:189
 msgid "Add salt and pepper noise"
 msgstr "Só-bors zaj hozzáadása"
-
-#: image_captcha/image_captcha.module:28
 msgid ""
 "The image CAPTCHA is a popular challenge where a random textual code "
 "is obfuscated in an image. The image is generated on the fly for each "
@@ -676,57 +396,12 @@ msgstr ""
 "processzor használatot jelent a kiszolgálónak. Óvatosan kell "
 "bánni a mérettel és a számítási igénnyel kapcsolatos "
 "beállításokkal."
-
-#: captcha.module:389
-msgid "CAPTCHA test failed (unknown csid)."
-msgstr "Hibás CAPTCHA teszt (ismeretlen csid)."
-
-#: image_captcha/image_captcha.admin.inc:231
-msgid ""
-"The image CAPTCHA module works best with a TrueType font file (TTF) "
-"for generating the images, but because of licencing issues it is not "
-"allowed to package fonts with the module. A simple built-in bitmap "
-"font is provided as default instead. You can install TrueType fonts "
-"yourself by putting them in the fonts directory of the image CAPTCHA "
-"module (directory \"%fontsdir\") or by uploading them to your Drupal "
-"file system (directory \"%filesdir\") with for example the upload "
-"module."
-msgstr ""
-"A <em>kép CAPTCHA</em> modul TrueType betűkészlettel (TTF) dolgozik "
-"a legjobban a képek előállítása során, de szerzői jogi "
-"problémák miatt nem lehetséges a csomagba betűkészletet "
-"elhelyezni. Inkább egy egyszerű, beépített bittérképes "
-"betűkészlet az alapértelmezett. Fel lehet telepíteni TrueType "
-"betűkészletet, melyet a <em>kép CAPTCHA</em> modul könyvtárába "
-"(„%fontsdir”) kell másolni, vagy fel kell tölteni a Drupal "
-"fájlrendszerébe („%filesdir”) a <em>Feltöltés</em> modullal."
-
-#: image_captcha/image_captcha.module:169
-msgid "Enter the characters (without spaces) shown in the image."
-msgstr "Meg kell adni a képen látható karaktereket (szóközök nélkül)."
-
-#: image_captcha/image_captcha.module:166
-msgid ""
-"Enter the characters shown in the image. Ignore spaces and be careful "
-"about upper and lower case."
-msgstr ""
-"Meg kell adni a képen látható karaktereket a szóközök "
-"mellőzésével, de figyelve a kis-, és nagybetűk közti "
-"különbségre."
-
-#: captcha.admin.inc:17
 msgid "default challenge type"
 msgstr "alapértelmezés szerinti feladattípus"
-
-#: captcha.admin.inc:23
 msgid "@type (from module @module)"
 msgstr "@type (@module modulból)"
-
-#: captcha.admin.inc:39
 msgid "Form protection"
 msgstr "Űrlapvédelem"
-
-#: captcha.admin.inc:40
 msgid ""
 "Select the challenge type you want for each of the listed forms "
 "(identified by their so called <em>form_id</em>'s). You can easily add "
@@ -738,42 +413,20 @@ msgstr ""
 "Tetszőleges űrlap könnyen hozzáadható a táblázat alján "
 "található szöveges mező, vagy a lenti „%CAPTCHA_admin_links” "
 "segítségével."
-
-#: captcha.admin.inc:46
 msgid "Default challenge type"
 msgstr "Alapértelmezés szerinti feladattípus"
-
-#: captcha.admin.inc:47
 msgid ""
 "Select the default challenge type for CAPTCHAs. This can be overriden "
 "for each form if desired."
 msgstr ""
 "Ki kell választani az alapértelmezett CAPTCHA feladattípust. Ez "
 "felülírható minden űrlapon, ha szükséges."
-
-#: captcha.admin.inc:107
-msgid ""
-"This option makes it easy to manage CAPTCHA settings on forms. When "
-"enabled, users with the \"%admincaptcha\" permission will see a "
-"fieldset with CAPTCHA administration links on all forms, except on "
-"administrative pages."
-msgstr ""
-"Ez a lehetőség könnyen kezelhetővé teszi a CAPTCHA "
-"beállításokat az űrlapokon. Ha engedélyezett, akkor az "
-"„%admincaptcha” jogosultsággal rendelkező felhasználók látni "
-"fognak egy CAPTCHA admisztrációs hivatkozásokkal rendelkező "
-"mezőcsoportot minden űrlapon, kivéve az adminisztrációs "
-"oldalakat."
-
-#: captcha.admin.inc:112
 msgid ""
 "Allow CAPTCHAs and CAPTCHA administration links on administrative "
 "pages"
 msgstr ""
 "Engedélyezi a CAPTCHA feladatokat és a CAPTCHA adminisztrációs "
 "hivatkozásokat az adminisztrációs oldalakon"
-
-#: captcha.admin.inc:114
 msgid ""
 "This option makes it possible to add CAPTCHAs to forms on "
 "administrative pages. CAPTCHAs are disabled by default on "
@@ -790,103 +443,193 @@ msgstr ""
 "többletterhelést. Azonban néhány esetben (például bemutató "
 "oldalakon) hasznos lehet a CAPTCHA engedélyezése az "
 "adminisztrációs oldalakra is."
-
-#: captcha.admin.inc:147
-msgid "Case sensitive validation"
-msgstr "Kisbetű/nagybetű érzékeny ellenőrzés"
-
-#: captcha.admin.inc:148
+msgid "Add a description to the CAPTCHA"
+msgstr "Leírás hozzáadása a CAPTCHA-hoz"
 msgid ""
-"Disable this option to ignore uppercase/lowercase errors in the "
-"response."
+"Add a configurable description to explain the purpose of the CAPTCHA "
+"to the visitor."
 msgstr ""
-"Ezt a lehetőséget letiltva figyelmen kívül hagyja a "
-"kisbetű/nagybetű használat miatt keletkező hibákat a válaszban."
-
-#: captcha.admin.inc:237
+"Beállítható leírás hozzáadása, ami elmagyarázza a "
+"látogatóknak a CAPTCHA célját."
+msgid "CAPTCHA description"
+msgstr "CAPTCHA leírása"
+msgid ""
+"Configurable description of the CAPTCHA. An empty entry will reset the "
+"description."
+msgstr ""
+"A CAPTCHA beállítható leírása. Az üres bejegyzés elrejti a "
+"leírást."
+msgid "Default CAPTCHA validation"
+msgstr "Alapértelmezett CAPTCHA ellenőrzés"
+msgid ""
+"Define how the response should be processed by default. Note that the "
+"modules that provide the actual challenges can override or ignore "
+"this."
+msgstr ""
+"Meghatározza a válasz alapértelmezett feldolgozási módját. "
+"Fontos megjegyezni, hogy a jelenleg alkalmazott feladatot nyújtó "
+"modul ezt nem mindig veszi figyelembe."
+msgid ""
+"Case sensitive validation: the response has to exactly match the "
+"solution."
+msgstr ""
+"Kis- és nagybetűérzékeny ellenőrzés: a válasznak tökéletesen "
+"kell egyeznie a feladvánnyal."
+msgid "Case insensitive validation: lowercase/uppercase errors are ignored."
+msgstr ""
+"Kis-, illetve nagybetűérzéketlen ellenőrzés: a kisbetű és "
+"nagybetű hibák figyelmen kívül lesznek hagyva."
 msgid "Added CAPTCHA point."
 msgstr "CAPTCHA pont hozzáadva."
-
-#: captcha.inc:35
+msgid "Reset of CAPTCHA description for language %language."
+msgstr "CAPTCHA leírás elrejtése %language nyelv esetén."
+msgid "Reset of CAPTCHA description."
+msgstr "CAPTCHA leírás elrejtése."
 msgid ""
 "Failed to set a CAPTCHA type for form %form_id: could not interpret "
 "value \"@captcha_type\""
 msgstr ""
 "A CAPTCHA típus beállítása nem sikerült a következő űrlapon: "
 "%form_id. Nem értelmezhető érték: „@captcha_type”."
-
-#: captcha.module:316
 msgid "CAPTCHA: challenge \"@type\" enabled"
 msgstr "CAPTCHA: feladat „@type” engedélyezve"
-
-#: captcha.module:332; image_captcha/image_captcha.admin.inc:45
-msgid "Example"
-msgstr "Példa"
-
-#: captcha.module:333
 msgid "This is a pre-solved, non-blocking example of this challenge."
 msgstr "Ez egy előre megoldott, nem blokkoló példája ennek a feladatnak."
-
-#: captcha.module:342
 msgid "CAPTCHA: no challenge enabled"
 msgstr "CAPTCHA: nincs engedélyezett feladat"
-
-#: captcha.module:496
-msgid "Math question"
-msgstr "Matematikai kérdés"
-
-#: captcha.module:119
+msgid "Test one two three"
+msgstr "Teszt egy, kettő, három"
 msgid "Already 1 blocked form submission"
 msgid_plural "Already @count blocked form submissions"
-msgstr[0] "Már 1 meggátolt űrlapbeküldés"
-msgstr[1] "Már @count meggátolt űrlapbeküldés"
-
-#: image_captcha/image_captcha.admin.inc:35
-msgid ""
-"The Image CAPTCHA module can not generate images because your PHP "
-"setup does not support it (no <a href=\"!gdlib\">GD library</a>)."
-msgstr ""
-"A <em>kép CAPTCHA</em> modul nem tud képeket előállítani, mert a "
-"PHP beállításai nem támogatják azt. (Nincs <a href=\"!gdlib\">GD "
-"könyvtár</a>)."
-
-#: image_captcha/image_captcha.admin.inc:46
+msgstr[0] "Már 1 meggátolt űrlapbeküldés történt"
+msgstr[1] "Már @count meggátolt űrlapbeküldés történt"
+msgid "CAPTCHA point administration"
+msgstr "CAPTCHA pont adminisztrációja"
 msgid "Presolved image CAPTCHA example, generated with the current settings."
 msgstr ""
 "Előre megoldott <em>kép CAPTCHA</em> példa, az aktuális "
 "beállításokkal létrehozva."
-
-#: image_captcha/image_captcha.admin.inc:203
-msgid "1 - low"
-msgstr "1 - alacsony"
-
-#: image_captcha/image_captcha.admin.inc:205
-msgid "3 - medium"
-msgstr "3 - közepes"
-
-#: image_captcha/image_captcha.admin.inc:207
-msgid "5 - high"
-msgstr "5 - magas"
-
-#: image_captcha/image_captcha.admin.inc:209
-msgid "10 - severe"
-msgstr "10 - szigorú"
-
-#: image_captcha/image_captcha.admin.inc:226
+msgid "extra large"
+msgstr "nagyon nagy"
+msgid "tight"
+msgstr "szűk"
+msgid "wide"
+msgstr "széles"
+msgid "extra wide"
+msgstr "nagyon széles"
 msgid ""
-"The Image CAPTCHA module can not use True Type fonts because your PHP "
-"setup does not support it. There is only a built-in bitmap font "
-"available."
+"This option makes it easy to manage CAPTCHA settings on forms. When "
+"enabled, users with the \"%admincaptcha\" permission will see a "
+"fieldset with CAPTCHA administration links on all forms, except on "
+"administrative pages."
 msgstr ""
-"A <em>kép CAPTCHA</em> modul nem tudja használni a TrueType "
-"betűkészleteket, mert a PHP beállításai nem támogatják azt. "
-"Csak a beépített bittérképes betűkészlet elérhető."
-
-#: image_captcha/image_captcha.user.inc:72
+"Ezzel a lehetőséggel könnyebben szabályozható az űrlapokhoz "
+"rendelt CAPTCHA. Bekapcsolt állapotban a „%admincaptcha” "
+"jogosultsággal rendelkező felhasználók egy mezőcsoportot fognak "
+"látni az összes űrlap alatt, kivéve az adminisztratív oldalakon."
 msgid ""
-"Could not find or read the configured font (\"%font\") for the image "
-"CAPTCHA."
+"The built-in font only supports Latin2 characters. Only use \"a\" to "
+"\"z\" and numbers."
 msgstr ""
-"A <em>kép CAPTCHA</em> modul nem találja, vagy nem tudja olvasni a "
-"beállított betűkészletet („%font”)."
-
+"A beépített betűtípus csak Latin2 karaktereket támogat. "
+"Kizárólag a betűk „a”-tól „z”-ig, valamint számok "
+"használhatók."
+msgid ""
+"CAPTCHA validation error: unknown CAPTCHA session ID. Contact the site "
+"administrator if this problem persists."
+msgstr ""
+"CAPTCHA ellenőrzési hiba: ismeretlen CAPTCHA "
+"munkafolyamat-azonosító. Ha állandósul a probléma, érdemes "
+"felvenni a kapcsolatot a webhely üzemeltetőjével."
+msgid "CAPTCHA validation error: unknown CAPTCHA session ID (%csid)."
+msgstr ""
+"CAPTCHA ellenőrzési hiba: ismeretlen CAPTCHA "
+"munkafolyamat-azonosító (%csid)."
+msgid ""
+"The Image CAPTCHA module can not generate images because your PHP "
+"setup does not support it (no <a href=\"!gdlib\">GD library</a> with "
+"JPEG support)."
+msgstr ""
+"Az Image CAPTCHA modul nem tud képeket létrehozni, mert a PHP "
+"beállításai nem támogatják azt (nincs JPEG támogatással "
+"rendelkező href=\"!gdlib\">GD könyvtár</a>)."
+msgid "Color and image settings"
+msgstr "Szín- és képbeállítások"
+msgid ""
+"Configuration of the background, text colors and file format of the "
+"image CAPTCHA."
+msgstr ""
+"A kép CAPTCHA hátterének, szövegszínének és fájlformátumának "
+"beállítása."
+msgid ""
+"Enter the hexadecimal code for the background color (e.g. #FFF or "
+"#FFCE90). When using the PNG file format with transparent background, "
+"it is recommended to set this close to the underlying background "
+"color."
+msgstr ""
+"A háttérszín tizenhatos számrendszerbeli kódja. (például #FFF "
+"vagy #FFCE90). Átlátszó PNG fájloknál ajánlott a kép alatt "
+"megjelenő háttér színéhez igazítani az átlátszóságot rosszul "
+"kezelő böngészők (például Internet Explorer 6) érdekében."
+msgid ""
+"Select the file format for the image. JPEG usually results in smaller "
+"files, PNG allows tranparency."
+msgstr ""
+"A kép fájlformátumának kiválasztása. A JPEG fájlok általában "
+"kisebbek, a PNG fájlok engedélyezik az átlátszóságot és kisebb "
+"a tömörítési algoritmusból fakadó zavar."
+msgid "JPEG"
+msgstr "JPEG"
+msgid "PNG"
+msgstr "PNG"
+msgid "PNG with transparent background"
+msgstr "PNG átlátszó háttérrel"
+msgid "@level - no distortion"
+msgstr "@level - nincs torzítás"
+msgid "@level - low"
+msgstr "@level - alacsony"
+msgid "@level - medium"
+msgstr "@level - közepes"
+msgid "@level - high"
+msgstr "@level - magas"
+msgid "No TrueType support"
+msgstr "Nincs <em>TrueType</em> támogatás"
+msgid ""
+"The Image CAPTCHA module can not use TrueType fonts because your PHP "
+"setup does not support it. You can only use a PHP built-in bitmap font "
+"of fixed size."
+msgstr ""
+"Az <em>Image Captcha</em> modul nem tud <em>TrueType</em> "
+"betűtípusokat használni, mert a PHP beállítása nem támogatja "
+"auz. Csak a PHP beépített, rögzített méretű betűtípusa "
+"használható."
+msgid "Font preview of @font (@file)"
+msgstr "@font (@file) betűtípus előnézete"
+msgid "Preview of built-in font"
+msgstr "Beépített betűtípus előnézete"
+msgid "PHP built-in font: !font_preview"
+msgstr "Beépített PHP betűtípus: !font_preview"
+msgid ""
+"Select the fonts to use for the text in the image CAPTCHA. Apart from "
+"the provided defaults, you can also use your own TrueType fonts "
+"(filename extension .ttf) by putting them in %fonts_library_general or "
+"%fonts_library_specific. You can also upload them to the \"files\" "
+"directory of your site (%filesdir), e.g. with the \"Upload\" module, "
+"but those fonts will not get a preview for security reasons."
+msgstr ""
+"Ki kell választani a kép CAPTCHA modulban a szövegekhez használt "
+"betűtípust. Az alapértelmezés szerint biztosítottak mellett a "
+"%fonts_library_general vagy a %fonts_library_specific könyvtárakban "
+"elhelyezett saját <em>TrueType</em> betűtípusok (.ttf filenév "
+"kiterjesztés) is használhatóak. A betűtípusokat a webhely "
+"„files” könyvtárba (%filesdir) is fel lehet tölteni pl. az "
+"<em>Upload</em> modul használatával, de ezekhez biztonsági okokból "
+"nem lesz előnézet létrehozva."
+msgid "You need to select at least one font."
+msgstr "Legalább egy betűtípust ki kell választani."
+msgid "The following fonts are not readable: %fonts."
+msgstr "A következő betűtípusok nem olvashatóak: %fonts."
+msgid "Enter the characters shown in the image."
+msgstr "Be kell írni a képen látható karaktereket."
+msgid "Font example"
+msgstr "Betűtípus példa"

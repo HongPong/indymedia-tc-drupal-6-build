@@ -1,4 +1,4 @@
-# $Id: de.po,v 1.4 2009/07/17 17:54:50 soxofaan Exp $
+# $Id: de.po,v 1.6 2009/12/06 11:15:14 thomaszahreddin Exp $
 #
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -13,10 +13,8 @@
 #  captcha.install,v 1.8 2009/01/03 18:04:55 soxofaan
 #  image_captcha.info,v 1.5 2008/02/17 12:49:24 soxofaan
 #
-#, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+msgstr "Project-Id-Version: PROJECT VERSION\n"
 "POT-Creation-Date: 2009-02-24 10:13+0100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: drupalcenter.de - Drupal Voice Channel\n"
@@ -36,7 +34,7 @@ msgstr "Formularschutz"
 
 #: captcha.admin.inc:33
 msgid "Select the challenge type you want for each of the listed forms (identified by their so called <em>form_id</em>'s). You can easily add arbitrary forms with textfield at the bottom of the table or with the help of the '%CAPTCHA_admin_links' option below."
-msgstr "Hier kann ausgewählt werden, welcher Aufgabentyp für jedes der aufgelisteten Formulare verwendet werden soll. Die Formulare werden durch die sogenannten <em>form_id</em>s identifiziert. Über das Textfeld am Ende der Tabelle können beliebige Formulare unter Zuhilfenahme der Option '%CAPTCHA_admin_links' hinzugefügt werden."
+msgstr "Wählen Sie einen Test, den Sie für jeden der aufgeführten Formularen (anhand der form_id). Über das Textfeld am Ende der Tabelle können beliebige Formulare unter Zuhilfenahme der Option '%CAPTCHA_admin_links' hinzugefügt werden."
 
 #: captcha.admin.inc:34;81 captcha.module:43
 msgid "Add CAPTCHA administration links to forms"
@@ -48,7 +46,7 @@ msgstr "löschen"
 
 #: captcha.admin.inc:83
 msgid "This option is very helpful to enable/disable challenges on forms. When enabled, users with the \"%admincaptcha\" permission will see CAPTCHA administration links on all forms (except on administrative pages, which shouldn't be accessible to untrusted users in the first place). These links make it possible to enable a challenge of the desired type or disable it."
-msgstr "Fügt allen Formularen (ausgenommen auf administrativen Seiten) einen Link hinzu, über den Benutzer mit der Berechtigung \"%admincaptcha\" Aufgaben eines bestimmten Typs aktivieren oder deaktivieren können."
+msgstr "Diese Option ist sehr hilfreich, zum Aktivieren bzw. Deaktivieren von Tests auf Formularen. Benutzer mit dem Recht \"%admincaptcha\" erhalten Links zur Verwaltung von CAPTCHA - Tests auf alle Formularen (ausgenommen Verwaltungs-Seiten). Einen Test des gewünschten Typs aktivieren oder deaktivieren."
 
 #: captcha.admin.inc:83 captcha.module:104
 msgid "administer CAPTCHA settings"
@@ -56,11 +54,11 @@ msgstr "Einstellungen von CAPTCHA verwalten"
 
 #: captcha.admin.inc:91;106
 msgid "Challenge description"
-msgstr "Beschreibung der Aufgabe"
+msgstr "Beschreibung des Test"
 
 #: captcha.admin.inc:92;107
 msgid "With this description you can explain the purpose of the challenge to the user."
-msgstr "Mit dieser Beschreibung wird dem Benutzer erklärt, warum diese Aufgabe notwendig ist."
+msgstr "Mit dieser Beschreibung wird dem Benutzer erklärt, warum diesr Test notwendig ist."
 
 #: captcha.admin.inc:97
 msgid "For language %lang_name (code %lang_code)"
@@ -72,19 +70,19 @@ msgstr "Gültigkeitsdauer"
 
 #: captcha.admin.inc:119
 msgid "Always add a challenge."
-msgstr "Füge immer eine Aufgabe hinzu."
+msgstr "Füge immer einen Test hinzu."
 
 #: captcha.admin.inc:120
 msgid "Omit challenges for a form once the user has successfully responded to a challenge for that form."
-msgstr "Sobald der Benutzer eine Aufgabe für dieses Formular gelöst hat, werden Aufgaben für das Formular übersprungen."
+msgstr "Sobald der Benutzer einen Test für dieses Formular gelöst hat, werden Tests für das Formular übersprungen."
 
 #: captcha.admin.inc:121
 msgid "Omit challenges for all forms once the user has successfully responded to a challenge."
-msgstr "Sobald der Benutzer eine Aufgabe gelöst hat, werden Aufgaben für alle Formulare übersprungen."
+msgstr "Sobald der Benutzer einen Test gelöst hat, werden Tests für alle Formulare übersprungen."
 
 #: captcha.admin.inc:123
 msgid "Define if challenges should be omitted during the rest of a session once the user successfully responses to a challenge."
-msgstr "Sobald der Benutzer eine Aufgabe gelöst hat, werden Aufgaben für den Rest der Sitzung übersprungen."
+msgstr "Sobald der Benutzer einen Test gelöst hat, werden Tests für den Rest der Sitzung übersprungen."
 
 #: captcha.admin.inc:129
 msgid "Log wrong responses"
@@ -104,7 +102,7 @@ msgstr "Konfiguration speichern"
 
 #: captcha.admin.inc:147
 msgid "Challenge type (module)"
-msgstr "Aufgabentyp (Modul)"
+msgstr "Testtyp (Modul)"
 
 #: captcha.admin.inc:147
 msgid "Operations"
@@ -132,7 +130,7 @@ msgstr "Die Drupal form_id des Formulars zu dem das CAPTCHA hinzugefügt werden 
 
 #: captcha.admin.inc:279
 msgid "Challenge type"
-msgstr "Aufgabentyp"
+msgstr "Testtyp"
 
 #: captcha.admin.inc:280
 msgid "The CAPTCHA type to use for this form"
@@ -172,15 +170,15 @@ msgstr "CAPTCHA für Formular %form_id deaktiviert."
 
 #: captcha.admin.inc:386
 msgid "This page gives an overview of all available challenge types, generated with their current settings."
-msgstr "Diese Seite gibt einen Überblick aller verfügbaren Aufgabentypen unter Verwendung ihrer aktuellen Einstellungen."
+msgstr "Diese Seite gibt einen Überblick aller verfügbaren Testtypen unter Verwendung ihrer aktuellen Einstellungen."
 
 #: captcha.admin.inc:394
 msgid "Challenge \"%challenge\" by module \"%module\""
-msgstr "Aufgabe \"%challenge\" pro Modul \"%module\""
+msgstr "Test \"%challenge\" pro Modul \"%module\""
 
 #: captcha.admin.inc:397
 msgid "10 more examples of this challenge."
-msgstr "10 weitere Beispiele dieser Aufgabe."
+msgstr "10 weitere Beispiele dieses Test."
 
 #: (duplicate) captcha.pages.inc:52;39 captcha.module:186;116 ;263;57;68 captcha.info:0 image_captcha/image_captcha.user.inc:29 image_captcha/image_captcha.module:94
 msgid "CAPTCHA"
@@ -188,15 +186,15 @@ msgstr "CAPTCHA"
 
 #: captcha.pages.inc:39
 msgid "CAPTCHA problem: hook_captcha() of module %module returned nothing when trying to retrieve challenge type %type for form %form_id."
-msgstr "CAPTCHA Problem: Die Rückgabe von hook_captcha() des Moduls %module ist fehlgeschlagen, als versucht wurde für das Formular %form_id den Aufgabentyp %type zu erstellen."
+msgstr "CAPTCHA Problem: Die Rückgabe von hook_captcha() des Moduls %module ist fehlgeschlagen, als versucht wurde für das Formular %form_id den Testtyp %type zu erstellen."
 
 #: captcha.module:28
 msgid "\"CAPTCHA\" is an acronym for \"Completely Automated Public Turing test to tell Computers and Humans Apart\". It is typically a challenge-response test to determine whether the user is human. The CAPTCHA module is a tool to fight automated submission by malicious users (spamming) of for example comments forms, user registration forms, guestbook forms, etc. You can extend the desired forms with an additional challenge, which should be easy for a human to solve correctly, but hard enough to keep automated scripts and spam bots out."
-msgstr "\"CAPTCHA\" ist eine Abkürzung für \"Completely Automated Public Turing test to tell Computers and Humans Apart\". Wörtlich übersetzt bedeutet das \"Vollautomatischer öffentlicher Turing-Test, um Computer und Menschen zu unterscheiden\". CAPTCHAs werden verwendet, um zu entscheiden, ob der Gegenüber ein Mensch oder eine Maschine ist. Die Aufgabe des CAPTCHA Moduls ist es, eine unüberwindbare Hürde für Computer, die Spam z.B. in Kommentare oder in Beiträgen eintragen wollen, zu verhindern. Gleichzeitig sollen die Aufgaben für Menschen einfach zu lösen sein."
+msgstr "CAPTCHA ist ein Akronym für Completely Automated Public Turing test to tell Computers and Humans Apart. Wörtlich übersetzt bedeutet das \"Vollautomatischer öffentlicher Turing-Test, um Computer und Menschen zu unterscheiden\". Es ist in der Regel ein Challenge-Response-Test, um festzustellen, ob der Benutzer menschlich ist. Das CAPTCHA-Modul ist ein Werkzeug zur automatisierten Überprüfung von Benutzern, um Spamming zu vermeiden, zB in Kommentaren,  bei der Benutzer-Registrierung, im Gästebuch Formulare, etc. Einzelne Formulare können mit einem zusätzlichen Test versehen werden, der einfach für eine Menschen zu lösen ist, aber schwer für automatisierte Skripte und Spam-Bots."
 
 #: captcha.module:29
 msgid "Note that the CAPTCHA module interacts with page caching (see <a href=\"!performancesettings\">performance settings</a>). Because the challenge should be unique for each generated form, the caching of the page it appears on is prevented. Make sure that these forms do not appear on too many pages or you will lose much caching efficiency. For example, if you put a CAPTCHA on the user login block, which typically appears on each page for anonymous visitors, caching will practically be disabled. The comment submission forms are another example. In this case you should set the \"%commentlocation\" to \"%separatepage\" in the comment settings of the relevant <a href=\"!contenttypes\">content types</a> for better caching efficiency."
-msgstr "Zu beachten ist auch, dass das CAPTCHA Modul mit dem Seitencache (siehe <a href=\"!performancesettings\">Leistungs-Einstellungen</a>) zusammenspielt. Da die Aufgabe für jedes generierte Form eindeutig sein sollte, wird das Caching für die Seite, auf der die Aufgabe ausgegeben wird, deaktiviert. Dementsprechend sollten diese Aufgaben nicht auf zu vielen Seiten auftauchen, da sonst die Effizienz des Caches vermindert wird. Beispielsweise deaktiviert ein CAPTCHA im Login-Formular quasi den Cache, da dieses Formular praktisch auf jeder Seite für anonyme Benutzer angezeigt wird. Das Formular zum Einstellen neuer Kommentare ist ein weiteres Beispiel dafür. In diesem Fall sollte in den Einstellungen für Kommentare der entsprechenden <a href=\"!contenttypes\">Inhaltstypen</a> \"%commentlocation\" auf \"%separatepage\" gesetzt werden."
+msgstr "Das CAPTCHA-Modul interagiert mit dem Seiten-Caching, siehe <a href=\"!performancesettings\">Performance-Einstellungen</a>. Da für jeden einzelnen Abruf des Formulars ein neuer Test erzeugt wird, werden die Formularseiten nicht in den Cache aufgenommen. Stellen Sie sicher, dass die Tests nicht auf zu viele Seiten erscheinen , sonst wird viel Effizienz verloren (Caching  deaktiviert für diese Seiten). Zum Beispiel, wenn Sie ein CAPTCHA auf dem User-Login-Block aktivieren, der in der Regel auf jeder Seite für anonyme Besucher erscheint, ist  das Caching damit praktisch ausgeschaltet. Der Kommentar Formulare sind ein weiteres Beispiel. In diesem Fall sollten Sie den \"%commentlocation\" auf \"%separatepage\" in den Kommentar-Einstellungen des jeweiligen <a href=\"!contenttypes\">Inhaltstpyen</a> für eine bessere Caching-Effizienz."
 
 #: captcha.module:32
 msgid "Location of comment submission form"
@@ -212,11 +210,11 @@ msgstr "CAPTCHA ist ein Warenzeichen der Carnegie Mellon Universität."
 
 #: captcha.module:42
 msgid "A CAPTCHA can be added to virtually each Drupal form. Some default forms are already provided in the form list, but arbitrary forms can be easily added and managed when the option \"%adminlinks\" is enabled."
-msgstr "Ein CAPTCHA kann praktisch zu jedem Drupal Formular hinzugefügt werden. Manche Standardformulare sind bereits in der Liste aufgelistet, zusätzliche Formulare können hinzugefügt und verwaltet werden, wenn die Option \"%adminlinks\" aktiviert ist."
+msgstr "Ein CAPTCHA kann zu praktisch jedem Drupal-Formular hinzugefügt werden. Manche Standardformulare sind bereits in der Liste, zusätzliche Formulare können hinzugefügt und verwaltet werden, wenn die Option \"%adminlinks\" aktiviert ist."
 
 #: captcha.module:44
 msgid "Users with the \"%skipcaptcha\" <a href=\"@perm\">permission</a> won't be offered a challenge. Be sure to grant this permission to the trusted users (e.g. site administrators). If you want to test a protected form, be sure to do it as a user without the \"%skipcaptcha\" permission (e.g. as anonymous user)."
-msgstr "Benutzer mit der <a href=\"@perm\">Berechtigung</a> \"%skipcaptcha\" brauchen keine CAPTCHA Aufgaben zu lösen. Diese Berechtigung sollte nur an registrierte Benutzer vergeben werden, die z.B. bei der Registrierung schon eine CAPTCHA Aufgabe gelöst haben. Zum Testen eines geschützten Formulars, sollte ein Benutzer gewählt werden, der nicht die Berechtigung \"%skipcaptcha\" hat z.B. ein anonymer Benutzer."
+msgstr "Benutzer mit der  \"%skipcaptcha\" <a href=\"@perm\">Berechtigung</a> werden vom Test ausgenommen. Achten Sie darauf, dieses Recht nur vertrauenswürdigen Benutzern zu gewähren (z. B. Website-Administratoren). Wenn Sie zu ein geschütztes Formular testen wollen, so sollten Sie es als Benutzer tun, ohne die \"%skipcaptcha\" Berechtigung (zB als anonymer Benutzer)."
 
 #: captcha.module:45;104
 msgid "skip CAPTCHA"
@@ -224,7 +222,7 @@ msgstr "CAPTCHA überspringen"
 
 #: captcha.module:150
 msgid "This question is for testing whether you are a human visitor and to prevent automated spam submissions."
-msgstr "Diese Frage hat den Zweck zu testen, ob man ein menschlicher Benutzer ist und um automatisierten Spam vorzubeugen."
+msgstr "Diese Frage hat den Zweck zu testen, ob Sie ein menschlicher Benutzer sind und um automatisierten Spam vorzubeugen."
 
 #: captcha.module:191
 msgid "CAPTCHA: \"@type\" enabled"
@@ -240,7 +238,7 @@ msgstr "Allgemeine CAPTCHA-Einstellungen"
 
 #: captcha.module:197
 msgid "Enabled challenge"
-msgstr "Aufgabe aktiviert"
+msgstr "Test aktiviert"
 
 #: captcha.module:198
 msgid "\"@type\" by module \"@module\" (!change, !disable)"
@@ -256,7 +254,7 @@ msgstr "Deaktivieren"
 
 #: captcha.module:207
 msgid "CAPTCHA: no challenge enabled"
-msgstr "CAPTCHA: keine Aufgabe aktiviert"
+msgstr "CAPTCHA: keine Test aktiviert"
 
 #: captcha.module:209
 msgid "Place a CAPTCHA here for untrusted users."
@@ -264,7 +262,7 @@ msgstr "Hier einen CAPTCHA für nicht vertrauenswürdige Benutzer platzieren."
 
 #: captcha.module:244
 msgid "CAPTCHA test failed (unknown csid)."
-msgstr "CAPTCHA Test fehlgeschlagen."
+msgstr "CAPTCHA fehlgeschlagen."
 
 #: captcha.module:258
 msgid "The answer you entered for the CAPTCHA was not correct."
@@ -272,23 +270,23 @@ msgstr "Die von Ihnen eingegebene Antwort war nicht korrekt."
 
 #: captcha.module:398
 msgid "Math Question"
-msgstr "Mathematische Aufgabe"
+msgstr "Mathematischer Test"
 
 #: captcha.module:399
 msgid "Solve this simple math problem and enter the result. E.g. for 1+3, enter 4."
-msgstr "Das einfache mathematische Problem ist zu lösen und das Ergebnis einzugeben. Z.B. muss für 1+3 der Wert 4 eingegebene werden."
+msgstr "Das einfache mathematische Problem ist zu lösen und das Ergebnis einzugeben.  Z.B. muss für 1+3 der Wert 4 eingegebene werden."
 
 #: captcha.module:400
 msgid "@x + @y = "
-msgstr "@x + @y = "
+msgstr "@x + @y =  "
 
 #: (duplicate) captcha.module:117 
 msgid "Already @counter blocked form submissions"
-msgstr "Es wurden bisher @counter Formulareingaben geblockt"
+msgstr "Es wurden bisher @counter Formulareingaben abgeblockt"
 
 #: captcha.module:263
 msgid "%form_id post blocked by CAPTCHA module: challenge \"%challenge\" (by module \"%module\"), user answered \"%response\", but the solution was \"%solution\"."
-msgstr "Der Beitrag von %form_id  wurde vom CAPTCHA Modul geblockt: Aufgabe \"%challenge\" (vom Modul \%module\"), der Benutzer antwortete \"%response\", aber die Lösung war \"%solution\"."
+msgstr "Der Beitrag von %form_id  wurde vom CAPTCHA Modul geblockt: Test \"%challenge\" (vom Modul \"%module\"), der Benutzer antwortete \"%response\", aber die Lösung war \"%solution\"."
 
 #: captcha.module:58
 msgid "Administer how and where CAPTCHAs are used."
@@ -304,7 +302,7 @@ msgstr "Beispiele"
 
 #: captcha.module:81
 msgid "An overview of the available challenge types with examples."
-msgstr "Überblick verfügbarer Aufgabentypen mit Beispielen."
+msgstr "Überblick verfügbarer Testtypen mit Beispielen."
 
 #: captcha.module:90
 msgid "CAPTCHA point administration"
@@ -316,7 +314,7 @@ msgstr "captcha"
 
 #: captcha.install:10
 msgid "This table describes which challenges should be added to which forms."
-msgstr "Diese Tabelle beschreibt, welche Aufgabe zu welchem Formular hinzugefügt wird."
+msgstr "Diese Tabelle beschreibt, welche Test zu welchem Formular hinzugefügt wird."
 
 #: captcha.install:13
 msgid "The form_id of the form to add a CAPTCHA to."
@@ -324,11 +322,11 @@ msgstr "Die form_id des Formulars, zu dem ein CAPTCHA hinzugefügt wird."
 
 #: captcha.install:19
 msgid "The module that provides the challenge."
-msgstr "Das Modul, das die Aufgabe bereitstellt."
+msgstr "Das Modul, das die Test bereitstellt."
 
 #: captcha.install:24
 msgid "The challenge type to use."
-msgstr "Der zu verwendende Aufgabentyp."
+msgstr "Der zu verwendende Testtyp."
 
 #: captcha.install:33;191
 msgid "Stores the data about CAPTCHA sessions (solution, IP address, timestamp, ...)."
@@ -360,7 +358,7 @@ msgstr "Die form_id des Formulars, zu dem ein CAPTCHA hinzugefügt wird."
 
 #: captcha.install:72;230
 msgid "Solution of the challenge."
-msgstr "Lösung der Aufgabe."
+msgstr "Lösung des Test."
 
 #: captcha.install:79;237
 msgid "Status of the CAPTCHA session (unsolved, solved, ...)"
@@ -380,7 +378,7 @@ msgstr "Nicht unterstützte Datenbank."
 
 #: captcha.info:0
 msgid "Base CAPTCHA module for adding challenges to arbitrary forms."
-msgstr "Basis CAPTCHA Modul zur Erweiterung beliebiger Formulare mir einer CAPTCHA Aufgabe."
+msgstr "Basis CAPTCHA Modul zur Erweiterung beliebiger Formulare mir einem CAPTCHA (Test)."
 
 #: captcha.info:0 image_captcha/image_captcha.info:0
 msgid "Spam control"
@@ -408,7 +406,7 @@ msgstr "Textlänge"
 
 #: image_captcha/image_captcha.admin.inc:48
 msgid "The code length influences the size of the image. Note that larger values make the image generation more CPU intensive."
-msgstr "Die Länge des Textes beeinflusst die Größe des Bildes; je länger dieser ist, desto mehr Rechenzeit wird aufgewandt, um das Bild zu erstellen."
+msgstr "Die Codelänge beeinflusst die Größe des Bildes. Je größer der Wert ist, desto mehr Rechenzeit wird aufgewandt, um das Bild zu erstellen."
 
 #: image_captcha/image_captcha.admin.inc:53
 msgid "Case insensitive validation"
@@ -416,7 +414,7 @@ msgstr "Groß- und Kleinschreibung wird nicht unterschieden"
 
 #: image_captcha/image_captcha.admin.inc:54
 msgid "Enable this option to ignore uppercase/lowercase errors in the response. This can be usefull for certain target audiences or fonts."
-msgstr "Ignorieren von Groß- und Kleinschreibung in der Antwort, kann bei bestimmten Nutzergruppen oder Zeichensätzen sinnvoll sein."
+msgstr "Aktivieren Sie diese Option, um Groß-/ Kleinschreibung in der Antwort zu ignorieren. Dies kann für bestimmte Zielgruppen oder Schriftarten nützlich."
 
 #: image_captcha/image_captcha.admin.inc:61
 msgid "Font settings"
@@ -452,7 +450,7 @@ msgstr "groß"
 
 #: image_captcha/image_captcha.admin.inc:86
 msgid "The font size influences the size of the image. Note that larger values make the image generation more CPU intensive."
-msgstr "Die Größe der Zeichen beeinflusst die Bildgröße; je größer dieses ist, desto mehr Rechenzeit wird aufgewandt, um das Bild zu erstellen."
+msgstr "Schriftgröße beeinflusst die Größe des Bildes. Je größer der Wert ist, desto mehr Rechenzeit wird aufgewandt, um das Bild zu erstellen."
 
 #: image_captcha/image_captcha.admin.inc:92
 msgid "Character spacing"
@@ -460,7 +458,7 @@ msgstr "Zeichenabstand"
 
 #: image_captcha/image_captcha.admin.inc:93
 msgid "Define the average spacing between characters. Note that larger values make the image generation more CPU intensive."
-msgstr "Festlegen des Abstandes zwischen Zeichen; je größer dieser ist, desto mehr Rechenzeit wird aufgewandt, um das Bild zu erstellen."
+msgstr "Definieren Sie die durchschnittliche Abstand zwischen den Zeichen. Je größer der Wert ist, desto mehr Rechenzeit wird aufgewandt, um das Bild zu erstellen."
 
 #: image_captcha/image_captcha.admin.inc:105
 msgid "Color settings"
@@ -512,7 +510,7 @@ msgstr "Verzerrung und Rauschen"
 
 #: image_captcha/image_captcha.admin.inc:143
 msgid "With these settings you can control the degree of obfuscation by distortion and added noise. Do not exaggerate the obfuscation and assure that the code in the image is reasonably readable. For example, do not combine high levels of distortion and noise."
-msgstr "Mit diesen Einstellungen kann der Grad der Veränderung über Verzerrung und hinzugefügtes Rauschen kontrolliert werden. Die Veränderung sollte nicht übertrieben werden und der Code im Bild sollte halbwegs lesbar sein. Beispielsweise sollten starke Verzerrung und ein sehr starkes Rauschen nicht kombiniert werden."
+msgstr "Mit diesen Einstellungen können Sie den Grad Verschleierung und das Ausmaß des Rauschens steuern. Übertreiben Sie nicht die Verschleierung und prüfen Sie, dass der Code in den Bildern einigermaßen lesbar ist. Kombinieren Sie zum Beispiel nicht starke Verzerrungen und starkes Rauschen."
 
 #: image_captcha/image_captcha.admin.inc:148
 msgid "Distortion level"
@@ -568,7 +566,7 @@ msgstr "Grad des Rauschens"
 
 #: image_captcha/image_captcha.admin.inc:206
 msgid "The image CAPTCHA module works best with a TrueType font file (TTF) for generating the images, but because of licencing issues it is not allowed to package fonts with the module. A simple built-in bitmap font is provided as default instead. You can install TrueType fonts yourself by putting them in the fonts directory of the image CAPTCHA module (directory \"%fontsdir\") or by uploading them to your Drupal file system (directory \"%filesdir\") with for example the upload module."
-msgstr "Das Bild-CAPTCHA Modul funktioniert am Besten mit einer TrueType-Schriftart (TTF), um die Bilder zu erzeugen. Jedoch ist es aufgrund von Lizenzbestimmungen nicht erlaubt, Schriftarten mit dem Modul auszuliefern. Eine einfache Bitmap-Schriftart wird stattdessen als Standardschrift verwendet. TrueType Schriften können installiert werden, indem sie direkt im Schriftenverzeichnis von CAPTCHA (Verzeichnis \"%fontsdir\") abgelegt oder in das Dateisystem von Drupal (Verzeichnis \"%filesdir\") hochgeladen werden (z.B. mit dem Upload-Modul)."
+msgstr "Das Bild CAPTCHA-Modul funktioniert am besten mit einer TrueType-Schriftart-Datei (TTF) für die Generierung der Bilder, aber wegen der Lizenzbedingungen ist es nicht gestattet, diese Schriftdateien mitzuliefern. Eine einfache Bitmap-Schrift ist stattdessen mitgeliefert. Sie können TrueType-Schriftarten installieren: laden Sie diese in das Schriftarten-Verzeichnis des CAPTCHA-Modul (Verzeichnis \"%fontsdir\") oder in Ihrer Drupal-Dateisystem (Verzeichnis \"%filesdir\") mit dem Upload-Modul."
 
 #: image_captcha/image_captcha.admin.inc:209
 msgid "The usage of the built-in bitmap font it is not recommended because of its small size and missing UTF-8 support."
@@ -596,11 +594,11 @@ msgstr "Die Textfarbe wurde nicht als hexadezimaler Farbwert angegeben."
 
 #: image_captcha/image_captcha.user.inc:29
 msgid "Generation of image CAPTCHA failed. Check your image CAPTCHA configuration and especially the used font."
-msgstr "Die Generierungen des Bild-CAPTCHAs ist fehlgeschlagen. Bitte die Einstellungen für Bild-CAPTCHA und insbesondere die benutzte Schriftart überprüfen."
+msgstr "Das CAPTCHA-Bild konnte nicht erzeugt werden.  Bitte die Einstellungen für Bild-CAPTCHA und insbesondere die benutzte Schriftart überprüfen."
 
 #: image_captcha/image_captcha.module:17
 msgid "The image CAPTCHA is a popular challenge where a random textual code is obfuscated in an image. The image is generated on the fly for each request, which is rather CPU intensive for the server. Be careful with the size and computation related settings."
-msgstr "Das Bild-CAPTCHA ist eine oft benutzte Aufgabe, in der zufälliger Text in einem Bild verändert ausgegeben wird. Das Bild wird bei jedem Aufruf erzeugt. Vorsicht walten lassen bezüglich der Größe und des Berechnungsaufwands."
+msgstr "Das Bild CAPTCHA ist ein beliebter Test, bei dem ein zufälliger Text in ein Bild verwoben wird. Das Bild wird neu für jede einzelne Abfrage erzeugt, was entsprechend CPU-Zeit auf dem Server verbraucht. Wählen Sie die Größe und andere Einstellungen mit Bedacht."
 
 #: image_captcha/image_captcha.module:22
 msgid "<p>Example image, generated with the current settings:</p>!img"
@@ -612,7 +610,7 @@ msgstr "Bitte die im Bild dargestellten Buchstaben (ohne Leerzeichen) eingeben."
 
 #: image_captcha/image_captcha.module:149
 msgid "Enter the characters shown in the image. Ignore spaces and be careful about upper and lower case."
-msgstr "Bitte die im Bild dargestellten Buchstaben (ohne Leerzeichen) eingeben und dabei Groß- und Kleinschreibung beachten."
+msgstr "Bitte die im Bild dargestellten Buchstaben (ohne Leerzeichen) eingeben. Bitte die im Bild dargestellten Buchstaben (ohne Leerzeichen) eingeben und dabei Groß- und Kleinschreibung beachten."
 
 #: image_captcha/image_captcha.module:159;159;35 image_captcha/image_captcha.info:0
 msgid "Image CAPTCHA"
