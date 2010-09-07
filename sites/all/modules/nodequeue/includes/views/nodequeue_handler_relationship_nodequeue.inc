@@ -1,14 +1,15 @@
 <?php
-//$Id: nodequeue_handler_relationship_nodequeue.inc,v 1.1 2008/09/06 15:42:05 ezrag Exp $
+//$Id: nodequeue_handler_relationship_nodequeue.inc,v 1.2 2010/01/31 23:17:53 ezrag Exp $
 /**
  * Specialized relationship handler to add nodequeues.
  */
 class nodequeue_handler_relationship_nodequeue extends views_handler_relationship {
-  function options(&$options) {
-    parent::options($options);
+  function option_definition() {
+    $options = parent::option_definition();
 
-    $options['limit'] = FALSE;
-    $options['qids'] = array();
+    $options['limit']['default'] = FALSE;
+    $options['qids']['default'] = array();
+    return $options;
   }
 
   /**

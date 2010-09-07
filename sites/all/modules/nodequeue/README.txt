@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.6 2009/10/26 15:07:49 ezrag Exp $
+$Id: README.txt,v 1.7 2009/12/20 00:00:27 ezrag Exp $
 The Node Queue module allows an administrator to arbitrarily put nodes in a
 group for some purpose; examples of this might be to highlight one particular
 node, as in a typical news site's Lead Article. Another use might be to create
@@ -110,7 +110,6 @@ With Nodequeue 6.x-2.x:
 <?php
 $node = nodequeue_load_back($subqueue_id);
 $rendered_node = node_view($node);
- 
 ?>
 
 With Nodequeue 5.x-2.x:

@@ -1,5 +1,5 @@
 <?php
-// $Id: nodequeue.module,v 1.98 2009/11/05 02:04:43 ezrag Exp $
+// $Id: nodequeue.module,v 1.106 2010/03/16 22:10:45 ezrag Exp $
 
 /**
  * @file
@@ -351,6 +351,10 @@ function nodequeue_form_apachesolr_search_bias_form_alter(&$form, $form_state) {
  * Implementation of hook_apachesolr_update_index().
  */
 function nodequeue_apachesolr_update_index(&$document, $node) {
+  if (empty($document)) {
+    return;
+  }
+
   $queues = nodequeue_load_queues(array_keys(nodequeue_get_all_qids()));
   $subqueues = nodequeue_get_subqueues_by_node($queues, $node);
 
@@ -961,7 +965,7 @@ function nodequeue_admin_delete_submit($formid, &$form_state) {
 /**
  * Page callback to view a queue.
  */
-function nodequeue_admin_view($queue, $subqueue = NULL) {
+function nodequeue_admin_view($queue, $subqueue = array()) {
   drupal_set_title(t("Nodequeue '@title'", array('@title' => $queue->title)));
   $qid = $queue->qid;
 
@@ -1093,7 +1097,7 @@ function nodequeue_arrange_subqueue_form($form_state, $queue, $nodes, $subqueue)
   $form['add']['nid'] = array(
     '#type' => 'textfield',
     '#autocomplete_path' => 'nodequeue/autocomplete/'. $subqueue->sqid,
-    '#default_value' => 'Enter the title of a node to add it to the queue',
+    '#default_value' => t('Enter the title of a node to add it to the queue'),
   );
   $form['add']['submit'] = array(
     '#type' => 'submit',
@@ -1238,7 +1242,11 @@ function nodequeue_save_subqueue_order($nodes, $qid, $sqid) {
       $clean[$count] = $nid;
       $count++;
     }
-    else if ($pos != 'r') {
+    else if ($pos == 'r') {
+      // call nodequeue_remove hook
+      module_invoke_all('nodequeue_remove', $sqid, $nid);
+    }
+    else {
       return array(NODEQUEUE_INVALID_POSITION, 'Invalid position value. New subqueue order not saved.');
     }
   }
@@ -1372,6 +1380,7 @@ function _nodequeue_autocomplete($sqid, $string) {
  * Get the list of nodes in the subqueue, taking into account node access restrictions.
  */
 function nodequeue_nids_visible($sqid = -1, $account = NULL) {
+  $node_status_sql = '';
   if (!$account) {
     global $user;
     $account = $user;
@@ -1381,7 +1390,7 @@ function nodequeue_nids_visible($sqid = -1, $account = NULL) {
     $node_status_sql = ' AND (n.status = 1 || n.uid = %d)';
   }
 
-  $query_restricted = db_query(db_rewrite_sql("SELECT DISTINCT(n.nid) FROM {node} n LEFT JOIN {nodequeue_nodes} nq ON nq.nid = n.nid WHERE nq.sqid = %d $node_status_sql ORDER BY nq.position $order"), $sqid, $account->uid);
+  $query_restricted = db_query(db_rewrite_sql("SELECT DISTINCT(n.nid) FROM {node} n LEFT JOIN {nodequeue_nodes} nq ON nq.nid = n.nid WHERE nq.sqid = %d $node_status_sql ORDER BY nq.position ASC"), $sqid, $account->uid);
   while ($result_restricted = db_fetch_object($query_restricted)) {
     $nids_visible[$result_restricted->nid] = $result_restricted->nid;
   }
@@ -1673,6 +1682,8 @@ function nodequeue_load_queues($qids = array(), $bypass_cache = FALSE) {
     while ($obj = db_fetch_object($result)) {
       $loaded[$obj->qid]->types[] = $obj->type;
     }
+
+    drupal_alter('nodequeue', $loaded, 'load_queues');
   }
 
   if ($bypass_cache) {
@@ -1700,7 +1711,7 @@ function nodequeue_load_queues($qids = array(), $bypass_cache = FALSE) {
  */
 function nodequeue_load($qid) {
   $queues = nodequeue_load_queues(array($qid));
-  return array_shift($queues);
+  return !empty($queues) ? array_shift($queues) : array();
 }
 
 /**
@@ -2224,7 +2235,7 @@ function nodequeue_get_subqueues_by_node($queues, $node) {
   }
 
   if (empty($references)) {
-    return;
+    return array();
   }
   // only allow the static cache to be used if the nid is the same as the last
   $subqueues = nodequeue_load_subqueues_by_reference($references, ($last_nid != $node->nid));
@@ -2651,6 +2662,13 @@ function nodequeue_admin_settings() {
     '#title' => t('Nodequeue tab label'),
     '#default_value' => variable_get('nodequeue_tab_name', t('Nodequeue')),
     '#description' => t('If nodes will have a menu tab for manipulating related nodequeues, what should that tab be called?'),
+  );
+  $form['nodequeue_view_per_queue'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Automatically create one view per queue'),
+    '#description' => t("Nodequeue can create a view for each queue. \n
+      If you wish to have fewer views, you can disable this option and use a single view with an argument for the qid."),
+    '#default_value' => variable_get('nodequeue_view_per_queue', 1),
   );
   return system_settings_form($form);
 }

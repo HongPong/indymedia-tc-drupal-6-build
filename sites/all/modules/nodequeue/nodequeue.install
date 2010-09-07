@@ -1,5 +1,5 @@
 <?php
-// $Id: nodequeue.install,v 1.19 2009/10/24 20:23:16 ezrag Exp $
+// $Id: nodequeue.install,v 1.20 2010/03/15 00:49:31 ezrag Exp $
 
 function nodequeue_schema() {
   $schema['nodequeue_queue'] = array(
@@ -411,6 +411,16 @@ function nodequeue_update_6003() {
 function nodequeue_update_6004() {
   $ret = array();
   db_add_index($ret, 'nodequeue_nodes', '{nodequeue_nodes}_qid_nid_idx', array('qid', 'nid'));
+  return $ret;
+}
+
+/*
+ * Rename the 'nodequeue_automatic_views_generation'
+ * to 'nodequeue_view_per_queue'.
+ */
+function nodequeue_update_6005() {
+  $ret = array();
+  $ret[] = update_sql("UPDATE {system} set name = 'nodequeue_view_per_queue' where name = 'nodequeue_automatic_views_generation'");
   return $ret;
 }
 

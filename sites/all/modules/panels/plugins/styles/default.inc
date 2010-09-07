@@ -1,51 +1,39 @@
 <?php
-// $Id: default.inc,v 1.1.2.2 2009/03/24 18:32:20 merlinofchaos Exp $
+// $Id: default.inc,v 1.1.2.8 2010/07/13 23:55:58 merlinofchaos Exp $
 
 /**
- * @file styles/block.inc
+ * @file
  * Definition of the 'default' panel style.
  */
 
-// ---------------------------------------------------------------------------
-// Panels hooks.
-
-/**
- * Implementation of hook_panels_style_info().
- */
-function panels_default_panels_styles() {
-  return array(
-    'default' => array(
-      'title' => t('No style'),
-      'description' => t('The default panel rendering style; displays each pane with a separator.'),
-      'render panel' => 'panels_default_style_render_panel',
-    ),
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Panels style plugin callbacks.
+// Plugin definition
+$plugin = array(
+  'title' => t('No style'),
+  'description' => t('The default panel rendering style; displays each pane with a separator.'),
+  'render region' => 'panels_default_style_render_region',
+  'weight' => -15,
+);
 
 /**
  * Render callback.
  *
  * @ingroup themeable
  */
-function theme_panels_default_style_render_panel($display, $panel_id, $panes, $settings) {
+function theme_panels_default_style_render_region($display, $region_id, $panes, $settings) {
   $output = '';
 
   $print_separator = FALSE;
-  foreach ($panes as $pane_id => $content) {
+  foreach ($panes as $pane_id => $pane_output) {
     // Add the separator if we've already displayed a pane.
     if ($print_separator) {
-      $output .= '<div class="panel-separator"></div>';
+      $output .= '<div class="panel-region-separator"></div>';
     }
-    $output .= $text = panels_render_pane($content, $display->content[$pane_id], $display);
 
+    $output .= $pane_output;
     // If we displayed a pane, this will become true; if not, it will become
     // false.
-    $print_separator = (bool) $text;
+    $print_separator = (bool) $pane_output;
   }
 
   return $output;
 }
-

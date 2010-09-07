@@ -7,9 +7,9 @@ package         = "Nodequeue"
 
 
 
-; Information added by drupal.org packaging script on 2009-11-05
-version = "6.x-2.5"
+; Information added by drupal.org packaging script on 2010-03-16
+version = "6.x-2.9"
 core = "6.x"
 project = "nodequeue"
-datestamp = "1257387665"
+datestamp = "1268779506"
 

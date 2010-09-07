@@ -1,5 +1,5 @@
 <?php
-// $Id: smartqueue.module,v 1.6 2009/06/10 22:19:30 ezrag Exp $
+// $Id: smartqueue.module,v 1.10 2010/03/15 00:47:00 ezrag Exp $
 
 /**
  * Implementation of hook_nodequeue_info()
@@ -24,6 +24,13 @@ function smartqueue_taxonomy_nodequeue_form($queue, &$form) {
     '#description' => t('Select which vocabularies to use; each unique combination of terms from all of these vocabularies will have a subqueue.'),
     '#options' => $options,
   );
+
+  $form['placeholder']['use_parents'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Assume parent term for hierarchical vocabs'),
+    '#description' => t("Instead of using the node's terms for nodequeue assignment use the top-most parents of a term. This has no effect if there in non-hierarchical vocabularies."),
+    '#default_value' => isset($queue->use_parents) ? $queue->use_parents : 0,
+  );  
 
   $form['subqueue_title'] = array(
     '#type' => 'textfield',
@@ -56,6 +63,18 @@ function smartqueue_taxonomy_nodequeue_form_validate($queue, &$form_state, &$for
   }
 }
 
+/**
+ * Implementation of hook_nodequeue_form_submit_finish()
+ */
+function smartqueue_taxonomy_nodequeue_form_submit_finish($queue, $form_state) {
+  $qid = db_result(db_query('SELECT qid FROM {smartqueue} WHERE qid = %d', $queue->qid));
+  if ($qid) {
+    db_query('UPDATE {smartqueue} SET use_parents = %d  WHERE qid = %d', $form_state['values']['use_parents'], $queue->qid);
+  }
+  else {
+    db_query('INSERT INTO {smartqueue} (qid, use_parents) VALUES (%d, %d)', $queue->qid, $form_state['values']['use_parents']);
+  }
+}
 
 /**
  * Implementation of hook_nodequeue_subqueues()
@@ -80,6 +99,13 @@ function smartqueue_taxonomy_nodequeue_subqueues(&$queue, $node) {
       if (isset($vids[$value->vid])) {
         $vids[$value->vid][] = $value->tid;
       }
+    }
+  }
+
+  if ($queue->use_parents) {
+    // Replace taxonomy IDs by their parents'
+    foreach ($vids as $vid => &$tids) {
+      $tids = smartqueue_taxonomy_get_parents($tids);
     }
   }
 
@@ -119,6 +145,22 @@ function smartqueue_taxonomy_nodequeue_subqueues(&$queue, $node) {
     }
   }
   return $references;
+}
+
+/**
+ * Implementation of hook_nodequeue_alter
+ */
+function smartqueue_nodequeue_alter(&$data, $type) {
+  switch ($type) {
+    case 'load_queues':
+      $qids = array_keys($data);
+      $placeholders = db_placeholders($qids);
+      $result = db_query("SELECT qid, use_parents FROM {smartqueue} WHERE qid IN ($placeholders)", $qids);
+      while ($queue = db_fetch_object($result)) {
+        $data[$queue->qid]->use_parents = $queue->use_parents;
+      }
+      break;
+  }
 }
 
 /**
@@ -175,7 +217,6 @@ function smartqueue_taxonomy_get_terms($vid) {
 
 
 // TODO:
-// * Automatically add subqueues when terms are created.
 // * Handle vocabulary changes (maybe?)
 /**
  * Implementation of hook_taxonomy.
@@ -209,6 +250,10 @@ function smartqueue_taxonomy($op, $type, $array = NULL) {
         // If a term was deleted, we need to delete any subqueues containing it.
         case 'delete':
           $tid = $array['tid'];
+          if (empty($tid)) {
+            // Don't proceed and delete all subqueues.
+            return;
+          }
           // Find subqueues that contain this term.
           $result = db_query(
             "SELECT sq.sqid FROM {nodequeue_subqueue} sq
@@ -227,5 +272,34 @@ function smartqueue_taxonomy($op, $type, $array = NULL) {
       }
     case 'vocabulary':
       break;
+  }
+}
+
+/**
+ * Get the top-level parents of the given taxonomy terms.
+ *
+ * @param $tids, an array of taxonomy IDs
+ * 
+ * @return an array of taxonomy IDs 
+ */
+function smartqueue_taxonomy_get_parents($tids) {
+  if ($tids) {
+    $placeholders = db_placeholders($tids);
+    $result = db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t INNER JOIN {term_hierarchy} h ON h.parent = t.tid WHERE h.tid IN ($placeholders) ORDER BY weight, name", 't', 'tid'), $tids);
+    $parents = array();
+    // this will filter out duplicates.
+    while ($parent = db_fetch_object($result)) {
+      $parents[$parent->tid] = $parent->tid;
+    }
+    if (count($parents)) {
+      return smartqueue_taxonomy_get_parents($parents);
+    }
+    // we there weren't any matches, hand back the original tids.
+    else {
+      return $tids;
+    }
+  }
+  else {
+    return array();
   }
 }

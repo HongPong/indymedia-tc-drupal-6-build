@@ -1,27 +1,18 @@
 <?php
-// $Id: block.inc,v 1.1.2.5 2009/07/14 18:41:04 merlinofchaos Exp $
+// $Id: block.inc,v 1.1.2.8 2010/07/20 19:20:47 merlinofchaos Exp $
 
 /**
  * @file
- * Definition of the 'naked' panel style.
+ * Definition of the 'block' panel style.
  */
 
-// ---------------------------------------------------------------------------
-// Panels hooks.
-
-/**
- * Implementation of hook_panels_style_info().
- */
-function panels_block_panels_styles() {
-  return array(
-    'title' => t('System block'),
-    'description' => t('Display the pane as a system block; this is more restrictive than the default.'),
-    'render pane' => 'panels_block_style_render_pane',
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Panels style plugin callbacks.
+// Plugin definition
+$plugin = array(
+  'title' => t('System block'),
+  'description' => t('Display the pane as a system block; this is more restrictive than the default.'),
+  'render pane' => 'panels_block_style_render_pane',
+  'weight' => -10,
+);
 
 /**
  * Render callback.
@@ -45,6 +36,9 @@ function theme_panels_block_style_render_pane($content, $pane, $display) {
     $content->delta = $content->subtype;
   }
 
+  // If using per pane classes, $block->css_class will need to be added in your
+  // preprocess or template, along with any other Panels specific field you
+  // might want to utilize.
   return theme('block', $content);
 }
 

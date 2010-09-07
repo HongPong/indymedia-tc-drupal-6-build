@@ -1,45 +1,29 @@
 <?php
-// $Id: list.inc,v 1.1.2.1 2008/12/16 21:27:59 merlinofchaos Exp $
+// $Id: list.inc,v 1.1.2.4 2010/06/07 20:25:10 sdboyer Exp $
 
 
 /**
- * @file styles/list.inc
+ * @file
  * Definition of the 'list' panel style.
  */
 
-
-// ---------------------------------------------------------------------------
-// Panels hooks.
-
-/**
- * Implementation of hook_panels_style_info().
- */
-function panels_list_panels_styles() {
-  return array(
-    'list' => array(
-      'title' => t('List'),
-      'description' => t('Presents the panes in the form of an HTML list.'),
-      'render panel' => 'panels_list_style_render_panel',
-      'settings form' => 'panels_list_style_settings_form',
-      'settings validate' => 'panels_list_style_settings_validate',
-    ),
-  );
-}
-
-
-// ---------------------------------------------------------------------------
-// Panels style plugin callbacks.
+// Plugin definition
+$plugin = array(
+  'title' => t('List'),
+  'description' => t('Presents the panes in the form of an HTML list.'),
+  'render region' => 'panels_list_style_render_region',
+  'settings form' => 'panels_list_style_settings_form',
+);
 
 /**
  * Render callback.
  *
  * @ingroup themeable
  */
-function theme_panels_list_style_render_panel($display, $panel_id, $panes, $settings) {
+function theme_panels_list_style_render_region($display, $region_id, $panes, $settings) {
   $items = array();
 
-  foreach ($panes as $pane_id => $content) {
-    $item = panels_render_pane($content, $display->content[$pane_id], $display);
+  foreach ($panes as $pane_id => $item) {
     if (isset($item)) {
       $items[] = $item;
     }
