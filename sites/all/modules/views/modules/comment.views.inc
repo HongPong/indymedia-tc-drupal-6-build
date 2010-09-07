@@ -1,5 +1,5 @@
 <?php
-// $Id: comment.views.inc,v 1.33.2.3 2009/12/02 21:51:40 merlinofchaos Exp $
+// $Id: comment.views.inc,v 1.32.2.7 2009/12/28 21:11:50 merlinofchaos Exp $
 /**
  * @file
  * Provide views data and handlers for comment.module
@@ -179,6 +179,60 @@ function comment_views_data() {
     ),
     'filter' => array(
       'handler' => 'views_handler_filter_date',
+    ),
+  );
+  
+  $data['comments']['timestamp_fulldate'] = array(
+    'title' => t('Created date'),
+    'help' => t('In the form of CCYYMMDD.'),
+    'argument' => array(
+      'field' => 'timestamp',
+      'handler' => 'views_handler_argument_node_created_fulldate',
+    ),
+  );
+
+  $data['comments']['timestamp_year_month'] = array(
+    'title' => t('Created year + month'),
+    'help' => t('In the form of YYYYMM.'),
+    'argument' => array(
+      'field' => 'timestamp',
+      'handler' => 'views_handler_argument_node_created_year_month',
+    ),
+  );
+
+  $data['comments']['timestamp_year'] = array(
+    'title' => t('Created year'),
+    'help' => t('In the form of YYYY.'),
+    'argument' => array(
+      'field' => 'timestamp',
+      'handler' => 'views_handler_argument_node_created_year',
+    ),
+  );
+
+  $data['comments']['timestamp_month'] = array(
+    'title' => t('Created month'),
+    'help' => t('In the form of MM (01 - 12).'),
+    'argument' => array(
+      'field' => 'timestamp',
+      'handler' => 'views_handler_argument_node_created_month',
+    ),
+  );
+
+  $data['comments']['timestamp_day'] = array(
+    'title' => t('Created day'),
+    'help' => t('In the form of DD (01 - 31).'),
+    'argument' => array(
+      'field' => 'timestamp',
+      'handler' => 'views_handler_argument_node_created_day',
+    ),
+  );
+
+  $data['comments']['timestamp_week'] = array(
+    'title' => t('Created week'),
+    'help' => t('In the form of WW (01 - 53).'),
+    'argument' => array(
+      'field' => 'timestamp',
+      'handler' => 'views_handler_argument_node_created_week',
     ),
   );
 
@@ -381,6 +435,7 @@ function comment_views_data_alter(&$data) {
     'help' => t('The number of new comments on the node.'),
     'field' => array(
       'handler' => 'views_handler_field_node_new_comments',
+      'no group by' => TRUE,
     ),
   );
 
@@ -543,7 +598,7 @@ function template_preprocess_views_view_row_comment(&$vars) {
   $options = $vars['options'];
   $view = &$vars['view'];
   $plugin = &$view->style_plugin->row_plugin;
-  $comment = $plugin->comments[$vars['row']->cid];
+  $comment = $plugin->comments[$vars['row']->{$vars['field_alias']}];
   $node = node_load($comment->nid);
   // Put the view on the node so we can retrieve it in the preprocess.
   $node->view = &$view;

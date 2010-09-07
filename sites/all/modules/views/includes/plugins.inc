@@ -1,17 +1,15 @@
 <?php
-// $Id: plugins.inc,v 1.156.2.2 2009/11/30 23:55:33 merlinofchaos Exp $
+// $Id: plugins.inc,v 1.152.2.11 2010/03/12 18:51:17 merlinofchaos Exp $
 /**
  * @file plugins.inc
  * Built in plugins for Views output handling.
  *
- */
-
+ */ 
 /**
  * Implementation of hook_views_plugins
  */
 function views_views_plugins() {
   $path = drupal_get_path('module', 'views') . '/js';
-
   $plugins = array(
     'module' => 'views', // This just tells our themes are elsewhere.
     'display' => array(
@@ -182,16 +180,18 @@ function views_views_plugins() {
       ),
     ),
     'argument default' => array(
-      // This type of plugin does not conform to the standard and
-      // uses 'fixed' as the parent rather than having a separate parent.
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_argument_default',
+        'parent' => '',
+      ),
       'fixed' => array(
         'title' => t('Fixed entry'),
-        'handler' => 'views_plugin_argument_default',
+        'handler' => 'views_plugin_argument_default_fixed',
       ),
       'php' => array(
         'title' => t('PHP Code'),
         'handler' => 'views_plugin_argument_default_php',
-        'parent' => 'fixed',
       ),
     ),
     'argument validator' => array(
@@ -236,6 +236,18 @@ function views_views_plugins() {
         'help topic' => 'access-perm',
       ),
     ),
+    'query' => array(
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_query',
+        'parent' => '',
+      ),
+      'views_query' => array(
+        'title' => t('SQL Query'),
+        'help' => t('Query will be generated and run using the Drupal database API.'),
+        'handler' => 'views_plugin_query_default'
+      ),
+    ),
     'cache' => array(
       'parent' => array(
         'no ui' => TRUE,
@@ -254,6 +266,63 @@ function views_views_plugins() {
         'handler' => 'views_plugin_cache_time',
         'uses options' => TRUE,
         'help topic' => 'cache-time',
+      ),
+    ),
+    'exposed_form' => array(
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_exposed_form',
+        'parent' => '',
+      ),
+      'basic' => array(
+        'title' => t('Basic'),
+        'help' => t('Basic exposed form'),
+        'handler' => 'views_plugin_exposed_form_basic',
+        'uses options' => TRUE,
+        'help topic' => 'exposed-form-basic',
+      ),
+      'input_required' => array(
+        'title' => t('Input required'),
+        'help' => t('An exposed form that only renders a view if the form contains user input.'),
+        'handler' => 'views_plugin_exposed_form_input_required',
+        'uses options' => TRUE,
+        'help topic' => 'exposed-form-input-required',
+      ),
+    ),
+    'pager' => array(
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_pager',
+        'parent' => '',
+      ),
+      'none' => array(
+        'title' => t('Display all items'),
+        'help' => t("Display all items that this view might find"),
+        'handler' => 'views_plugin_pager_none',
+        'help topic' => 'pager-none',
+        'uses options' => TRUE,
+      ),
+      'some' => array(
+        'title' => t('Display a specified number of items'),
+        'help' => t('Display a limited number items that this view might find.'),
+        'handler' => 'views_plugin_pager_some',
+        'help topic' => 'pager-some',
+        'uses options' => TRUE,
+      ),
+      'full' => array(
+        'title' => t('Paged output, full pager'),
+        'help' => t('Paged output, full Drupal style'),
+        'handler' => 'views_plugin_pager_full',
+        'help topic' => 'pager-full',
+        'uses options' => TRUE,
+      ),
+      'mini' => array(
+        'title' => t('Paged output, mini pager'),
+        'help' => t('Use the mini pager output.'),
+        'handler' => 'views_plugin_pager_mini',
+        'help topic' => 'pager-mini',
+        'uses options' => TRUE,
+        'parent' => 'full',
       ),
     ),
   );
@@ -290,7 +359,7 @@ function views_views_plugins() {
  * @return Nested array of plugins, grouped by type.
  */
 function views_discover_plugins() {
-  $cache = array('display' => array(), 'style' => array(), 'row' => array(), 'argument default' => array(), 'argument validator' => array(), 'access' => array(), 'cache' => array());
+  $cache = array('display' => array(), 'style' => array(), 'row' => array(), 'argument default' => array(), 'argument validator' => array(), 'access' => array(), 'cache' => array(), 'exposed_form' => array());
   // Get plugins from all mdoules.
   foreach (module_implements('views_plugins') as $module) {
     $function = $module . '_views_plugins';
@@ -369,7 +438,7 @@ class views_plugin extends views_object {
   /**
    * Handle any special handling on the validate form.
    */
-  function options_submit(&$form, &$form_state) { }
+  function options_submit($form, &$form_state) { }
 
   /**
    * Add anything to the query that we might need to.

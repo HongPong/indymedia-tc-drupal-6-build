@@ -1,5 +1,5 @@
 <?php
-// $Id: views_handler_field_markup.inc,v 1.3.4.1 2009/11/18 20:52:23 merlinofchaos Exp $
+// $Id: views_handler_field_markup.inc,v 1.3.2.1 2009/11/18 20:52:20 merlinofchaos Exp $
 
 /**
  * A handler to run a field through check_markup, using a companion

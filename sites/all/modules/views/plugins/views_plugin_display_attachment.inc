@@ -1,5 +1,5 @@
 <?php
-// $Id: views_plugin_display_attachment.inc,v 1.6.2.1 2009/11/30 19:05:47 merlinofchaos Exp $
+// $Id: views_plugin_display_attachment.inc,v 1.3.2.5 2010/01/19 21:59:04 merlinofchaos Exp $
 /**
  * @file
  * Contains the attachment display plugin.
@@ -186,7 +186,7 @@ class views_plugin_display_attachment extends views_plugin_display {
    * Perform any necessary changes to the form values prior to storage.
    * There is no need for this function to actually store the data.
    */
-  function options_submit(&$form, &$form_state) {
+  function options_submit($form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_submit($form, $form_state);
     switch ($form_state['section']) {

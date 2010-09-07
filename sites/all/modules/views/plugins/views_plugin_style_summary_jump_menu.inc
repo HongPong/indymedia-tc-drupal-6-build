@@ -1,5 +1,5 @@
 <?php
-// $Id: views_plugin_style_summary_jump_menu.inc,v 1.1.2.2 2009/10/28 02:22:47 merlinofchaos Exp $
+// $Id: views_plugin_style_summary_jump_menu.inc,v 1.1.4.2 2010/03/12 23:26:00 merlinofchaos Exp $
 /**
  * @file
  * Contains the default summary style plugin, which displays items in an HTML list.

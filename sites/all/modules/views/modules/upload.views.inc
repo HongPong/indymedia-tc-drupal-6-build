@@ -1,5 +1,5 @@
 <?php
-// $Id: upload.views.inc,v 1.16.2.1 2009/11/02 23:25:14 merlinofchaos Exp $
+// $Id: upload.views.inc,v 1.15.2.3 2009/11/10 23:20:06 merlinofchaos Exp $
 /**
  * @file
  *
@@ -116,6 +116,7 @@ function upload_views_data_alter(&$data) {
     'real field' => 'vid',
     'field' => array(
       'handler' => 'views_handler_field_upload_fid',
+      'no group by' => TRUE,
     ),
     'filter' => array(
       'handler' => 'views_handler_filter_upload_fid',
