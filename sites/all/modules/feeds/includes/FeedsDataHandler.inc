@@ -1,11 +1,11 @@
 <?php
-// $Id: FeedsDataHandler.inc,v 1.1 2009/10/20 21:01:35 alexb Exp $
+// $Id: FeedsDataHandler.inc,v 1.5 2010/03/29 02:55:50 alexb Exp $
 
 /**
  * @file
  * Data handler used in FeedsDataProcessor.
  *
- * @todo: Move to data module?
+ * @todo Move to data module?
  */
 
 /**
@@ -69,7 +69,7 @@ class FeedsDataHandler extends DataHandler {
     static $handlers;
     if (!isset($handlers[$table][$key])) {
       $class = 'FeedsDataHandler';
-      // @todo: this is an undocumented stop gap until data modules supports
+      // @todo This is an undocumented stop gap until Data module supports
       // handler plugins.
       if ($info = variable_get($table .'_handler', NULL)) {
         $class = $info['class'];
@@ -173,38 +173,31 @@ class FeedsDataHandler extends DataHandler {
    *     ),
    *   );
    *
-   * @todo: push this functionality into DataHandler.
+   * @todo Push this functionality into DataHandler.
    */
   public function delete($clause) {
-
-    // Assemble where clause for delete query.
-    $where = $values = array();
+    $query = new DataQuery($this->table);
     $schema = drupal_get_schema($this->table);
     $fields = $schema['fields'];
+    $this_table = db_escape_table($this->table);
     foreach ($clause as $key => $value) {
+      $operator = '=';
       if (is_array($value)) {
-        $where[] = 'base.'. db_escape_string($key) ." {$value[0]} ". db_type_placeholder($fields[$key]['type']);
-        $values[] = $value[1];
+        $operator = array_shift($value);
+        $value = array_shift($value);
       }
-      else {
-        $where[] = 'base.'. db_escape_string($key) ." = ". db_type_placeholder($fields[$key]['type']);
-        $values[] = $value;
-      }
+      $query->addWhere($this_table .'.'. db_escape_string($key) ." ". $operator ." ". db_type_placeholder($fields[$key]['type']), $value);
     }
 
-    // Only execute delete statement if where clause has been populated.
-    if (!empty($where)) {
-
-      // First delete records from joined tables, then delete this table's
-      // record.
-      foreach ($this->joined_tables as $table) {
-        if (!empty($where)) {
-          db_query('DELETE joined FROM {'. db_escape_table($this->table) .'} base JOIN  {'. db_escape_table($table) .'} joined ON base.'. $this->key .' = joined.'. $this->key .' WHERE '. implode(' AND ', $where), $values);
-        }
-      }
-      db_query('DELETE base FROM {'. db_escape_table($this->table) .'} base WHERE '. implode(' AND ', $where), $values);
+    foreach ($this->joined_tables as $table) {
+      $table = db_escape_table($table);
+      $query->addSubject($table);
+      $query->addJoin($table, "$table.{$this->key} = $this_table.{$this->key}", 'LEFT JOIN');
     }
-
+    drupal_alter('data_delete_query', $query, $this->table);
+    if (!empty($query->where)) {
+      $query->execute();
+    }
     return db_affected_rows();
   }
 
@@ -237,7 +230,7 @@ class FeedsDataHandler extends DataHandler {
   }
 
   /**
-   * @todo: support save().
+   * @todo Support save().
    */
   public function save(&$record, $update) {
     throw new Exception(t('Not implemented.'));

@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsCSVParser.inc,v 1.2 2009/10/20 20:59:04 alexb Exp $
+// $Id: FeedsCSVParser.inc,v 1.12 2010/07/11 01:36:39 alexb Exp $
 
 /**
  * Parses a given file as a CSV file.
@@ -7,52 +7,41 @@
 class FeedsCSVParser extends FeedsParser {
 
   /**
-   * Parses a raw string and returns a Feed object from it.
+   * Implementation of FeedsParser::parse().
    */
-  public function parse(FeedsFetcherResult $fetcherResult, FeedsSource $source) {
+  public function parse(FeedsImportBatch $batch, FeedsSource $source) {
+
+    // Load and configure parser.
     feeds_include_library('ParserCSV.inc', 'ParserCSV');
-
-    if ($fetcherResult->type == 'text/filepath') {
-      $iterator = new ParserCSVIterator(realpath($fetcherResult->value));
-    }
-    // @todo: write string buffer iterator.
-    else {
-      throw new Exception(t('You must use CSV Parser with File Fetcher.'));
-    }
-
-    // Parse.
+    $iterator = new ParserCSVIterator(realpath($batch->getFilePath()));
     $source_config = $source->getConfigFor($this);
     $parser = new ParserCSV();
-    $parser->setDelimiter($source_config['delimiter']);
-    $parser->setSkipFirstLine(FALSE);
-    $rows = $parser->parse($iterator);
-    unset($parser);
+    $delimiter = $source_config['delimiter'] == 'TAB' ? "\t" : $source_config['delimiter'];
+    $parser->setDelimiter($delimiter);
 
-    // Apply titles in lower case.
-    // @todo: push this functionality into ParserCSV.
+    // Get first line and use it for column names, convert them to lower case.
+    $parser->setLineLimit(1);
+    $rows = $parser->parse($iterator);
     $header = array_shift($rows);
     foreach ($header as $i => $title) {
-      $header[$i] = strtolower($title); // Use lower case only.
+      $header[$i] = trim(drupal_strtolower($title));
     }
-    $result_rows = array();
-    foreach ($rows as $i => $row) {
-      $result_row = array();
-      foreach ($row as $j => $col) {
-        $result_row[$header[$j]] = $col;
-      }
-      $result_rows[$i] = $result_row;
-    }
-    unset($rows);
+    $parser->setColumnNames($header);
 
-    // Return result.
-    return new FeedsParserResult(array('items' => $result_rows));
+    // Set line limit to 0 and start byte to last position and parse rest.
+    $parser->setLineLimit(0);
+    $parser->setStartByte($parser->lastLinePos());
+    $rows = $parser->parse($iterator);
+
+    // Populate batch.
+    $batch->setItems($rows);
   }
 
   /**
-   * Override parent::getSourceElement to use only lower keys.
+   * Override parent::getSourceElement() to use only lower keys.
    */
   public function getSourceElement($item, $element_key) {
-    $element_key = strtolower($element_key);
+    $element_key = drupal_strtolower($element_key);
     return isset($item[$element_key]) ? $item[$element_key] : '';
   }
 
@@ -93,8 +82,12 @@ class FeedsCSVParser extends FeedsParser {
       '#type' => 'select',
       '#title' => t('Delimiter'),
       '#description' => t('The character that delimits fields in the CSV file.'),
-      '#options' => drupal_map_assoc(array(',', ';')),
-      '#default_value' => $source_config['delimiter'],
+      '#options'  => array(
+        ',' => ',',
+        ';' => ';',
+        'TAB' => 'TAB',
+      ),
+      '#default_value' => isset($source_config['delimiter']) ? $source_config['delimiter'] : ',',
     );
     return $form;
   }
@@ -115,7 +108,11 @@ class FeedsCSVParser extends FeedsParser {
       '#type' => 'select',
       '#title' => t('Default delimiter'),
       '#description' => t('Default field delimiter.'),
-      '#options' => drupal_map_assoc(array(',', ';')),
+      '#options' => array(
+        ',' => ',',
+        ';' => ';',
+        'TAB' => 'TAB',
+      ),
       '#default_value' => $this->config['delimiter'],
     );
     return $form;

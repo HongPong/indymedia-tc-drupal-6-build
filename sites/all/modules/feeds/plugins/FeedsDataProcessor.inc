@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsDataProcessor.inc,v 1.5 2009/12/03 21:27:40 alexb Exp $
+// $Id: FeedsDataProcessor.inc,v 1.15 2010/07/13 19:32:06 alexb Exp $
 
 /**
  * @file
@@ -14,21 +14,31 @@ class FeedsDataProcessor extends FeedsProcessor {
   /**
    * Implementation of FeedsProcessor::process().
    */
-  public function process(FeedsParserResult $parserResult, FeedsSource $source) {
+  public function process(FeedsImportBatch $batch, FeedsSource $source) {
 
     // Count number of created and updated nodes.
     $inserted  = $updated = 0;
+    $expiry_time = $this->expiryTime();
 
-    foreach ($parserResult->value['items'] as $item) {
-      if (!($id = $this->existingItemId($item, $source)) || $this->config['update_existing']) {
+    while ($item = $batch->shiftItem()) {
+      $id = $this->existingItemId($item, $source);
+
+      if ($id === FALSE || $this->config['update_existing']) {
         // Map item to a data record, feed_nid and timestamp are mandatory.
         $data = array();
         $data['feed_nid'] = $source->feed_nid;
-        $data['timestamp'] = FEEDS_REQUEST_TIME;
         $data = $this->map($item, $data);
+        if (!isset($data['timestamp'])) {
+          $data['timestamp'] = FEEDS_REQUEST_TIME;
+        }
+
+        // Only save if this item is not expired.
+        if ($expiry_time != FEEDS_EXPIRE_NEVER && $data['timestamp'] < (FEEDS_REQUEST_TIME - $expiry_time)) {
+          continue;
+        }
 
         // Save data.
-        if ($id) {
+        if ($id !== FALSE) {
           $data['id'] = $id;
           $this->handler()->update($data, 'id');
           $updated++;
@@ -42,14 +52,16 @@ class FeedsDataProcessor extends FeedsProcessor {
 
     // Set messages.
     if ($inserted) {
-      drupal_set_message(t('Created !number items.', array('!number' => $inserted)));
+      drupal_set_message(format_plural($inserted, 'Created @number item.', 'Created @number items.', array('@number' => $inserted)));
     }
     elseif ($updated) {
-      drupal_set_message(t('Updated !number items.', array('!number' => $updated)));
+      drupal_set_message(format_plural($updated, 'Updated @number item.', 'Updated @number items.', array('@number' => $updated)));
     }
     else {
       drupal_set_message(t('There are no new items.'));
     }
+
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -57,12 +69,13 @@ class FeedsDataProcessor extends FeedsProcessor {
    *
    * Delete all data records for feed_nid in this table.
    */
-  public function clear(FeedsSource $source) {
+  public function clear(FeedsBatch $batch, FeedsSource $source) {
     $clause = array(
       'feed_nid' => $source->feed_nid,
     );
     $num = $this->handler()->delete($clause);
-    drupal_set_message(t('Deleted !number items.', array('!number' => $num)));
+    drupal_set_message(format_plural($num, 'Deleted @number item.', 'Deleted @number items.', array('@number' => $num)));
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -73,7 +86,7 @@ class FeedsDataProcessor extends FeedsProcessor {
       $time = $this->expiryTime();
     }
     if ($time == FEEDS_EXPIRE_NEVER) {
-      return;
+      return FEEDS_BATCH_COMPLETE;
     }
     $clause = array(
       'timestamp' => array(
@@ -82,7 +95,8 @@ class FeedsDataProcessor extends FeedsProcessor {
       ),
     );
     $num = $this->handler()->delete($clause);
-    drupal_set_message(t('Expired !number records from !table.', array('!number' => $num, '!table' => $this->tableName())));
+    drupal_set_message(format_plural($num, 'Expired @number record from @table.', 'Expired @number records from @table.', array('@number' => $num, '@table' => $this->tableName())));
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -141,7 +155,7 @@ class FeedsDataProcessor extends FeedsProcessor {
       foreach ($schema['fields'] as $field_name => $field) {
         if (!in_array($field_name, array('id', 'feed_nid'))) {
           // Any existing field can be optionally unique.
-          // @todo: push this reverse mapping of spec to short name into data
+          // @todo Push this reverse mapping of spec to short name into data
           // module.
           $type = $field['type'];
           if ($type == 'int' && $field['unsigned']) {
@@ -185,7 +199,9 @@ class FeedsDataProcessor extends FeedsProcessor {
         'description' => t('Creates a new column of type !type.', array('!type' => $v)),
       );
     }
-    return $new_fields + $existing_fields;
+    $fields = $new_fields + $existing_fields;
+    drupal_alter('feeds_data_processor_targets', $fields, $this->table()->get('name'));
+    return $fields;
   }
 
   /**
@@ -230,7 +246,7 @@ class FeedsDataProcessor extends FeedsProcessor {
         return $records[0]['id'];
       }
     }
-    return 0;
+    return FALSE;
   }
 
   /**
@@ -238,7 +254,7 @@ class FeedsDataProcessor extends FeedsProcessor {
    */
   public function configDefaults() {
     return array(
-      'update_existing' => 0,
+      'update_existing' => FEEDS_SKIP_EXISTING,
       'expire' => FEEDS_EXPIRE_NEVER, // Don't expire items by default.
       'mappings' => array(),
     );
@@ -248,12 +264,6 @@ class FeedsDataProcessor extends FeedsProcessor {
    * Override parent::configForm().
    */
   public function configForm(&$form_state) {
-    $form['update_existing'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Update existing items'),
-      '#description' => t('Check if existing items should be updated from the feed.'),
-      '#default_value' => $this->config['update_existing'],
-    );
     $period = drupal_map_assoc(array(FEEDS_EXPIRE_NEVER, 3600, 10800, 21600, 43200, 86400, 259200, 604800, 604800 * 4, 604800 * 12, 604800 * 24, 31536000), 'feeds_format_expire');
     $form['expire'] = array(
       '#type' => 'select',
@@ -261,6 +271,12 @@ class FeedsDataProcessor extends FeedsProcessor {
       '#options' => $period,
       '#description' => t('Select after how much time data records should be deleted. The timestamp target value will be used for determining the item\'s age, see Mapping settings.'),
       '#default_value' => $this->config['expire'],
+    );
+    $form['update_existing'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Replace existing records'),
+      '#description' => t('If an existing record is found for an imported record, replace it. Existing records will be determined using mappings that are a "unique target".'),
+      '#default_value' => $this->config['update_existing'],
     );
     return $form;
   }
@@ -278,7 +294,7 @@ class FeedsDataProcessor extends FeedsProcessor {
    * @throws Exception $e
    *   Throws this exception if a table cannot be found and cannot be created.
    *
-   * @todo: Make *Data module* throw exception when table can't be found or
+   * @todo Make *Data module* throw exception when table can't be found or
    *   can't be created.
    */
   protected function table() {

@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds_mapper_content.test,v 1.1 2009/11/24 23:20:26 alexb Exp $
+// $Id: feeds_mapper_content.test,v 1.3 2010/05/16 21:15:53 alexb Exp $
 
 /**
  * @file
@@ -16,7 +16,7 @@ class FeedsMapperContentTestCase extends FeedsMapperTestCase {
   public static function getInfo() {
     return array(
       'name' => t('Mapper: Content'),
-      'description' => t('Test Feeds Mapper support for CCK fields'),
+      'description' => t('Test Feeds Mapper support for CCK fields. <strong>Requires CCK module</strong>.'),
       'group' => t('Feeds'),
     );
   }
@@ -44,11 +44,12 @@ class FeedsMapperContentTestCase extends FeedsMapperTestCase {
    */
   function test() {
 
-  	// Create content type.
-  	$typename = $this->createContentType(NULL, array(
+    // Create content type.
+    $typename = $this->createContentType(NULL, array(
       'alpha' => 'text',
       'beta' => 'number_integer',
       'gamma' => 'number_decimal',
+      'delta' => 'number_float',
     ));
 
     // Create and configure importer.
@@ -82,6 +83,10 @@ class FeedsMapperContentTestCase extends FeedsMapperTestCase {
         'source' => 'gamma',
         'target' => 'field_gamma',
       ),
+      array(
+        'source' => 'delta',
+        'target' => 'field_delta',
+      ),
     ));
 
     // Import CSV file.
@@ -93,10 +98,12 @@ class FeedsMapperContentTestCase extends FeedsMapperTestCase {
     $this->assertCCKFieldValue('alpha', 'Lorem');
     $this->assertCCKFieldValue('beta', '42');
     $this->assertCCKFieldValue('gamma', '4.20');
+    $this->assertCCKFieldValue('delta', '3.14159');
 
     $this->drupalGet('node/2/edit');
     $this->assertCCKFieldValue('alpha', 'Ut wisi');
     $this->assertCCKFieldValue('beta', '32');
     $this->assertCCKFieldValue('gamma', '1.20');
+    $this->assertCCKFieldValue('delta', '5.62951');
   }
 }

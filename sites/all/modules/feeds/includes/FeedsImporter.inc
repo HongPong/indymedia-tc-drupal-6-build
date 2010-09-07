@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsImporter.inc,v 1.6 2009/12/12 01:20:32 alexb Exp $
+// $Id: FeedsImporter.inc,v 1.21 2010/07/13 20:18:55 alexb Exp $
 
 /**
  * @file
@@ -9,68 +9,19 @@
 // Including FeedsImporter.inc automatically includes dependencies.
 require_once(dirname(__FILE__) .'/FeedsConfigurable.inc');
 require_once(dirname(__FILE__) .'/FeedsSource.inc');
+require_once(dirname(__FILE__) .'/FeedsBatch.inc');
 
 /**
- * A Feeds result class.
+ * A FeedsImporter object describes how an external source should be fetched,
+ * parsed and processed. Feeds can manage an arbitrary amount of importers.
  *
- * @see class FeedsFetcherResult
- * @see class FeedsParserResult
- */
-abstract class FeedsResult {
-
-  // An array of valid values for $type.
-  protected $valid_types = array();
-  // The type of this result.
-  protected $type;
-  // The value of this result.
-  protected $value;
-
-  /**
-   * Constructor: create object, validate class variables.
-   *
-   * @param $value
-   *   The value of this result.
-   * @param $type
-   *   The type of this result. Must be one of $valid_types.
-   */
-  public function __construct($value, $type) {
-    $this->__set('type', $type);
-    $this->__set('value', $value);
-  }
-
-  /**
-   * Control access to class variables.
-   */
-  public function __set($name, $value) {
-    if ($name == 'valid_types') {
-      throw new Exception(t('Cannot write FeedsResult::valid_types.'));
-    }
-    if ($name == 'type') {
-      if (!in_array($value, $this->valid_types)) {
-        throw new Exception(t('Invalid type "!type"', array('!type' => $value)));
-      }
-    }
-    $this->$name = $value;
-  }
-
-  /**
-   * Control access to class variables.
-   */
-  public function __get($name) {
-    return $this->$name;
-  }
-}
-
-/**
- * Class defining an importer object. This is the main hub for Feeds module's
- * functionality.
+ * A FeedsImporter holds a pointer to a FeedsFetcher, a FeedsParser and a
+ * FeedsProcessor plugin. It further contains the configuration for itself and
+ * each of the three plugins.
  *
- * A FeedsImporter holds a pointer to a fetcher, a parser and a processor
- * plugin. It further contains the configuration for itself and each of the
- * three plugins.
- *
- * Its most important responsibilities are configuration management and expiring
- * of all items produced by this importer.
+ * Its most important responsibilities are configuration management, interfacing
+ * with FeedsScheduler class and expiring of all items produced by this
+ * importer.
  *
  * When a FeedsImporter is instantiated, it loads its configuration. Then it
  * instantiates one fetcher, one parser and one processor plugin depending on
@@ -110,32 +61,70 @@ class FeedsImporter extends FeedsConfigurable {
   }
 
   /**
-   * Remove items older than $time. If $time is not given, processor settings
-   * will be used.
+   * Remove items older than $time.
+   *
+   * @param $time
+   *   All items older than FEEDS_REQUEST_TIME - $time will be deleted. If not
+   *   given, internal processor settings will be used.
+   *
+   * @return
+   *   FEEDS_BATCH_COMPLETE if the expiry process finished. A decimal between
+   *   0.0 and 0.9 periodic if expiry is still in progress.
+   *
+   * @throws
+   *   Throws Exception if an error occurs when expiring items.
    */
   public function expire($time = NULL) {
-    try {
-      $this->processor->expire($time);
+    return $this->processor->expire($time);
+  }
+
+  /**
+   * Callback for scheduler to invoke task. Do not execute if this importer is
+   * not persistent at all.
+   *
+   * @see FeedsScheduler::work().
+   *
+   * @param $job
+   *   Array that is a FeedsScheduler job definition.
+   *
+   * @return
+   *   FEEDS_BATCH_COMPLETE if complete, a float between 0 and 1 indicating
+   *   progress otherwise.
+   *
+   * @throws
+   *   Throws Exception if an error occurs working off the job.
+   */
+  public function work($job) {
+    switch ($job['callback']) {
+      case 'import':
+        return feeds_source($job['id'], $job['feed_nid'])->import();
+      case 'expire':
+        return $this->expire();
     }
-    catch (Exception $e) {
-      drupal_set_message($e->getMessage(), 'error');
-    }
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
    * Get the refresh period for import() or expire().
    */
   public function getSchedulePeriod($callback) {
-    if ($callback == 'import') {
-      return $this->config['import_period'];
+    switch ($callback) {
+      case 'import':
+        return $this->config['import_period'];
+      case 'expire':
+        // If a processor has expiry time set, run expiry every hour.
+        if (FEEDS_EXPIRE_NEVER != $this->processor->expiryTime()) {
+          return 3600;
+        }
+        return FEEDS_SCHEDULE_NEVER;
     }
-    if ($callback == 'expire') {
-      // If a processor has expiry time set, run expiry every hour.
-      if (FEEDS_EXPIRE_NEVER != $this->processor->expiryTime()) {
-        return 3600;
-      }
-      return FEEDS_SCHEDULE_NEVER;
-    }
+  }
+
+  /**
+   * Expose available schedule callbacks.
+   */
+  public function getScheduleCallbacks() {
+    return array('import', 'expire');
   }
 
   /**
@@ -145,10 +134,10 @@ class FeedsImporter extends FeedsConfigurable {
     $save = new stdClass();
     $save->id = $this->id;
     $save->config = $this->getConfig();
-    // Make sure a source record is present at all time, try to update first,
-    // then insert.
-    drupal_write_record('feeds_importer', $save, 'id');
-    if (!db_affected_rows()) {
+    if (db_result(db_query_range("SELECT 1 FROM {feeds_importer} WHERE id = '%s'", $this->id, 0, 1))) {
+      drupal_write_record('feeds_importer', $save, 'id');
+    }
+    else {
       drupal_write_record('feeds_importer', $save);
     }
     // Clear menu cache, changes to importer can change menu items.
@@ -163,7 +152,7 @@ class FeedsImporter extends FeedsConfigurable {
     if ($config = ctools_export_load_object('feeds_importer', 'conditions', array('id' => $this->id))) {
       $config = array_shift($config);
       $this->export_type = $config->export_type;
-      $this->disabled = $config->disabled;
+      $this->disabled = isset($config->disabled) ? $config->disabled : FALSE;
       $this->config = $config->config;
       return TRUE;
     }
@@ -175,7 +164,7 @@ class FeedsImporter extends FeedsConfigurable {
    * from database, does not delete configuration itself.
    */
   public function delete() {
-    db_query('DELETE FROM {feeds_importer} WHERE id = "%s"', $this->id);
+    db_query("DELETE FROM {feeds_importer} WHERE id = '%s'", $this->id);
   }
 
   /**
@@ -184,7 +173,7 @@ class FeedsImporter extends FeedsConfigurable {
    * @param $plugin_key
    *   A fetcher, parser or processor plugin.
    *
-   * @todo: error handling, handle setting to the same plugin.
+   * @todo Error handling, handle setting to the same plugin.
    */
   public function setPlugin($plugin_key) {
     // $plugin_type can be either 'fetcher', 'parser' or 'processor'
@@ -243,7 +232,7 @@ class FeedsImporter extends FeedsConfigurable {
       'processor' => array(
         'plugin_key' => 'FeedsNodeProcessor',
       ),
-      'content_type' => 'page', // @todo: provide default content type feed.
+      'content_type' => '',
       'update' => 0,
       'import_period' => 1800, // Refresh every 30 minutes by default.
       'expire_period' => 3600, // Expire every hour by default, this is a hidden setting.
@@ -272,7 +261,7 @@ class FeedsImporter extends FeedsConfigurable {
     $form['content_type'] = array(
       '#type' => 'select',
       '#title' => t('Attach to content type'),
-      '#description' => t('If you attach a configuration to a node you can use nodes for creating feeds on your site.'),
+      '#description' => t('If an importer is attached to a content type, content is imported by creating a node. If the standalone form is selected, content is imported by using the standalone form under http://example.com/import.'),
       '#options' => array('' => t('Use standalone form')) + node_get_types('names'),
       '#default_value' => $this->config['content_type'],
     );

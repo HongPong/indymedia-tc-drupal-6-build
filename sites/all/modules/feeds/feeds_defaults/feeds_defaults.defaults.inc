@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds_defaults.defaults.inc,v 1.2 2009/10/28 00:17:11 alexb Exp $
+// $Id: feeds_defaults.defaults.inc,v 1.3 2010/04/17 03:56:47 alexb Exp $
 
 /**
  * @file
@@ -340,7 +340,7 @@ function _feeds_defaults_feeds_importer_default() {
   $feeds_importer->id = 'opml';
   $feeds_importer->config = array(
     'name' => 'OPML import',
-    'description' => 'Import subscriptions from OPML files. Use with together with "Feed" configuration.',
+    'description' => 'Import subscriptions from OPML files. Use together with "Feed" configuration.',
     'fetcher' => array(
       'plugin_key' => 'FeedsFileFetcher',
       'config' => array(),

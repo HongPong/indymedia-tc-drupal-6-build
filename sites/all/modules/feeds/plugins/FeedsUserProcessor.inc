@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsUserProcessor.inc,v 1.2 2009/11/02 20:26:57 alexb Exp $
+// $Id: FeedsUserProcessor.inc,v 1.17 2010/07/18 19:47:37 alexb Exp $
 
 /**
  * @file
@@ -14,12 +14,12 @@ class FeedsUserProcessor extends FeedsProcessor {
   /**
    * Implementation of FeedsProcessor::process().
    */
-  public function process(FeedsParserResult $parserResult, FeedsSource $source) {
+  public function process(FeedsImportBatch $batch, FeedsSource $source) {
 
     // Count number of created and updated nodes.
     $created  = $updated = $failed = 0;
 
-    foreach ($parserResult->value['items'] as $item) {
+    while ($item = $batch->shiftItem()) {
 
       if (!($uid = $this->existingItemId($item, $source)) || $this->config['update_existing']) {
 
@@ -38,8 +38,17 @@ class FeedsUserProcessor extends FeedsProcessor {
         }
 
         // Save the user.
-        // @todo: is this really the best way to use this function?
         user_save($account, (array) $account);
+        if ($account->uid && $account->openid) {
+          $authmap = array(
+            'uid' => $account->uid,
+            'module' => 'openid',
+            'authname' => $account->openid,
+          );
+          if (SAVED_UPDATED != drupal_write_record('authmap', $authmap, array('uid', 'module'))) {
+            drupal_write_record('authmap', $authmap);
+          }
+        }
 
         if ($uid) {
           $updated++;
@@ -52,27 +61,33 @@ class FeedsUserProcessor extends FeedsProcessor {
 
     // Set messages.
     if ($failed) {
-      drupal_set_message(t('There were !number users that could not be imported because either their name or their email was empty or not valid. Check import data and mapping settings on User processor.', array('!number' => $failed)), 'error');
+      drupal_set_message(
+        format_plural(
+          $failed,
+          'There was @number user that could not be imported because either their name or their email was empty or not valid. Check import data and mapping settings on User processor.',
+          'There were @number users that could not be imported because either their name or their email was empty or not valid. Check import data and mapping settings on User processor.',
+          array('@number' => $failed)
+        ),
+        'error'
+      );
     }
     if ($created) {
-      drupal_set_message(t('Created !number users.', array('!number' => $created)));
+      drupal_set_message(format_plural($created, 'Created @number user.', 'Created @number users.', array('@number' => $created)));
     }
     elseif ($updated) {
-      drupal_set_message(t('Updated !number users.', array('!number' => $updated)));
+      drupal_set_message(format_plural($updated, 'Updated @number user.', 'Updated @number users.', array('@number' => $updated)));
     }
     else {
       drupal_set_message(t('There are no new users.'));
     }
+
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
-   * Implement clear.
-   *
-   * @param $source
-   *   FeedsSource of this term. FeedsTermProcessor does not heed this
-   *   parameter, it deletes all terms from a vocabulary.
+   * Implementation of FeedsProcessor::clear().
    */
-  public function clear(FeedsSource $source) {
+  public function clear(FeedsBatch $batch, FeedsSource $source) {
     // Do not support deleting users as we have no way of knowing which ones we
     // imported.
     throw new Exception(t('User processor does not support deleting users.'));
@@ -85,10 +100,11 @@ class FeedsUserProcessor extends FeedsProcessor {
     // Prepare term object.
     $target_account = new stdClass();
     $target_account->uid = 0;
-    $target_account->roles = $this->config['roles'];
+    $target_account->roles = array_filter($this->config['roles']);
     $target_account->status = $this->config['status'];
 
     // Have parent class do the iterating.
+    self::loadMappers();
     return parent::map($source_item, $target_account);
   }
 
@@ -124,16 +140,16 @@ class FeedsUserProcessor extends FeedsProcessor {
       $form['roles'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Additional roles'),
-        '#description' => t('Every user will be assigned the "autenticated user" role. Select additional roles here.'),
+        '#description' => t('Every user is assigned the "authenticated user" role. Select additional roles here.'),
         '#default_value' => $this->config['roles'],
         '#options' => $roles,
       );
     }
-
+    // @todo Implement true updating.
     $form['update_existing'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Update existing users'),
-      '#description' => t('Check if existing users should be updated from imported data.'),
+      '#title' => t('Replace existing users'),
+      '#description' => t('If an existing user is found for an imported user, replace it. Existing users will be determined using mappings that are a "unique target".'),
       '#default_value' => $this->config['update_existing'],
     );
     return $form;
@@ -166,6 +182,18 @@ class FeedsUserProcessor extends FeedsProcessor {
         'description' => t('The created (e. g. joined) data of the user.'),
        ),
     );
+    if (module_exists('openid')) {
+      $targets['openid'] = array(
+        'name' => t('OpenID identifier'),
+        'description' => t('The OpenID identifier of the user. <strong>CAUTION:</strong> Use only for migration purposes, misconfiguration of the OpenID identifier can lead to severe security breaches like users gaining access to accounts other than their own.'),
+        'optional_unique' => TRUE,
+       );
+    }
+
+    // Let other modules expose mapping targets.
+    self::loadMappers();
+    drupal_alter('feeds_user_processor_targets', $targets);
+
     return $targets;
   }
 
@@ -179,15 +207,18 @@ class FeedsUserProcessor extends FeedsProcessor {
     foreach ($this->uniqueTargets($source_item) as $target => $value) {
       switch ($target) {
         case 'name':
-          $nid = db_result(db_query('SELECT uid FROM {users} WHERE name = "%s"', $value));
+          $uid = db_result(db_query("SELECT uid FROM {users} WHERE name = '%s'", $value));
           break;
         case 'mail':
-          $nid = db_result(db_query('SELECT uid FROM {users} WHERE mail = "%s"', $value));
+          $uid = db_result(db_query("SELECT uid FROM {users} WHERE mail = '%s'", $value));
+          break;
+        case 'openid':
+          $uid = db_result(db_query("SELECT uid FROM {authmap} WHERE authname = '%s' AND module = 'openid'", $value));
           break;
       }
-      if ($nid) {
+      if ($uid) {
         // Return with the first nid found.
-        return $nid;
+        return $uid;
       }
     }
     return 0;

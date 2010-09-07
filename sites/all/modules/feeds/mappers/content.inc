@@ -1,5 +1,5 @@
 <?php
-// $Id: content.inc,v 1.3 2009/10/28 01:08:30 alexb Exp $
+// $Id: content.inc,v 1.5 2010/05/16 21:15:53 alexb Exp $
 
 /**
  * @file
@@ -16,7 +16,7 @@ function content_feeds_node_processor_targets_alter(&$targets, $content_type) {
   $fields = array();
   if (isset($info['fields']) && count($info['fields'])) {
     foreach ($info['fields'] as $field_name => $field) {
-      if (in_array($field['type'], array('text', 'number_integer', 'number_decimal'))) {
+      if (in_array($field['type'], array('text', 'number_integer', 'number_decimal', 'number_float'))) {
         $fields[$field_name] = isset($field['widget']['label']) ? $field['widget']['label'] : $field_name;
       }
     }

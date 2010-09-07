@@ -1,5 +1,5 @@
 <?php
-// $Id: taxonomy.inc,v 1.1 2009/12/05 01:38:27 alexb Exp $
+// $Id: taxonomy.inc,v 1.2 2010/07/08 17:19:16 alexb Exp $
 
 /**
  * @file
@@ -19,6 +19,7 @@ function taxonomy_feeds_node_processor_targets_alter(&$targets, $content_type) {
       'name' => "Taxonomy: ". $vocab->name,
       'callback' => 'taxonomy_feeds_set_target',
       'description' => $description,
+      'real_target' => 'taxonomy',
     );
   }
 }

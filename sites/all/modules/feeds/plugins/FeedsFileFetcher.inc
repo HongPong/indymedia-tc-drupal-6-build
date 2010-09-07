@@ -1,10 +1,40 @@
 <?php
-// $Id: FeedsFileFetcher.inc,v 1.2 2009/10/20 20:59:04 alexb Exp $
+// $Id: FeedsFileFetcher.inc,v 1.11 2010/07/11 16:26:06 alexb Exp $
 
 /**
  * @file
- * Home of the FeedsFileFetcher.
+ * Home of the FeedsFileFetcher and related classes.
  */
+
+/**
+ * Definition of the import batch object created on the fetching stage by
+ * FeedsFileFetcher.
+ */
+class FeedsFileBatch extends FeedsImportBatch {
+  protected $file_path;
+
+  /**
+   * Constructor.
+   */
+  public function __construct($file_path) {
+    $this->file_path = $file_path;
+    parent::__construct();
+  }
+
+  /**
+   * Implementation of FeedsImportBatch::getRaw();
+   */
+  public function getRaw() {
+    return file_get_contents(realpath($this->file_path));
+  }
+
+  /**
+   * Implementation of FeedsImportBatch::getFilePath().
+   */
+  public function getFilePath() {
+    return $this->file_path;
+  }
+}
 
 /**
  * Fetches data via HTTP.
@@ -12,31 +42,39 @@
 class FeedsFileFetcher extends FeedsFetcher {
 
   /**
-   * Fetch a local resource.
+   * Implementation of FeedsFetcher::fetch().
    */
   public function fetch(FeedsSource $source) {
     $source_config = $source->getConfigFor($this);
-    // Just return path to file, contents can be read easily with
-    // file_get_contents($file_path);
-    return new FeedsFetcherResult($source_config['source'], 'text/filepath');
+    return new FeedsFileBatch($source_config['source']);
   }
 
   /**
    * Source form.
    */
   public function sourceForm($source_config) {
-    $form = array();
-    // When renaming, do not forget feeds_vews_handler_field_source class.
+    $form = $info = array();
+    if (!empty($source_config['source'])) {
+      $info = array(
+        'path' => $source_config['source'],
+        'size' => filesize(realpath($source_config['source'])),
+      );
+      if (module_exists('mimedetect')) {
+        $info['mime'] = mimedetect_mime(realpath($source_config['source']));
+      }
+    }
     $form['source'] = array(
-      '#type' => 'textfield',
+      '#type' => empty($this->config['direct']) ? 'value' : 'textfield',
       '#title' => t('File'),
       '#description' => t('Specify a file in the site\'s file system path or upload a file below.'),
-      '#default_value' => isset($source_config['source']) ? $source_config['source'] : '',
+      '#default_value' => empty($source_config['source']) ? '' : $source_config['source'],
     );
     $form['upload'] = array(
       '#type' => 'file',
-      '#title' => t('Upload'),
-      '#description' => t('Choose a file from your local computer, then click "Import".'),
+      '#title' => empty($this->config['direct']) ? t('File') : NULL,
+      '#description' => empty($source_config['source']) ? t('Select the file to be imported from your local system.') : t('Select a different file to be imported from your local system.'),
+      '#theme' => 'feeds_upload',
+      '#file_info' => $info,
     );
     return $form;
   }
@@ -57,8 +95,34 @@ class FeedsFileFetcher extends FeedsFetcher {
     elseif (empty($values['source'])) {
       form_set_error('feeds][source', t('Upload a file first.'));
     }
+    // If a file has not been uploaded and $values['source'] is not empty, make
+    // sure that this file is within Drupal's files directory as otherwise
+    // potentially any file that the web server has access could be exposed.
     elseif (!file_check_location($values['source'], file_directory_path())) {
       form_set_error('feeds][source', t('File needs to point to a file in your Drupal file system path.'));
     }
+  }
+
+  /**
+   * Override parent::configDefaults().
+   */
+  public function configDefaults() {
+    return array(
+      'direct' => FALSE,
+    );
+  }
+
+  /**
+   * Override parent::configForm().
+   */
+  public function configForm(&$form_state) {
+    $form = array();
+    $form['direct'] = array(
+      '#type' =>'checkbox',
+      '#title' => t('Supply path to file directly'),
+      '#description' => t('For experts. If checked users can specify a path to a file when importing rather than uploading a file. This is useful when files to be imported are already present on server.'),
+      '#default_value' => $this->config['direct'],
+    );
+    return $form;
   }
 }

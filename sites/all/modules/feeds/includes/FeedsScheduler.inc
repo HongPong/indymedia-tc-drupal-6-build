@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsScheduler.inc,v 1.8 2009/12/12 01:09:44 alexb Exp $
+// $Id: FeedsScheduler.inc,v 1.20 2010/06/19 19:40:43 alexb Exp $
 
 /**
  * @file
@@ -37,32 +37,31 @@ interface FeedsSchedulerInterface {
   public function remove($importer_id, $callback, $feed_nid = 0);
 
   /**
-   * Work off a given feed identified by $feed_info.
+   * Work off a given feed identified by $job.
    *
-   * @param $feed_info
-   *   Array where 'importer_id' key is the id of a FeedsImporter object,
+   * @param $job
+   *   Array where 'id' key is the id of a FeedsImporter object,
    *   and 'feed_nid' is the feed node id that identifies the
    *   source of a FeedsSource object.
    */
-  public function work($feed_info);
+  public function work($job);
 }
 
 /**
  * Implementation of FeedsSchedulerInterface.
  *
- * This scheduler uses the last_scheduled_time paradigm: By storing the time
- * when a particular feed was scheduled to be refreshed last rather than
- * storing when a feed should be _refreshed_ next, we gain two advantages:
+ * This scheduler uses the last_refreshed_time paradigm: By storing the time
+ * when a particular feed was refreshed last rather than storing when a feed
+ * should be refreshed next, we gain two advantages:
  *
  * 1) If a feed's import_period setting changes, it has immediate effects -
  *    without batch updating an existing schedule.
  * 2) The time between refreshes will always be scheduled based on when it
  *    has been scheduled last. Less drift occurs.
+ *
+ * This behavior may change soon: http://drupal.org/node/721428
  */
 class FeedsScheduler implements FeedsSchedulerInterface {
-
-  // Only used for debugging.
-  protected $debugTime;
 
   /**
    * Create a single instance of FeedsScheduler.
@@ -88,14 +87,8 @@ class FeedsScheduler implements FeedsSchedulerInterface {
    *
    * If drupal_queue is present, only pushes refresh tasks to queue and
    * returns. If drupal_queue is not available, works off tasks.
-   *
-   * @todo: Run cleanup task that
-   * 1) Picks up items that are scheduled and not worked off for more than
-   *    e. g. 6 hours.
-   * 2) Logs these items with watchdog.
    */
   public function cron() {
-
     // Check and set scheduler semaphore, take time.
     if (variable_get('feeds_scheduler_cron', FALSE)) {
       watchdog('FeedsScheduler', 'Last cron process did not finish.', array(), WATCHDOG_ERROR);
@@ -103,55 +96,26 @@ class FeedsScheduler implements FeedsSchedulerInterface {
     variable_set('feeds_scheduler_cron', TRUE);
     $start = time();
 
-    // Get feeds configuration, check whether drupal_queue is present and set
-    // parameters accordingly.
+    // Release schedule lock where the lock is older than 1 hour.
+    db_query("UPDATE {feeds_schedule} SET scheduled = 0 WHERE scheduled < %d", FEEDS_REQUEST_TIME - 3600);
+
+    // Iterate over feed importers, pick $num jobs for each of them and
+    // schedule them.
     if ($importers = feeds_importer_load_all()) {
-
-      if ($use_queue = module_exists('drupal_queue')) {
-        drupal_queue_include();
-        $queue = drupal_queue_get(FEEDS_SCHEDULER_QUEUE);
-        $num = variable_get('feeds_schedule_queue_num', 200);
-      }
-      else {
-        $num = variable_get('feeds_schedule_num', 5);
-      }
-
-      // Iterate over feed configurations, pick $num feeds for each
-      // configuration, push to queue or refresh feeds.
+      $num = $this->queue() ? variable_get('feeds_schedule_queue_num', 200) : variable_get('feeds_schedule_num', 5);
       foreach ($importers as $importer) {
-        foreach (array('import', 'expire') as $callback) {
-
-          // Check whether jobs are scheduled.
+        foreach ($importer->getScheduleCallbacks() as $callback) {
           $period = $importer->getSchedulePeriod($callback);
           if ($period != FEEDS_SCHEDULE_NEVER) {
-
-            // Refresh feeds that have a refresh time older than now minus
-            // refresh period.
-            $time = $this->time() - $period;
-
-            $result = db_query_range('SELECT feed_nid, id AS importer_id, callback, last_scheduled_time FROM {feeds_schedule} WHERE id = "%s" AND callback = "%s" AND scheduled = 0 AND (last_scheduled_time < %d OR last_scheduled_time = 0) ORDER BY last_scheduled_time ASC', $importer->id, $callback, $time, 0, $num);
-            while ($feed_info = db_fetch_array($result)) {
-
-              // If drupal_queue is present, add to queue, otherwise work off
-              // immediately.
-              if ($use_queue) {
-                if ($queue->createItem($feed_info)) {
-                  $this->flag($feed_info['importer_id'], $feed_info['callback'], $feed_info['feed_nid']);
-                }
-                else {
-                  watchdog('FeedsScheduler', 'Error adding item to queue.', WATCHDOG_ALERT);
-                }
-              }
-              else {
-                $this->flag($feed_info['importer_id'], $feed_info['callback'], $feed_info['feed_nid']);
-                $this->work($feed_info);
-              }
+            $result = db_query_range("SELECT feed_nid, id, callback, last_executed_time FROM {feeds_schedule} WHERE id = '%s' AND callback = '%s' AND scheduled = 0 AND (last_executed_time < %d OR last_executed_time = 0) ORDER BY last_executed_time ASC", $importer->id, $callback, FEEDS_REQUEST_TIME - $period, 0, $num);
+            while ($job = db_fetch_array($result)) {
+              $this->schedule($job);
+              // @todo Add time limit.
             }
           }
         }
       }
     }
-
     // Unflag and post a message that we're done.
     variable_set('feeds_scheduler_cron', FALSE);
     watchdog('FeedsScheduler', 'Finished processing schedule after !time.', array('!time' => format_interval(time() - $start)));
@@ -162,20 +126,21 @@ class FeedsScheduler implements FeedsSchedulerInterface {
    *
    * Add a feed to the scheduler.
    *
-   * @todo: Create optional parameter $last_scheduled_time to pass in.
-   *        Set this value if a feed is refreshed on creation.
-   * @todo: Create an abstract interface for items that can be added?
+   * @todo Create optional parameter $last_executed_time to pass in. Set this
+   *   value if a feed is refreshed on creation.
    */
   public function add($importer_id, $callback, $feed_nid = 0) {
     $save = array(
       'id' => $importer_id,
       'callback' => $callback,
       'feed_nid' => $feed_nid,
-      'last_scheduled_time' => 0,
+      'last_executed_time' => 0,
       'scheduled' => 0, // Means NOT scheduled at the moment.
     );
-    drupal_write_record('feeds_schedule', $save, array('id', 'callback', 'feed_nid'));
-    if (!db_affected_rows()) {
+    if (db_result(db_query_range("SELECT 1 FROM {feeds_schedule} WHERE id = '%s' AND callback = '%s' AND feed_nid = %d", $importer_id, $callback, $feed_nid, 0, 1))) {
+      drupal_write_record('feeds_schedule', $save, array('id', 'callback', 'feed_nid'));
+    }
+    else {
       drupal_write_record('feeds_schedule', $save);
     }
   }
@@ -184,7 +149,7 @@ class FeedsScheduler implements FeedsSchedulerInterface {
    * Implementation of FeedsSchedulerInterface::remove().
    */
   public function remove($importer_id, $callback, $feed_nid = 0) {
-    db_query('DELETE FROM {feeds_schedule} WHERE id = "%s" AND callback = "%s" AND feed_nid = %d', $importer_id, $callback, $feed_nid);
+    db_query("DELETE FROM {feeds_schedule} WHERE id = '%s' AND callback = '%s' AND feed_nid = %d", $importer_id, $callback, $feed_nid);
   }
 
   /**
@@ -195,112 +160,87 @@ class FeedsScheduler implements FeedsSchedulerInterface {
    * Used as worker callback invoked from feeds_scheduler_refresh() or
    * if drupal_queue is not enabled, directly from $this->cron().
    */
-  public function work($feed_info) {
-    $importer = feeds_importer($feed_info['importer_id']);
-
-    // Only refresh if feed is actually in DB or in default configuration.
-    if ($importer->export_type != FEEDS_EXPORT_NONE) {
-
-      // Remove scheduled flag, if we fail after this we'd like to try again
-      // next time around.
-      $this->unflag($feed_info['importer_id'], $feed_info['callback'], $feed_info['feed_nid']);
-
-      // There are 2 possible callbacks: expire or 'import'.
-      if ($feed_info['callback'] == 'expire') {
-        try {
-          $importer->expire();
-        }
-        catch (Exception $e) {
-          watchdog('FeedsScheduler', $e->getMessage(), array(), WATCHDOG_ERROR);
-        }
+  public function work($job) {
+    $importer = feeds_importer($job['id']);
+    try {
+      if (FEEDS_BATCH_COMPLETE == $importer->existing()->work($job)) {
+        $this->finished($job);
       }
-      elseif ($feed_info['callback'] == 'import') {
-        // Import feed if source is available.
-        $source = feeds_source($importer->id, $feed_info['feed_nid']);
-        if ($source->export_type & FEEDS_EXPORT_NONE) {
-          watchdog('FeedsScheduler', 'Expected source information in database for '. $importer->id .'/'. $feed_info['feed_nid'] .'. Could not find any.', array(), WATCHDOG_ERROR);
-          return;
-        }
-        try {
-          $source->import();
-        }
-        catch (Exception $e) {
-          watchdog('FeedsScheduler', $e->getMessage(), array(), WATCHDOG_ERROR);
-        }
-      }
+    }
+    catch (Exception $e) {
+      watchdog('FeedsScheduler', $e->getMessage(), array(), WATCHDOG_ERROR);
+      $this->finished($job);
+    }
+    // Make sure that job is not scheduled after this method has executed.
+    $this->unschedule($job);
+  }
+
+  /**
+   * @return
+   *   Drupal Queue if available, NULL otherwise.
+   */
+  protected function queue() {
+    if (module_exists('drupal_queue')) {
+      drupal_queue_include();
+      return drupal_queue_get(FEEDS_SCHEDULER_QUEUE);
     }
   }
 
   /**
-   * Set the internal time of FeedsScheduler.
-   * Use for debugging.
+   * Attempt to reserve a job. If successful work it off or - if Drupal Queue is
+   * available - queue it.
    *
-   * @param $time
-   *   UNIX time that the scheduler should use for comparing the schedule. Set
-   *   this time to test the behavior of the scheduler in the future or past.
-   *   If set to 0, FeedsScheduler will use the current time.
+   * The lock/release mechanism makes sure that an item does not get queued
+   * twice. It has a different purpose than the FeedsSource level locking
+   * which is in place to avoid concurrent import/clear operations on a source.
+   *
+   * @param $job
+   *   A job array.
    */
-  public function debugSetTime($time) {
-    $this->debugTime = $time;
-  }
+   protected function schedule($job) {
+     db_query("UPDATE {feeds_schedule} SET scheduled = %d WHERE id = '%s' AND feed_nid = %d AND callback = '%s'", FEEDS_REQUEST_TIME, $job['id'], $job['feed_nid'], $job['callback']);
+     if (db_affected_rows()) {
+       if ($this->queue()) {
+         if (!$this->queue()->createItem($job)) {
+           $this->unschedule($job);
+           watchdog('FeedsScheduler', 'Error adding item to queue.', WATCHDOG_CRITICAL);
+           return;
+         }
+       }
+       else {
+         $this->work($job);
+       }
+     }
+   }
 
   /**
-   * Returns the internal time that the scheduler is operating on.
+   * Remove a job from schedule.
    *
-   * Usually returns FEEDS_REQUEST_TIME, unless a debug time has been set
-   * with debugSetTime();
-   *
-   * @return
-   *   An integer that is a UNIX time.
-   */
-  public function time() {
-    return empty($this->debugTime) ? FEEDS_REQUEST_TIME : $this->debugTime;
-  }
-
-  /**
-   * Helper function to flag a feed scheduled.
-   *
-   * This function sets the feed's scheduled bit to 1 and updates
-   * last_scheduled_time to $this->time().
-   *
-   * @param $id
-   *   Id of the importer configuration.
-   * @param $callback
-   *   Callback of the job.
-   * @param $feed_nid
-   *   Identifier of the feed node.
-   */
-  protected function flag($id, $callback, $feed_nid) {
-    $save = array(
-      'id' => $id,
-      'callback' => $callback,
-      'feed_nid' => $feed_nid,
-      'last_scheduled_time' => $this->time(),
-      'scheduled' => 1,
-    );
-    drupal_write_record('feeds_schedule', $save, array('id', 'callback', 'feed_nid'));
-  }
-
-  /**
-   * Helper function to flag a feed unscheduled.
-   *
-   * This function sets the feed's scheduled bit to 0 and thus makes
+   * This function sets the source's scheduled bit to 0 and thus makes
    * it eligible for being added to the queue again.
    *
-   * @param $id
-   *   Id of the importer configuration.
-   * @param $callback
-   *   Callback of the job.
-   * @param $feed_nid
-   *   Identifier of the feed node.
+   * @param $job
+   *   A job array.
    */
-  protected function unflag($id, $callback, $feed_nid) {
-    $save = array(
-      'id' => $id,
-      'callback' => $callback,
-      'feed_nid' => $feed_nid,
+  protected function unschedule($job) {
+    unset($job['last_executed_time']);
+    $job = array(
       'scheduled' => 0,
-    );
-    drupal_write_record('feeds_schedule', $save, array('id', 'callback', 'feed_nid'));
+    ) + $job;
+    drupal_write_record('feeds_schedule', $job, array('id', 'callback', 'feed_nid'));
+  }
+
+  /**
+   * Release a job and set its last_executed_time flag.
+   *
+   * @param $job
+   *   A job array.
+   */
+  protected function finished($job) {
+    $job = array(
+      'scheduled' => 0,
+      'last_executed_time' => FEEDS_REQUEST_TIME,
+    ) + $job;
+    drupal_write_record('feeds_schedule', $job, array('id', 'callback', 'feed_nid'));
   }
 }

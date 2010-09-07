@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsPlugin.inc,v 1.1 2009/10/20 21:03:08 alexb Exp $
+// $Id: FeedsPlugin.inc,v 1.5 2010/03/29 02:55:50 alexb Exp $
 
 /**
  * @file
@@ -12,10 +12,6 @@
  * Note how this class does not attempt to store source information locally.
  * Doing this would break the model where source information is represented by
  * an object that is being passed into a Feed object and its plugins.
- *
- * There is only one instance of a Feed or a FeedsPlugin per feed configuration,
- * whereas there is one instance of a FeedsSource per feed configuration, per
- * source info definition.
  */
 abstract class FeedsPlugin extends FeedsConfigurable implements FeedsSourceInterface {
 
@@ -67,11 +63,24 @@ abstract class FeedsPlugin extends FeedsConfigurable implements FeedsSourceInter
   /**
    * Validation handler for sourceForm.
    */
-  public function sourceFormValidate(&$values) {}
+  public function sourceFormValidate(&$source_config) {}
+
+  /**
+   * A source is being saved.
+   */
+  public function sourceSave(FeedsSource $source) {}
+
+  /**
+   * A source is being deleted.
+   */
+  public function sourceDelete(FeedsSource $source) {}
 }
 
 /**
  * Used when a plugin is missing.
  */
 class FeedsMissingPlugin extends FeedsPlugin {
+  public function menuItem() {
+    return array();
+  }
 }

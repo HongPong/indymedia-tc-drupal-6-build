@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsTermProcessor.inc,v 1.2 2009/11/02 20:48:52 alexb Exp $
+// $Id: FeedsTermProcessor.inc,v 1.10 2010/07/13 19:32:06 alexb Exp $
 
 /**
  * @file
@@ -14,7 +14,7 @@ class FeedsTermProcessor extends FeedsProcessor {
   /**
    * Implementation of FeedsProcessor::process().
    */
-  public function process(FeedsParserResult $parserResult, FeedsSource $source) {
+  public function process(FeedsImportBatch $batch, FeedsSource $source) {
 
     if (empty($this->config['vocabulary'])) {
       throw new Exception(t('You must define a vocabulary for Taxonomy term processor before importing.'));
@@ -23,7 +23,7 @@ class FeedsTermProcessor extends FeedsProcessor {
     // Count number of created and updated nodes.
     $created  = $updated = $no_name = 0;
 
-    foreach ($parserResult->value['items'] as $item) {
+    while ($item = $batch->shiftItem()) {
 
       if (!($tid = $this->existingItemId($item, $source)) || $this->config['update_existing']) {
 
@@ -58,30 +58,36 @@ class FeedsTermProcessor extends FeedsProcessor {
     $vocabularies = taxonomy_get_vocabularies();
     $vocabulary = $vocabularies[$this->config['vocabulary']];
     if ($no_name) {
-      drupal_set_message(t('There were !number terms that could not be imported because their name was empty. Check mapping settings on Taxomy term processor.', array('!number' => $no_name)), 'error');
+      drupal_set_message(
+        format_plural(
+          $no_name,
+          'There was @number term that could not be imported because their name was empty. Check mapping settings on Taxomy term processor.',
+          'There were @number terms that could not be imported because their name was empty. Check mapping settings on Taxomy term processor.',
+          array('@number' => $no_name)
+        ),
+        'error'
+      );
     }
     if ($created) {
-      drupal_set_message(t('Created !number terms in !vocabulary.', array('!number' => $created, '!vocabulary' => $vocabulary->name)));
+      drupal_set_message(format_plural($created, 'Created @number term in !vocabulary.', 'Created @number terms in !vocabulary.', array('@number' => $created, '!vocabulary' => $vocabulary->name)));
     }
     elseif ($updated) {
-      drupal_set_message(t('Updated !number terms in !vocabulary.', array('!number' => $updated, '!vocabulary' => $vocabulary->name)));
+      drupal_set_message(format_plural($updated, 'Updated @number term in !vocabulary.', 'Updated @number terms in !vocabulary.', array('@number' => $updated, '!vocabulary' => $vocabulary->name)));
     }
     else {
       drupal_set_message(t('There are no new terms.'));
     }
+
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
-   * Implement clear.
-   *
-   * @param $source
-   *   FeedsSource of this term. FeedsTermProcessor does not heed this
-   *   parameter, it deletes all terms from a vocabulary.
+   * Implementation of FeedsProcessor::clear().
    */
-  public function clear(FeedsSource $source) {
+  public function clear(FeedsBatch $batch, FeedsSource $source) {
     $deleted = 0;
 
-    $result = db_query('SELECT tid FROM {term_data} WHERE vid = %d', $this->config['vocabulary']);
+    $result = db_query("SELECT tid FROM {term_data} WHERE vid = %d", $this->config["vocabulary"]);
     while ($term = db_fetch_object($result)) {
       if (taxonomy_del_term($term->tid) == SAVED_DELETED) {
         $deleted++;
@@ -92,11 +98,12 @@ class FeedsTermProcessor extends FeedsProcessor {
     $vocabularies = taxonomy_get_vocabularies();
     $vocabulary = $vocabularies[$this->config['vocabulary']];
     if ($deleted) {
-      drupal_set_message(t('Deleted !number terms from !vocabulary.', array('!number' => $deleted, '!vocabulary' => $vocabulary->name)));
+      drupal_set_message(format_plural($deleted, 'Deleted @number term from !vocabulary.', 'Deleted @number terms from !vocabulary.', array('@number' => $deleted, '!vocabulary' => $vocabulary->name)));
     }
     else {
       drupal_set_message(t('No terms to be deleted.'));
     }
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -138,10 +145,11 @@ class FeedsTermProcessor extends FeedsProcessor {
       '#options' => $options,
       '#default_value' => $this->config['vocabulary'],
     );
+    // @todo Implement true updating.
     $form['update_existing'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Update existing items'),
-      '#description' => t('Check if existing terms should be updated from the feed.'),
+      '#title' => t('Replace existing terms'),
+      '#description' => t('If an existing term is found for an imported term, replace it. Existing terms will be determined using mappings that are a "unique target".'),
       '#default_value' => $this->config['update_existing'],
     );
     return $form;
@@ -171,7 +179,7 @@ class FeedsTermProcessor extends FeedsProcessor {
     // The only possible unique target is name.
     foreach ($this->uniqueTargets($source_item) as $target => $value) {
       if ($target == 'name') {
-        if ($tid = db_result(db_query('SELECT tid FROM {term_data} WHERE name = "%s" AND vid = %d', $value, $this->config['vocabulary']))) {
+        if ($tid = db_result(db_query("SELECT tid FROM {term_data} WHERE name = '%s' AND vid = %d", $value, $this->config["vocabulary"]))) {
           return $tid;
         }
       }

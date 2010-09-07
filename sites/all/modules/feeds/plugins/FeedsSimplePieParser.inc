@@ -1,5 +1,33 @@
 <?php
-// $Id: FeedsSimplePieParser.inc,v 1.4 2009/11/02 20:05:10 alexb Exp $
+// $Id: FeedsSimplePieParser.inc,v 1.12 2010/03/29 02:55:50 alexb Exp $
+
+/**
+ * Adapter to present SimplePie_Enclosure as FeedsEnclosure object.
+ */
+class FeedsSimplePieEnclosure extends FeedsEnclosure {
+  protected $simplepie_enclosure;
+
+  /**
+   * Constructor requires SimplePie enclosure object.
+   */
+  function __construct(SimplePie_Enclosure $enclosure) {
+    $this->simplepie_enclosure = $enclosure;
+  }
+
+  /**
+   * Override parent::getValue().
+   */
+  public function getValue() {
+    return $this->simplepie_enclosure->get_link();
+  }
+
+  /**
+   * Override parent::getMIMEType().
+   */
+  public function getMIMEType() {
+    return $this->simplepie_enclosure->get_real_type();
+  }
+}
 
 /**
  * Class definition for Common Syndication Parser.
@@ -9,39 +37,31 @@
 class FeedsSimplePieParser extends FeedsParser {
 
   /**
-   * Parses a raw string and returns a Feed object from it.
+   * Implementation of FeedsParser::parse().
    */
-  public function parse(FeedsFetcherResult $fetcherResult, FeedsSource $source) {
-    if ($fetcherResult->type == 'text/filepath') {
-      $string = file_get_contents($fetcherResult->value);
-    }
-    else {
-      $string = $fetcherResult->value;
-    }
+  public function parse(FeedsImportBatch $batch, FeedsSource $source) {
     feeds_include_library('simplepie.inc', 'simplepie');
 
     // Initialize SimplePie.
     $parser = new SimplePie();
-    $parser->set_raw_data($string);
+    $parser->set_raw_data($batch->getRaw());
     $parser->set_stupidly_fast(TRUE);
     $parser->encode_instead_of_strip(FALSE);
-    // @todo: is caching effective when we pass in raw data?
+    // @todo Is caching effective when we pass in raw data?
     $parser->enable_cache(TRUE);
     $parser->set_cache_location($this->cacheDirectory());
     $parser->init();
 
     // Construct the standard form of the parsed feed
-    $feed = array();
-    $feed['title'] = ($title = $parser->get_title()) ? $title : $this->createTitle($parser->get_description());
-    $feed['description'] = $parser->get_description();
-    $feed['link'] = html_entity_decode($parser->get_link());
+    $batch->setTitle(html_entity_decode(($title = $parser->get_title()) ? $title : $this->createTitle($parser->get_description())));
+    $batch->setDescription($parser->get_description());
+    $batch->setLink(html_entity_decode($parser->get_link()));
 
-    $feed['items'] = array();
     $items_num = $parser->get_item_quantity();
     for ($i = 0; $i < $items_num; $i++) {
       $item = array();
       $simplepie_item = $parser->get_item($i);
-      $item['title'] = ($title = $simplepie_item->get_title()) ? $title : $this->createTitle($simplepie_item->get_content());
+      $item['title'] = html_entity_decode(($title = $simplepie_item->get_title()) ? $title : $this->createTitle($simplepie_item->get_content()));
       $item['description'] = $simplepie_item->get_content();
       $item['url'] = html_entity_decode($simplepie_item->get_link());
       // Use UNIX time. If no date is defined, fall back to FEEDS_REQUEST_TIME.
@@ -55,18 +75,14 @@ class FeedsSimplePieParser extends FeedsParser {
         $item['guid'] = $item['url'];
       }
       $author = $simplepie_item->get_author();
-      $item['author_name'] = $author->name;
-      $item['author_link'] = $author->link;
-      $item['author_email'] = $author->email;
+      $item['author_name'] = isset($author->name) ? html_entity_decode($author->name) : '';
+      $item['author_link'] = isset($author->link) ? $author->link : '';
+      $item['author_email'] = isset($author->email) ? $author->email : '';
       // Enclosures
       $enclosures = $simplepie_item->get_enclosures();
       if (is_array($enclosures)) {
         foreach ($enclosures as $enclosure) {
-          $mime = $enclosure->get_real_type();
-          if ($mime != '') {
-            list($type, $subtype) = split('/', $mime);
-            $item['enclosures'][$type][$subtype][] = $enclosure;
-          }
+          $item['enclosures'][] = new FeedsSimplePieEnclosure($enclosure);
         }
       }
       // Location
@@ -94,14 +110,21 @@ class FeedsSimplePieParser extends FeedsParser {
       }
       $item['domains'] = $domains;
       $item['tags'] = $tags;
-      // Stick the raw data onto the feed item.
+
+      // Allow parsing to be extended.
+      $this->parseExtensions($item, $simplepie_item);
       $item['raw'] = $simplepie_item->data;
-      $feed['items'][] = $item;
+
+      $batch->addItem($item);
     }
     // Release parser.
     unset($parser);
-    return new FeedsParserResult($feed, 'syndication');
   }
+
+  /**
+   * Allow extension of FeedsSimplePie item parsing.
+   */
+  protected function parseExtensions(&$item, $simplepie_item) {}
 
   /**
    * Return mapping sources.

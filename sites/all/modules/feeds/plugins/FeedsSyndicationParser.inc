@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsSyndicationParser.inc,v 1.8 2009/11/02 19:58:37 alexb Exp $
+// $Id: FeedsSyndicationParser.inc,v 1.14 2010/03/29 02:55:50 alexb Exp $
 
 /**
  * Class definition for Common Syndication Parser.
@@ -9,17 +9,17 @@
 class FeedsSyndicationParser extends FeedsParser {
 
   /**
-   * Parses a raw string and returns a Feed object from it.
+   * Implementation of FeedsParser::parse().
    */
-  public function parse(FeedsFetcherResult $fetcherResult, FeedsSource $source) {
-    if ($fetcherResult->type == 'text/filepath') {
-      $string = file_get_contents($fetcherResult->value);
-    }
-    else {
-      $string = $fetcherResult->value;
-    }
+  public function parse(FeedsImportBatch $batch, FeedsSource $source) {
     feeds_include_library('common_syndication_parser.inc', 'common_syndication_parser');
-    return new FeedsParserResult(common_syndication_parser_parse($string), 'syndication');
+    $result = common_syndication_parser_parse($batch->getRaw());
+    $batch->setTitle($result['title']);
+    $batch->setDescription($result['description']);
+    $batch->setLink($result['link']);
+    if (is_array($result['items'])) {
+      $batch->setItems($result['items']);
+    }
   }
 
   /**

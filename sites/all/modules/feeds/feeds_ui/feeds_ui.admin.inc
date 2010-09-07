@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds_ui.admin.inc,v 1.25 2009/12/10 21:58:02 alexb Exp $
+// $Id: feeds_ui.admin.inc,v 1.34 2010/07/10 23:30:19 alexb Exp $
 
 /**
  * @file
@@ -29,7 +29,7 @@ function feeds_ui_edit_help() {
     Imports can be <strong>refreshed periodically</strong> - see the minimum refresh period in the Basic settings.
     </li>
     <li>
-    Processors can have <strong>mappings</strong> in addition to settings. Mappings allow you to define what elements of a data feed should be mapped to what content fields on a granular level. For instance, you can specify that a feed\'s author should be mapped to a node\'s body.
+    Processors can have <strong>mappings</strong> in addition to settings. Mappings allow you to define what elements of a data feed should be mapped to what content fields on a granular level. For instance, you can specify that a feed item\'s author should be mapped to a node\'s body.
     </li>
     </ul>
     ', array('!import' => l(t('Import'), 'import')));
@@ -139,15 +139,7 @@ function feeds_ui_overview_form_submit($form, &$form_state) {
     $disabled[$importer->id] = !$form_state['values'][$importer->id];
   }
   variable_set('default_feeds_importer', $disabled);
-
-  // Clear caches: reset export cache, as objects have been enabled/disabled,
-  // reset node type cache, as some features provide content types, rebuild
-  // menu as content type changes or importer enabling/disabling can have
-  // impact on node/add/ or import/.
-  ctools_include('export');
-  ctools_export_load_object_reset('feeds_importer');
-  node_get_types('types', NULL, TRUE);
-  menu_rebuild();
+  feeds_cache_clear();
 }
 
 /**
@@ -225,6 +217,7 @@ function feeds_ui_create_form_submit($form, &$form_state) {
     drupal_set_message(t('A clone of the !name configuration has been created.', array('!name' => $form['#from_importer']->config['name'])));
   }
   $form_state['redirect'] = 'admin/build/feeds/edit/'. $importer->id;
+  feeds_cache_clear();
 }
 
 /**
@@ -233,11 +226,19 @@ function feeds_ui_create_form_submit($form, &$form_state) {
 function feeds_ui_delete_form(&$form_state, $importer) {
   $form['#redirect'] = 'admin/build/feeds';
   $form['#importer'] = $importer;
+  if ($importer->export_type & EXPORT_IN_CODE) {
+    $title = t('Would you really like to revert the importer @importer?', array('@importer' => $importer->config['name']));
+    $button_label = t('Revert');
+  }
+  else {
+    $title = t('Would you really like to delete the importer @importer?', array('@importer' => $importer->config['name']));
+    $button_label = t('Delete');
+  }
   return confirm_form($form,
-    t('Would you really like to delete the configuration !id?', array('!id' => $importer->id)),
+    $title,
     $form['#redirect'],
     t('This action cannot be undone.'),
-    t('Delete')
+    $button_label
   );
 }
 
@@ -257,7 +258,7 @@ function feeds_ui_delete_form_submit($form, &$form_state) {
   $form['#importer']->delete();
 
   // Clear cache, deleting a configuration may have an affect on menu tree.
-  menu_rebuild();
+  feeds_cache_clear();
 }
 
 /**
@@ -303,6 +304,8 @@ function feeds_ui_edit_page($importer, $active = 'help', $plugin_key = '') {
       $active_container['body'] = drupal_get_form('feeds_ui_plugin_form', $importer, $active);
       break;
     case 'settings':
+      drupal_add_js(drupal_get_path('module', 'ctools') .'/js/dependent.js');
+      ctools_include('dependent');
       if (empty($plugin_key)) {
         $active_container['title'] = t('Basic settings');
         $active_container['body'] = feeds_get_config_form($importer);
@@ -388,8 +391,6 @@ function feeds_ui_edit_page($importer, $active = 'help', $plugin_key = '') {
   if (feeds_get_config_form($importer->processor)) {
     $actions[] = l(t('Settings'), $path .'/settings/'. $config['processor']['plugin_key']);
   }
-  // @todo: We assume that every processor supports mapping - that's not
-  // necessarily the case.
   $actions[] = l(t('Mapping'), $path .'/mapping');
   $info['title'] = t('Processor');
   $info['body'] = array(
@@ -451,7 +452,6 @@ function feeds_ui_plugin_form_submit($form, &$form_state) {
   $form['#importer']->setPlugin($form_state['values']['plugin_key']);
   $form['#importer']->save();
   drupal_set_message(t('Changed !type plugin.', array('!type' => $form['#plugin_type'])));
-  // @todo: redirect to plugin's settings form if available.
 }
 
 /**
@@ -483,7 +483,7 @@ function theme_feeds_ui_plugin_form($form) {
 /**
  * Edit mapping.
  *
- * @todo: completely merge this into config form handling. This is just a
+ * @todo Completely merge this into config form handling. This is just a
  *   shared form of configuration, most of the common functionality can live in
  *   FeedsProcessor, a flag can tell whether mapping is supported or not.
  */
@@ -533,7 +533,7 @@ function feeds_ui_mapping_form(&$form_state, $importer) {
     foreach ($mappings as $i => $mapping) {
 
       $mappings[$i]['source'] = isset($source_options) ? $source_options[$mappings[$i]['source']] : $mappings[$i]['source'];
-      $mappings[$i]['target'] = $target_options[$mappings[$i]['target']];
+      $mappings[$i]['target'] = isset($target_options[$mappings[$i]['target']]) ? $target_options[$mappings[$i]['target']] : $mappings[$i]['target'];
       $param = array(
         'processor' => $importer->processor,
         'mapping' => $mapping,
@@ -654,27 +654,29 @@ function _feeds_ui_format_options($options) {
 function theme_feeds_ui_overview_form($form) {
   drupal_add_js(drupal_get_path('module', 'feeds_ui') .'/feeds_ui.js');
   drupal_add_css(drupal_get_path('module', 'feeds_ui') .'/feeds_ui.css');
-
   // Iterate through all importers and build a table.
+  $rows = array();
   foreach (array('enabled', 'disabled') as $type) {
-    foreach (element_children($form[$type]) as $id) {
-      $row = array();
-      foreach (element_children($form[$type][$id]) as $col) {
-        $row[$col] = array(
-          'data' => drupal_render($form[$type][$id][$col]),
+    if (isset($form[$type])) {
+      foreach (element_children($form[$type]) as $id) {
+        $row = array();
+        foreach (element_children($form[$type][$id]) as $col) {
+          $row[$col] = array(
+            'data' => drupal_render($form[$type][$id][$col]),
+            'class' => $type,
+          );
+        }
+        $rows[] = array(
+          'data' => $row,
           'class' => $type,
         );
       }
-      $rows[] = array(
-        'data' => $row,
-        'class' => $type,
-      );
     }
   }
+  $output = '';
   if (count($rows)) {
-    $output = theme('table', $form['#header'], $rows, array('class' => 'feeds-admin-importers'));
+    $output .= theme('table', $form['#header'], $rows, array('class' => 'feeds-admin-importers'));
   }
-
   $output .= drupal_render($form);
   return $output;
 }
@@ -711,7 +713,7 @@ function theme_feeds_ui_edit_page($config_info, $active_container) {
  * Render a simple container. A container can have a title, a description and
  * one or more actions. Recursive.
  *
- * @todo: Replace with theme_fieldset or a wrapper to theme_fieldset?
+ * @todo Replace with theme_fieldset or a wrapper to theme_fieldset?
  *
  * @param $container
  *   An array that describes the container. All elements are optional:
@@ -730,7 +732,11 @@ function theme_feeds_ui_container($container) {
   $output = '<div class="feeds-container'. $class .'"'. $id .'>';
 
   if (isset($container['actions']) && count($container['actions'])) {
-    $output .= theme('item_list', $container['actions'], NULL, 'ul', array('class' => 'container-actions'));
+    $output .= '<ul class="container-actions">';
+    foreach ($container['actions'] as $action) {
+      $output .= '<li>'. $action .'</li>';
+    }
+    $output .= '</ul>';
   }
 
   if (!empty($container['title'])) {

@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsConfigurable.inc,v 1.2 2009/10/21 22:49:47 alexb Exp $
+// $Id: FeedsConfigurable.inc,v 1.12 2010/02/28 17:16:25 alexb Exp $
 
 /**
  * @file
@@ -7,7 +7,15 @@
  */
 
 /**
- * A configurable class.
+ * Used when an object does not exist in the DB or code but should.
+ */
+class FeedsNotExistingException extends Exception {
+}
+
+/**
+ * Base class for configurable classes. Captures configuration handling, form
+ * handling and distinguishes between in-memory configuration and persistent
+ * configuration.
  */
 abstract class FeedsConfigurable {
 
@@ -20,7 +28,7 @@ abstract class FeedsConfigurable {
   /*
   CTools export type of this object.
 
-  @todo: should live in FeedsImporter. Not all child classes
+  @todo Should live in FeedsImporter. Not all child classes
   of FeedsConfigurable are exportable. Same goes for $disabled.
 
   Export type can be one of
@@ -60,13 +68,23 @@ abstract class FeedsConfigurable {
   protected function __construct($id) {
     // Set this object's id.
     $this->id = $id;
-
     // Per default we assume that a Feeds object is not saved to
     // database nor is it exported to code.
     $this->export_type = FEEDS_EXPORT_NONE;
-
     // Make sure configuration is populated.
     $this->config = $this->configDefaults();
+    $this->disabled = FALSE;
+  }
+
+  /**
+   * Determine whether this object is persistent. I. e. it is defined either
+   * in code or in the database.
+   */
+  public function existing() {
+    if ($this->export_type == FEEDS_EXPORT_NONE) {
+      throw new FeedsNotExistingException(t('Object is not persistent.'));
+    }
+    return $this;
   }
 
   /**
@@ -86,12 +104,13 @@ abstract class FeedsConfigurable {
    * Set configuration.
    *
    * @param $config
-   *   Array containing configuration information. Will be filtered by the keys
-   *   returned by configDefaults().
+   *   Array containing configuration information. Config array will be filtered
+   *   by the keys returned by configDefaults() and populated with default
+   *   values that are not included in $config.
    */
   public function setConfig($config) {
-    $default_keys = $this->configDefaults();
-    $this->config = array_intersect_key($config, $default_keys);
+    $defaults = $this->configDefaults();
+    $this->config = array_intersect_key($config, $defaults) + $defaults;
   }
 
   /**
@@ -128,16 +147,14 @@ abstract class FeedsConfigurable {
   /**
    * Return default configuration.
    *
-   * @todo: rename to getConfigDefaults().
+   * @todo rename to getConfigDefaults().
    *
    * @return
    *   Array where keys are the variable names of the configuration elements and
    *   values are their default values.
    */
   public function configDefaults() {
-    $fake_form_state = array();
-    $form = $this->configForm($fake_form_state);
-    return element_children($form);
+    return array();
   }
 
   /**
@@ -176,6 +193,7 @@ abstract class FeedsConfigurable {
  *   Rendered config form, if available. Empty string otherwise.
  */
 function feeds_get_config_form($configurable) {
+  $form_state = array();
   if ($configurable->configForm($form_state)) {
     return drupal_get_form(get_class($configurable) .'_feeds_config_form', $configurable);
   }
@@ -201,6 +219,7 @@ function feeds_config_form(&$form_state, $configurable) {
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
+    '#weight' => 100,
   );
   return $form;
 }
@@ -219,4 +238,5 @@ function feeds_config_form_submit($form, &$form_state) {
   $form['#configurable']->addConfig($form_state['values']);
   $form['#configurable']->save();
   drupal_set_message(t('Your changes have been saved.'));
+  feeds_cache_clear(FALSE);
 }
