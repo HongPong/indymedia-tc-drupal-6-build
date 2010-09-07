@@ -1,5 +1,5 @@
 <?php
-// $Id: contemplate.module,v 1.8.4.61 2009/05/11 21:20:54 jrglasgow Exp $
+// $Id: contemplate.module,v 1.8.4.65 2010/07/21 03:19:28 jrglasgow Exp $
 // by Jeff Robbins - Lullabot - www.lullabot.com
 
 define('CONTEMPLATE_TEASER_ENABLED', 0x0001);
@@ -17,7 +17,7 @@ define('CONTEMPLATE_RSS_ENABLED', 0x0004);
 function contemplate_help($path, $arg) {
   switch ($path) {
     case 'admin/content/node-type/'. $arg[3] .'/template':
-      return t('<p>Enable the textareas by enabling the checkbox above each. Expand the variables section to display. Then click on content attributes to insert the appropriate PHP <code>print</code> statements at your cursor position in the textarea.</p><p>It is also possible to create disk-based templates.') .
+      return t('<p>Enable the textareas by enabling the checkbox above each. Expand the variables section to display. Then click on content attributes to insert the appropriate PHP <code>print</code> statements at your cursor position in the textarea.</p><p>It is also possible to create disk-based templates. ') .
         (module_exists('help')
           ? t('Find more information about that <a href="!link">here</a>', array('!link' => url('admin/help/contemplate', array('fragment' => 'disk-based'))))
           : t('For help on this enable the \'help\' module, and you will find a link here.')) .
@@ -72,15 +72,15 @@ function contemplate_menu() {
     'access arguments' => array('administer templates'),
   );
   $node_types = node_get_types();
-  foreach ($node_types as $type) {
-    $items['admin/content/node-type/'. $type->type .'/template'] = array(
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['admin/content/node-type/'. $type_url_str .'/template'] = array(
       'title' => 'Template',
       'page callback' => 'contemplate_edit_type',
-      'page arguments' => array(3),
-      'access callback' => 'user_access',
+      'page arguments' => array($type),
       'access arguments' => array('administer templates'),
       'type' => MENU_LOCAL_TASK,
-      'weight' => 7,
+      'weight' => 10,
     );
   }
   $items['admin/settings/contemplate'] = array(
@@ -205,13 +205,14 @@ function contemplate_admin() {
   $disabled = t('Disabled');
   $file = t('Enabled: Disk');
   foreach ($types as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
     $rows[] = array(
       $type->name,
       isset($templates[$type->type]['teaser-enabled']) ? ($templates[$type->type]['teaser-enabled'] ? ($templates[$type->type]['teaser-file'] ? $file : $enabled) : $disabled) : '',
       isset($templates[$type->type]['body-enabled']) ? ($templates[$type->type]['body-enabled'] ? ($templates[$type->type]['body-file'] ? $file : $enabled) : $disabled) : '',
       isset($templates[$type->type]['rss-enabled']) ? ($templates[$type->type]['rss-enabled'] ? ($templates[$type->type]['rss-file'] ? $file : $enabled) : $disabled) : '',
-      l(isset($templates[$type->type]) ? t('edit template') : t('create template'), 'admin/content/node-type/'. $type->type .'/template'),
-      (isset($templates[$type->type]) ? l(t('delete template'), 'admin/content/node-type/'. $type->type .'/template/delete', array('query' => $destination)) : ''),
+      l(isset($templates[$type->type]) ? t('edit template') : t('create template'), 'admin/content/node-type/'. $type_url_str .'/template'),
+      (isset($templates[$type->type]) ? l(t('delete template'), 'admin/content/node-type/'. $type_url_str .'/template/delete', array('query' => $destination)) : ''),
     );
   }
   $header = array(
@@ -279,7 +280,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
       '#type' => 'checkbox',
       '#title' => '<strong>'. t('Affect teaser output') .'</strong>',
       '#default_value' => CONTEMPLATE_TEASER_ENABLED & $template['flags'] ? TRUE : FALSE,
-      '#attributes' => array('toggletarget' => '#edit-teaserfield'),
+      '#attributes' => array('rel' => '#edit-teaserfield'),
     );
     $form['teaser']['teaserfield'] = array(
       '#type' => 'textarea',
@@ -322,7 +323,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
       '#type' => 'checkbox',
       '#title' => '<strong>'. t('Affect body output') .'</strong>',
       '#default_value' => CONTEMPLATE_BODY_ENABLED & $template['flags'] ? TRUE : FALSE,
-      '#attributes' => array('toggletarget' => '#edit-bodyfield'),
+      '#attributes' => array('rel' => '#edit-bodyfield'),
     );
 
     $form['body']['bodyfield'] = array(
@@ -369,7 +370,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
       '#type' => 'checkbox',
       '#title' => '<strong>'. t('Affect RSS output') .'</strong>',
       '#default_value' => CONTEMPLATE_RSS_ENABLED & $template['flags'] ? TRUE : FALSE,
-      '#attributes' => array('toggletarget' => '#edit-rss'),
+      '#attributes' => array('rel' => '#edit-rssfield'),
       '#description' => t('Note that if you do not enable this, Drupal will use either the teaser or body as specified in your <a href="@url">RSS publishing settings</a>.', array('@url' => url('admin/content/rss-publishing'))),
     );
 
@@ -440,13 +441,11 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   return $form;
 }
 
-function contemplate_edit_type($type = NULL) {
-  $types = node_get_types();
-
-  if (empty($types[$type])) { // if the argument isn't a valid node type, output admin page
+function contemplate_edit_type($type = array()) {
+  if (empty($type)) { // if the argument isn't a valid node type, output admin page
     return contemplate_admin();
   }
-  drupal_set_title(t('Template for %type', array('%type' => $types[$type]->name)));
+  drupal_set_title(t('Template for %type', array('%type' => $type->name)));
   if (arg(0) == 'admin' && arg(1) == 'content' && arg(4) == 'template') {
     $breadcrumbs = drupal_get_breadcrumb();
     $type_crumb = array_pop($breadcrumbs);
@@ -454,11 +453,11 @@ function contemplate_edit_type($type = NULL) {
     drupal_set_breadcrumb($breadcrumbs);
   }
   if (arg(5) == 'delete') {
-    return drupal_get_form('contemplate_delete_type_form', $type);
+    return drupal_get_form('contemplate_delete_type_form', $type->type);
   }
   else {
     contemplate_refresh_files();
-    return drupal_get_form('contemplate_edit_type_form', $type);
+    return drupal_get_form('contemplate_edit_type_form', $type->type);
   }
 }
 
@@ -691,7 +690,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
   global $_contemplate_fids;
 
   if ($depth >= variable_get('contemplate_max_recursion_depth', 10)) {
-    #drupal_set_message(t('Contemplate exceeded max recursion depth. There are more variables available that have not been listed.'), 'error');
+    //drupal_set_message(t('Contemplate exceeded max recursion depth. There are more variables available that have not been listed.'), 'error');
     $recursion_limit_hit++;
     return '';
   }
@@ -754,7 +753,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
           $insert = "'<?php print \$node->". addslashes($field) ." ?>'";
         }
 
-        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), $insert);return FALSE;\" title=\"insert this variable into $target\">\$node->$field</a>{$security}{$type}</dt>\n";
+        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), $insert);return false;\" title=\"insert this variable into $target\">\$node->$field</a>{$security}{$type}</dt>\n";
       }
       else {
         $output .= "<dt>\$node->$field$type</dt>\n";
@@ -889,7 +888,7 @@ function contemplate_theme() {
  *
  * @return unknown
  */
-function theme_contemplate_field(&$field) {
+function theme_contemplate_field($field) {
   $output = '<div class="field field-type-'. strtr($field['type'], '_', '-') .' field-'. strtr($field['field_name'], '_', '-') .'">'."\n";
   $output .= '  <h3 class="field-label">'. $field['widget']['label'] .'</h3>'."\n";
   $output .= '  <div class="field-items">'."\n";

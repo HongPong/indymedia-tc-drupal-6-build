@@ -24,14 +24,18 @@ function insertAtCursor(myField, myValue) {
 Drupal.contemplate = new Object();
 
 Drupal.contemplate.toggle = function() {
-  var target = $(this).attr('toggletarget');
-  $(target)[0].disabled = this.checked ? false : true;
+  var target = $(this).attr('rel');
+  if (this.checked) {
+    $(target).attr('disabled', false);
+  }
+  else {
+    $(target).attr('disabled', true);
+  }
   $(target + '-keys').css('opacity', this.checked ? 1 : .2)
 }
 
-if (Drupal.jsEnabled) {
-  $(document).ready(function(){
-    $("input[@id*=enable]")
-      .click(Drupal.contemplate.toggle)
-  });
-}
+
+$(document).ready(function(){
+  $("input[id*=enable]")
+    .click(Drupal.contemplate.toggle)
+});
