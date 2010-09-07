@@ -1,7 +1,8 @@
-; $Id: location_user.info,v 1.1 2008/12/05 18:08:32 bdragon Exp $
-name = User Locations
-description = Associate locations with users.
+; $Id: location_taxonomy.info,v 1.1.2.1 2009/04/03 18:37:04 bdragon Exp $
+name = Location Taxonomy
+description = Associate locations with taxonomy terms.
 dependencies[] = location
+dependencies[] = taxonomy
 package = Location
 core = 6.x
 
