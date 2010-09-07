@@ -1,4 +1,4 @@
-/* $Id: ie6-fixes.css,v 1.1.2.5 2009/12/02 00:47:46 sociotech Exp $ */
+/* $Id: ie6-fixes.css,v 1.1.2.10 2010/07/02 22:11:04 sociotech Exp $ */
 
 /* IE6 fixes
 -------------------------------------------------------------- */
@@ -95,12 +95,6 @@ form fieldset legend {
   display: inline-block !important;
 }
 
-/* alpha transparency fix */
-div.pngfix,
-#logo img {
-  behavior: url(/sites/all/themes/fusion_core/js/iepngfix.htc);   /* change path here and in iepngfix.htc to match theme location */
-}
-
 /* grid mask overlay opacity fix */
 #grid-mask-overlay {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=75);
@@ -110,6 +104,12 @@ div.pngfix,
 .block ol {
   margin-left: 2em;
 }
+
+/* primary menu dropping behind other menus fix */
+.primary-menu {
+  z-index: 20;
+}
+
 
 /* Skinr styles
 -------------------------------------------------------------- */
@@ -121,6 +121,12 @@ div.pngfix,
 .fusion-center-content .inner ul.menu {
   display: inline;
 }
+
+/* Superfish: all menus */
+.sf-menu li.hover {
+  z-index: 100;
+}
+
 
 /* User login block
 -------------------------------------------------------------- */
@@ -169,6 +175,20 @@ ul.sf-menu li {
 /* prevent displaced menu items */
 .primary-menu-inner {
   width: 100%;
+}
+
+/* prevent menu items stacking */
+ul.sf-menu li a {
+  float: left;
+}
+
+
+/* Skinr preview
+-------------------------------------------------------------- */
+#screenshot {
+  filter:
+    progid:DXImageTransform.Microsoft.Shadow(color=#999999, direction=90, strength=3)
+    progid:DXImageTransform.Microsoft.Shadow(color=#999999, direction=180, strength=3);
 }
 
 

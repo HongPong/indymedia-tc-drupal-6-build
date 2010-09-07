@@ -1,5 +1,5 @@
 <?php
-// $Id: example_role.inc,v 1.1 2009/08/17 22:02:26 merlinofchaos Exp $
+// $Id: example_role.inc,v 1.1.2.2 2010/07/14 01:30:19 merlinofchaos Exp $
 
 /**
  * @file
@@ -9,19 +9,18 @@
  */
 
 /**
- * Implementation of specially named ctools_plugin_example_example_role_ctools_access().
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_plugin_example_example_role_ctools_access() {
-  return array(
-    'title' => t("CTools example: role"),
-    'description' => t('Control access by role.'),
-    'callback' => 'ctools_plugin_example_example_role_ctools_access_check',
-    'default' => array('rids' => array()),
-    'settings form' => 'ctools_plugin_example_example_role_ctools_access_settings',
-    'summary' => 'ctools_plugin_example_example_role_ctools_acesss_summary',
-    'required context' => new ctools_context_required(t('User'), 'user'),
-  );
-}
+$plugin = array(
+  'title' => t("CTools example: role"),
+  'description' => t('Control access by role.'),
+  'callback' => 'ctools_plugin_example_example_role_ctools_access_check',
+  'default' => array('rids' => array()),
+  'settings form' => 'ctools_plugin_example_example_role_ctools_access_settings',
+  'summary' => 'ctools_plugin_example_example_role_ctools_access_summary',
+  'required context' => new ctools_context_required(t('User'), 'user'),
+);
 
 /**
  * Settings form for the 'by role' access plugin.
@@ -61,7 +60,7 @@ function ctools_plugin_example_example_role_ctools_access_check($conf, $context)
 /**
  * Provide a summary description based upon the checked roles.
  */
-function ctools_plugin_example_example_role_ctools_acesss_summary($conf, $context) {
+function ctools_plugin_example_example_role_ctools_access_summary($conf, $context) {
   if (!isset($conf['rids'])) {
     $conf['rids'] = array();
   }

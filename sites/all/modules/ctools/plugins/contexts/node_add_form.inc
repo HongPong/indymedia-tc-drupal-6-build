@@ -1,5 +1,5 @@
 <?php
-// $Id: node_add_form.inc,v 1.9.2.1 2009/10/01 22:00:08 merlinofchaos Exp $
+// $Id: node_add_form.inc,v 1.9.2.3 2010/07/20 20:49:21 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,36 +8,37 @@
  */
 
 /**
- * Implementation of specially named hook_ctools_contexts().
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_node_add_form_ctools_contexts() {
-  return array(
-    'title' => t("Node add form"),
-    'description' => t('A node add form.'),
-    'context' => 'ctools_context_create_node_add_form',
-    'settings form' => 'ctools_context_node_add_form_settings_form',
-    'keyword' => 'node_add',
-    'context name' => 'node_add_form',
-    'convert list' => array('type' => t('Node type')),
-    'convert' => 'ctools_context_node_add_form_convert',
-    'placeholder form' => array(
-      '#type' => 'textfield',
-      '#description' => t('Enter the node type this context.'),
-    ),
-  );
-}
+$plugin = array(
+  'title' => t("Node add form"),
+  'description' => t('A node add form.'),
+  'context' => 'ctools_context_create_node_add_form',
+  'settings form' => 'ctools_context_node_add_form_settings_form',
+  'keyword' => 'node_add',
+  'context name' => 'node_add_form',
+  'convert list' => array('type' => t('Node type')),
+  'convert' => 'ctools_context_node_add_form_convert',
+  'placeholder form' => array(
+    '#type' => 'textfield',
+    '#description' => t('Enter the node type this context.'),
+  ),
+);
 
 /**
  * It's important to remember that $conf is optional here, because contexts
  * are not always created from the UI.
  */
 function ctools_context_create_node_add_form($empty, $data = NULL, $conf = FALSE) {
+  static $created;
   $context = new ctools_context(array('form', 'node_add', 'node_form'));
   $context->plugin = 'node_add_form';
 
-  if ($empty) {
+  if ($empty || (isset($created) && $created)) {
     return $context;
   }
+  $created = TRUE;
 
   if ($conf && (isset($data['types']) || isset($data['type']))) {
     // Holdover from typo'd config.

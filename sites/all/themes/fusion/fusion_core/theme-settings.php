@@ -1,5 +1,5 @@
 <?php
-// $Id: theme-settings.php,v 1.1.2.4 2009/12/02 00:47:46 sociotech Exp $
+// $Id: theme-settings.php,v 1.1.2.6 2010/04/08 07:02:59 sociotech Exp $
 
 /**
  * Theme setting defaults
@@ -25,7 +25,7 @@ function fusion_core_default_theme_settings() {
     'sidebar_last_width'                    => 3,
     'theme_font'                            => 'none',
     'theme_font_size'                       => 'font-size-13',
-    'theme_color'                           => '',
+    'primary_menu_dropdown'                 => 1,
   );
 
   // Add site-wide theme settings
@@ -40,11 +40,14 @@ function fusion_core_default_theme_settings() {
  */
 function fusion_core_initialize_theme_settings($theme_name) {
   $theme_settings = theme_get_settings($theme_name);
-  if (!isset($theme_settings['fluid_grid_width']) || $theme_settings['rebuild_registry'] == 1) {
+  if (!isset($theme_settings['primary_menu_dropdown']) || $theme_settings['rebuild_registry'] == 1) {
+    static $registry_rebuilt = false;   // avoid multiple rebuilds per page
+
     // Rebuild theme registry & notify user
-    if(isset($theme_settings['rebuild_registry']) && $theme_settings['rebuild_registry'] == 1) {
+    if(isset($theme_settings['rebuild_registry']) && $theme_settings['rebuild_registry'] == 1 && !$registry_rebuilt) {
       drupal_rebuild_theme_registry();
       drupal_set_message(t('Theme registry rebuild completed. <a href="!link">Turn off</a> this feature for production websites.', array('!link' => url('admin/build/themes/settings/' . $GLOBALS['theme']))), 'warning');
+      $registry_rebuilt = true;
     }
 
     // Retrieve saved or site-wide theme settings
@@ -60,7 +63,7 @@ function fusion_core_initialize_theme_settings($theme_name) {
 
     // Combine default theme settings from .info file & theme-settings.php
     $theme_data = list_themes();   // get theme data for all themes
-    $info_theme_settings = ($theme_name) ? $theme_data[$theme_name]->info['settings'] : array();
+    $info_theme_settings = ($theme_name && isset($theme_data[$theme_name]->info['settings'])) ? $theme_data[$theme_name]->info['settings'] : array();
     $defaults = array_merge(fusion_core_default_theme_settings(), $info_theme_settings);
 
     // Set combined default & saved theme settings
@@ -88,7 +91,7 @@ function phptemplate_settings($saved_settings) {
 
   // Combine default theme settings from .info file & theme-settings.php
   $theme_data = list_themes();   // get data for all themes
-  $info_theme_settings = ($theme_name) ? $theme_data[$theme_name]->info['settings'] : array();
+  $info_theme_settings = ($theme_name && isset($theme_data[$theme_name]->info['settings'])) ? $theme_data[$theme_name]->info['settings'] : array();
   $defaults = array_merge(fusion_core_default_theme_settings(), $info_theme_settings);
 
   // Combine default and saved theme settings
@@ -113,60 +116,6 @@ function phptemplate_settings($saved_settings) {
     '#collapsed' => FALSE,
   );
 
-  // Theme fonts
-  $form['tnt_container']['general_settings']['theme_font_config'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Typography'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  // Font family settings
-  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_font'] = array(
-    '#type'        => 'fieldset',
-    '#title'       => t('Font family'),
-    '#collapsible' => TRUE,
-    '#collapsed'   => TRUE,
-   );
-  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_font']['theme_font'] = array(
-    '#type'          => 'radios',
-    '#title'         => t('Select a new font family'),
-    '#default_value' => $settings['theme_font'],
-    '#options'       => array(
-      'none' => t('Theme default'),
-      'font-family-sans-serif-sm' => '<span class="font-family-sans-serif-sm">' . t('Sans serif - smaller (Helvetica Neue, Arial, Helvetica, sans-serif)') . '</span>',
-      'font-family-sans-serif-lg' => '<span class="font-family-sans-serif-lg">' . t('Sans serif - larger (Verdana, Geneva, Arial, Helvetica, sans-serif)') . '</span>',
-      'font-family-serif-sm' => '<span class="font-family-serif-sm">' . t('Serif - smaller (Garamond, Perpetua, Nimbus Roman No9 L, Times New Roman, serif)') . '</span>',
-      'font-family-serif-lg' => '<span class="font-family-serif-lg">' . t('Serif - larger (Baskerville, Georgia, Palatino, Palatino Linotype, Book Antiqua, URW Palladio L, serif)') . '</span>',
-      'font-family-myriad' => '<span class="font-family-myriad">' . t('Myriad (Myriad Pro, Myriad, Trebuchet MS, Arial, Helvetica, sans-serif)') . '</span>',
-      'font-family-lucida' => '<span class="font-family-lucida">' . t('Lucida (Lucida Sans, Lucida Grande, Lucida Sans Unicode, Verdana, Geneva, sans-serif)') . '</span>',
-    ),
-  );
-  // Font size settings
-  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_size'] = array(
-    '#type'        => 'fieldset',
-    '#title'       => t('Font size'),
-    '#collapsible' => TRUE,
-    '#collapsed'   => TRUE,
-  );
-  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_size']['theme_font_size'] = array(
-    '#type'          => 'radios',
-    '#title'         => t('Change the base font size'),
-    '#description'   => t('Adjusts all text in proportion to your base font size.'),
-    '#default_value' => $settings['theme_font_size'],
-    '#options'       => array(
-      'font-size-10' => t('10px'),
-      'font-size-11' => t('11px'),
-      'font-size-12' => t('12px'),
-      'font-size-13' => t('13px'),
-      'font-size-14' => t('14px'),
-      'font-size-15' => t('15px'),
-      'font-size-16' => t('16px'),
-      'font-size-17' => t('17px'),
-      'font-size-18' => t('18px'),
-    ),
-  );
-  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_size']['theme_font_size']['#options'][$defaults['theme_font_size']] .= t(' - Theme Default');
-
   // Grid settings
   $form['tnt_container']['general_settings']['theme_grid_config'] = array(
     '#type' => 'fieldset',
@@ -177,9 +126,11 @@ function phptemplate_settings($saved_settings) {
   // Grid type
   // Generate grid type options
   $grid_options = array();
-  foreach ($info_theme_settings['theme_grid_options'] as $grid_option) {
-    $grid_type = (substr($grid_option, 7) == 'fluid') ? t('fluid grid') : t('fixed grid') . ' [' . substr($grid_option, 7) . 'px]';
-    $grid_options[$grid_option] = substr($grid_option, 4, 2) . t(' column ') . $grid_type;
+  if (isset($info_theme_settings['theme_grid_options'])) {
+    foreach ($info_theme_settings['theme_grid_options'] as $grid_option) {
+      $grid_type = (substr($grid_option, 7) == 'fluid') ? t('fluid grid') : t('fixed grid') . ' [' . substr($grid_option, 7) . 'px]';
+      $grid_options[$grid_option] = (int)substr($grid_option, 4, 2) . t(' column ') . $grid_type;
+    }
   }
   $form['tnt_container']['general_settings']['theme_grid_config']['theme_grid'] = array(
     '#type'          => 'radios',
@@ -238,6 +189,92 @@ function phptemplate_settings($saved_settings) {
   );
   $form['tnt_container']['general_settings']['theme_grid_config']['sidebar_last_width']['#options'][$defaults['sidebar_last_width']] .= t(' - Theme Default');
 
+  // Theme fonts
+  $form['tnt_container']['general_settings']['theme_font_config'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Typography'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  // Font family settings
+  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_font'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Font family'),
+    '#collapsible' => TRUE,
+    '#collapsed'   => TRUE,
+   );
+  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_font']['theme_font'] = array(
+    '#type'          => 'radios',
+    '#title'         => t('Select a new font family'),
+    '#default_value' => $settings['theme_font'],
+    '#options'       => array(
+      'none' => t('Theme default'),
+      'font-family-sans-serif-sm' => '<span class="font-family-sans-serif-sm">' . t('Sans serif - smaller (Helvetica Neue, Arial, Helvetica, sans-serif)') . '</span>',
+      'font-family-sans-serif-lg' => '<span class="font-family-sans-serif-lg">' . t('Sans serif - larger (Verdana, Geneva, Arial, Helvetica, sans-serif)') . '</span>',
+      'font-family-serif-sm' => '<span class="font-family-serif-sm">' . t('Serif - smaller (Garamond, Perpetua, Nimbus Roman No9 L, Times New Roman, serif)') . '</span>',
+      'font-family-serif-lg' => '<span class="font-family-serif-lg">' . t('Serif - larger (Baskerville, Georgia, Palatino, Palatino Linotype, Book Antiqua, URW Palladio L, serif)') . '</span>',
+      'font-family-myriad' => '<span class="font-family-myriad">' . t('Myriad (Myriad Pro, Myriad, Trebuchet MS, Arial, Helvetica, sans-serif)') . '</span>',
+      'font-family-lucida' => '<span class="font-family-lucida">' . t('Lucida (Lucida Sans, Lucida Grande, Lucida Sans Unicode, Verdana, Geneva, sans-serif)') . '</span>',
+    ),
+  );
+  // Font size settings
+  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_size'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Font size'),
+    '#collapsible' => TRUE,
+    '#collapsed'   => TRUE,
+  );
+  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_size']['theme_font_size'] = array(
+    '#type'          => 'radios',
+    '#title'         => t('Change the base font size'),
+    '#description'   => t('Adjusts all text in proportion to your base font size.'),
+    '#default_value' => $settings['theme_font_size'],
+    '#options'       => array(
+      'font-size-10' => t('10px'),
+      'font-size-11' => t('11px'),
+      'font-size-12' => t('12px'),
+      'font-size-13' => t('13px'),
+      'font-size-14' => t('14px'),
+      'font-size-15' => t('15px'),
+      'font-size-16' => t('16px'),
+      'font-size-17' => t('17px'),
+      'font-size-18' => t('18px'),
+    ),
+  );
+  $form['tnt_container']['general_settings']['theme_font_config']['theme_font_config_size']['theme_font_size']['#options'][$defaults['theme_font_size']] .= t(' - Theme Default');
+
+  // Navigation
+  $form['tnt_container']['general_settings']['navigation'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Navigation'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  // Primary menu dropdown
+  $form['tnt_container']['general_settings']['navigation']['primary_menu'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Primary Menu'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['tnt_container']['general_settings']['navigation']['primary_menu']['primary_menu_dropdown'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable primary menu as dropdown'),
+    '#default_value' => $settings['primary_menu_dropdown'],
+  );
+  // Breadcrumb
+  $form['tnt_container']['general_settings']['navigation']['breadcrumb'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Breadcrumb'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['tnt_container']['general_settings']['navigation']['breadcrumb']['breadcrumb_display'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display breadcrumb'),
+    '#default_value' => $settings['breadcrumb_display'],
+  );
+  
   // Search Settings
   if (module_exists('search')) {
     $form['tnt_container']['general_settings']['search_container'] = array(
@@ -291,40 +328,6 @@ function phptemplate_settings($saved_settings) {
     '#title' => t('Display "not verified" for unregistered usernames'),
     '#default_value' => $settings['user_notverified_display'],
   );
-
-  // Breadcrumb
-  $form['tnt_container']['general_settings']['breadcrumb'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Breadcrumb'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form['tnt_container']['general_settings']['breadcrumb']['breadcrumb_display'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Display breadcrumb'),
-    '#default_value' => $settings['breadcrumb_display'],
-  );
-  
-  // Theme color DISABLED
-  $color_enabled = false;
-  if ($color_enabled) {
-    $form['tnt_container']['general_settings']['theme_color_config'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Theme color'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['tnt_container']['general_settings']['theme_color_config']['theme_color'] = array(
-      '#type'          => 'radios',
-      '#title'         => t('Select a theme color'),
-      '#default_value' => $settings['theme_color'] ? $settings['theme_color'] : 'blue',
-      '#options'       => array(
-        'blue' => t('Blue'),
-        'red' => t('Red'),
-        'green' => t('Green'),
-      ),
-    );
-  }
 
   // Admin settings
   $form['tnt_container']['admin_settings'] = array(

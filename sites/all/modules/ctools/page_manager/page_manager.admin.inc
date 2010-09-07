@@ -1,5 +1,5 @@
 <?php
-// $Id: page_manager.admin.inc,v 1.27.2.4 2009/10/15 18:37:54 merlinofchaos Exp $
+// $Id: page_manager.admin.inc,v 1.27.2.13 2010/07/23 17:41:52 merlinofchaos Exp $
 
 /**
  * @file
@@ -144,18 +144,21 @@ function page_manager_get_pages($tasks, &$pages, $task_id = NULL) {
     }
 
     $path = array();
-    foreach (explode('/', $task['admin path']) as $bit) {
-      if ($bit[0] != '!') {
-        $path[] = $bit;
+    $visible_path = '';
+    if (!empty($task['admin path'])) {
+      foreach (explode('/', $task['admin path']) as $bit) {
+        if ($bit[0] != '!') {
+          $path[] = $bit;
+        }
       }
-    }
 
-    $path = implode('/', $path);
-    if (empty($task['disabled']) && strpos($path, '%') === FALSE) {
-      $visible_path = l('/' . $task['admin path'], $path);
-    }
-    else {
-      $visible_path = '/' . $task['admin path'];
+      $path = implode('/', $path);
+      if (empty($task['disabled']) && strpos($path, '%') === FALSE) {
+        $visible_path = l('/' . $task['admin path'], $path);
+      }
+      else {
+        $visible_path = '/' . $task['admin path'];
+      }
     }
 
     $row = array('data' => array(), 'class' => $class, 'title' => strip_tags($task['admin description']));
@@ -196,12 +199,14 @@ function page_manager_get_pages($tasks, &$pages, $task_id = NULL) {
         $operations[] = array(
           'title' => t('Enable'),
           'href' => 'admin/build/pages/nojs/enable/' . $task_name,
+          'query' => array('token' => drupal_get_token($task_name)),
         );
       }
       else {
         $operations[] = array(
           'title' => t('Disable'),
           'href' => 'admin/build/pages/nojs/disable/' . $task_name,
+          'query' => array('token' => drupal_get_token($task_name)),
         );
       }
     }
@@ -555,11 +560,14 @@ function page_manager_get_operations($page, $operations = NULL) {
     ),
   );
 
-  $result['actions']['children']['import'] = array(
-    'title' => t('Import variant'),
-    'description' => t('Add a new variant to this page from code exported from another page.'),
-    'form' => 'page_manager_handler_import',
-  );
+  // Restrict variant import to users who can already execute arbitrary PHP
+  if (user_access('use PHP for block visibility')) {
+    $result['actions']['children']['import'] = array(
+      'title' => t('Import variant'),
+      'description' => t('Add a new variant to this page from code exported from another page.'),
+      'form' => 'page_manager_handler_import',
+    );
+  }
 
   if (count($page->handlers) > 1) {
     $result['actions']['children']['rearrange'] = array(
@@ -615,6 +623,7 @@ function page_manager_get_operations($page, $operations = NULL) {
     );
   }
 
+  drupal_alter('page_manager_operations', $result, $page);
   return $result;
 }
 
@@ -725,6 +734,8 @@ function page_manager_get_handler_operations(&$page) {
         ),
       );
     }
+
+    drupal_alter('page_manager_variant_operations', $operations[$id], $handler);
   }
   if (empty($operations)) {
     $operations['empty'] = array(
@@ -820,6 +831,8 @@ function _page_manager_get_operation_content($js, &$page, $active, $operation, $
       'finish callback' => 'page_manager_edit_page_finish',
       // Items specific to the 'edit' routines that will get moved over:
       'path' => page_manager_edit_url($page->task_name, $active) . "/%step",
+      // wrapper function to add an extra finish button.
+      'wrapper' => 'page_manager_operation_wrapper',
     );
 
     // If $operation['form'] is simply a string, then it is the function
@@ -937,12 +950,29 @@ function _page_manager_get_operation_content($js, &$page, $active, $operation, $
   return $return;
 }
 
+function page_manager_operation_wrapper(&$form, &$form_state) {
+  if (!empty($form['buttons']['return']['#wizard type']) && $form['buttons']['return']['#wizard type']) {
+    $form['buttons']['save'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update and save'),
+      '#wizard type' => 'finish',
+      '#attributes' => $form['buttons']['return']['#attributes'],
+      '#save' => TRUE,
+    );
+  }
+}
+
 /**
  * Callback generated when the add page process is finished.
  */
 function page_manager_edit_page_finish(&$form_state) {
   if (empty($form_state['operation']['silent'])) {
-    drupal_set_message(t('The page has been updated. Changes will not be permanent until you save.'));
+    if (empty($form_state['clicked_button']['#save'])) {
+      drupal_set_message(t('The page has been updated. Changes will not be permanent until you save.'));
+    }
+    else {
+      drupal_set_message(t('The page has been updated and saved.'));
+    }
     $path = array();
     foreach ($form_state['trail'] as $operation) {
       $path[] = $operation;
@@ -962,8 +992,21 @@ function page_manager_edit_page_finish(&$form_state) {
     drupal_set_message(t('Unable to update changes due to lock.'));
   }
 
-  if (empty($form_state['do not cache'])) {
-    page_manager_set_page_cache($form_state['page']);
+  // If the 'Update and Save' button was selected, write our cache out.
+  if (!empty($form_state['clicked_button']['#save'])) {
+    page_manager_save_page_cache($form_state['page']);
+    page_manager_clear_page_cache($form_state['page']->task_name);
+    $form_state['page'] = page_manager_get_page_cache($form_state['page']->task_name);
+    if (empty($form_state['new trail'])) {
+      // force a rerender to get rid of old form items that may have changed
+      // during save.
+      $form_state['new trail'] = $form_state['trail'];
+    }
+  }
+  else {
+    if (empty($form_state['do not cache'])) {
+      page_manager_set_page_cache($form_state['page']);
+    }
   }
 
   if (isset($form_state['new trail']) && empty($form_state['ajax'])) {
@@ -1303,6 +1346,12 @@ function page_manager_handler_add_cancel(&$form_state) {
 function page_manager_handler_add_form(&$form, $form_state, $features = array()) {
   $task = $form_state['task'];
   $task_handler_plugins = page_manager_get_task_handler_plugins($task);
+  if (empty($task_handler_plugins)) {
+    drupal_set_message(t('There are currently no variants available and a page may not be added. Perhaps you need to install the Panels module to get a variant?'), 'error');
+    $form['buttons']['return']['#disabled'] = TRUE;
+    return;
+  }
+
   foreach ($task_handler_plugins as $id => $plugin) {
     $options[$id] = $plugin['title'];
     if (isset($plugin['add features'])) {
@@ -1341,6 +1390,9 @@ function page_manager_handler_add_form(&$form, $form_state, $features = array())
         '#type' => 'checkbox',
         '#title' => $feature,
       );
+      if (!empty($form_state['page']->forms) && in_array($feature_id, $form_state['page']->forms)) {
+        $form['features'][$plugin][$feature_id]['#default_value'] = TRUE;
+      }
 
       if ($plugin != 'default') {
         $form['features'][$plugin][$feature_id] += array(
@@ -1362,17 +1414,30 @@ function page_manager_handler_import(&$form, &$form_state) {
     '#description' => t('Enter the name of the new variant.'),
   );
 
-  $form['object'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Paste variant code here'),
-    '#rows' => 15,
-  );
+  if (user_access('use PHP for block visibility')) {
+    $form['object'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Paste variant code here'),
+      '#rows' => 15,
+    );
+  }
+  // Users ordinarily can't get here without the PHP block visibility perm.
+  // In case they somehow do, though, disable the form widget for extra safety.
+  else {
+    $form['shoveoff'] = array(
+      '#value' => '<div>' . t('You do not have sufficient permissions to perform this action.') . '</div>',
+    );
+  }
 }
 
 /**
  * Make sure that an import actually provides a handler.
  */
 function page_manager_handler_import_validate($form, &$form_state) {
+  if (!user_access('use PHP for block visibility')) {
+    form_error($form['shoveoff'], t('You account permissions do not permit you to import.'));
+    return;
+  }
   ob_start();
   eval($form_state['values']['object']);
   ob_end_clean();
@@ -1425,6 +1490,7 @@ function page_manager_handler_rearrange(&$form, &$form_state) {
     $form['handlers'][$id]['weight'] = array(
       '#type' => 'weight',
       '#default_value' => $info['weight'],
+      '#delta' => 30,
     );
   }
 }
@@ -1717,6 +1783,9 @@ function page_manager_page_summary(&$form, &$form_state) {
  * Menu callback to enable or disable a page
  */
 function page_manager_enable_page($disable, $js, $page) {
+  if (!isset($_GET['token']) || !drupal_valid_token($_GET['token'], $page->task_name)) {
+    return MENU_ACCESS_DENIED;
+  }
   if ($page->locked) {
     if ($disable) {
       drupal_set_message(t('Unable to disable due to lock.'));
@@ -1732,8 +1801,8 @@ function page_manager_enable_page($disable, $js, $page) {
 
       // We want to re-cache this if it's changed so that status is properly
       // updated on the changed form.
-      if (!empty($cache->changed)) {
-        page_manager_set_page_cache($cache);
+      if (!empty($page->changed)) {
+        page_manager_set_page_cache($page);
       }
     }
   }

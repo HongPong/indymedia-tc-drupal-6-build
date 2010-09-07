@@ -1,5 +1,5 @@
 <?php
-// $Id: term.inc,v 1.6.2.2 2009/10/01 22:39:02 merlinofchaos Exp $
+// $Id: term.inc,v 1.6.2.4 2010/07/05 19:22:35 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,21 +8,20 @@
  */
 
 /**
- * Implementation of specially named hook_ctools_arguments().
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_term_ctools_arguments() {
-  return array(
-    'title' => t("Taxonomy term: ID"),
-    // keyword to use for %substitution
-    'keyword' => 'term',
-    'description' => t('Creates a single taxonomy term from a taxonomy ID or taxonomy term name.'),
-    'context' => 'ctools_term_context',
-    'default' => array('input_form' => 'tid', 'breadcrumb' => TRUE),
-    'settings form' => 'ctools_term_settings_form',
-    'placeholder form' => 'ctools_term_ctools_argument_placeholder',
-    'breadcrumb' => 'ctools_term_breadcrumb',
-  );
-}
+$plugin = array(
+  'title' => t("Taxonomy term: ID"),
+  // keyword to use for %substitution
+  'keyword' => 'term',
+  'description' => t('Creates a single taxonomy term from a taxonomy ID or taxonomy term name.'),
+  'context' => 'ctools_term_context',
+  'default' => array('input_form' => 'tid', 'breadcrumb' => TRUE),
+  'settings form' => 'ctools_term_settings_form',
+  'placeholder form' => 'ctools_term_ctools_argument_placeholder',
+  'breadcrumb' => 'ctools_term_breadcrumb',
+);
 
 /**
  * Discover if this argument gives us the term we crave.
@@ -44,10 +43,12 @@ function ctools_term_context($arg = NULL, $conf = NULL, $empty = FALSE) {
 
     case 'term':
       $terms = taxonomy_get_term_by_name($arg);
-      if (count($terms) != 1) {
+
+      $conf['vids'] = is_array($conf['vids']) ? array_filter($conf['vids']) : NULL;
+      if ((count($terms) > 1) && isset($conf['vids'])) {
         foreach ($terms as $potential) {
           foreach ($conf['vids'] as $vid => $active) {
-            if ($active == 1 && $potential->vid == $vid) {
+            if ($active && $potential->vid == $vid) {
               $term = $potential;
               // break out of the foreaches AND the case
               break 3;
@@ -84,6 +85,19 @@ function ctools_term_settings_form(&$form, &$form_state, $conf) {
     '#default_value' => $conf['input_form'],
     '#prefix' => '<div class="clear-block">',
     '#suffix' => '</div>',
+  );
+
+  $vocabularies = taxonomy_get_vocabularies();
+  $options = array();
+  foreach ($vocabularies as $vid => $vocab) {
+    $options[$vid] = $vocab->name;
+  }
+  $form['settings']['vids'] = array(
+    '#title' => t('Limit to these vocabularies'),
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#default_value' => !empty($conf['vids']) ? $conf['vids'] : array(),
+    '#description' => t('If no vocabularies are checked, terms from all vocabularies will be accepted.'),
   );
 
   $form['settings']['breadcrumb'] = array(

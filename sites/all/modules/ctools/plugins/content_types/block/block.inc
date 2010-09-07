@@ -1,5 +1,5 @@
 <?php
-// $Id: block.inc,v 1.9 2009/07/17 21:53:41 merlinofchaos Exp $
+// $Id: block.inc,v 1.9.2.7 2010/05/18 17:44:17 sdboyer Exp $
 
 /**
  * @file
@@ -12,14 +12,25 @@
  */
 
 /**
- * Callback function to supply a list of content types.
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_block_ctools_content_types() {
-  return array(
-    // And this is just the administrative title.
-    // All our callbacks are named according to the standard pattern and can be deduced.
-    'title' => t('Block'),
-  );
+$plugin = array(
+  // And this is just the administrative title.
+  // All our callbacks are named according to the standard pattern and can be deduced.
+  'title' => t('Block'),
+  'content type' => 'ctools_block_content_type_content_type',
+);
+
+/**
+ * Return the block content types with the specified $subtype_id.
+ */
+function ctools_block_content_type_content_type($subtype_id) {
+  list($module, $delta) = explode('-', $subtype_id, 2);
+  $module_blocks = module_invoke($module, 'block', 'list');
+  if (isset($module_blocks[$delta])) {
+    return _ctools_block_content_type_content_type($module, $delta, $module_blocks[$delta]);
+  }
 }
 
 /**
@@ -35,19 +46,7 @@ function ctools_block_content_type_content_types() {
     $module_blocks = module_invoke($module, 'block', 'list');
     if ($module_blocks) {
       foreach ($module_blocks as $delta => $block) {
-        // strip_tags used because it goes through check_plain and that
-        // just looks bad.
-        $info = array(
-          'title' => strip_tags($block['info']),
-        );
-
-        // Ask around for further information by invoking the hook_block() extension.
-        $function = $module . '_ctools_block_info';
-        if (!function_exists($function)) {
-          $function = 'ctools_default_block_info';
-        }
-        $function($module, $delta, $info);
-
+        $info = _ctools_block_content_type_content_type($module, $delta, $block);
         // this check means modules can remove their blocks; particularly useful
         // if they offer the block some other way (like we do for views)
         if ($info) {
@@ -57,6 +56,26 @@ function ctools_block_content_type_content_types() {
     }
   }
   return $types;
+}
+
+/**
+ * Return an info array for a specific block.
+ */
+function _ctools_block_content_type_content_type($module, $delta, $block) {
+  // strip_tags used because it goes through check_plain and that
+  // just looks bad.
+  $info = array(
+    'title' => strip_tags($block['info']),
+  );
+
+  // Ask around for further information by invoking the hook_block() extension.
+  $function = $module . '_ctools_block_info';
+  if (!function_exists($function)) {
+    $function = 'ctools_default_block_info';
+  }
+  $function($module, $delta, $info);
+
+  return $info;
 }
 
 /**
@@ -74,8 +93,13 @@ function ctools_block_content_type_render($subtype, $conf) {
   $block->module = $module;
   $block->delta = $delta;
 
-  if ($module == 'block' && empty($conf['override_title'])) {
-    $block->subject = db_result(db_query("SELECT title FROM {blocks} WHERE module = '%s' AND delta = '%s'", 'block', $delta));
+  // $block->title is not set for the blocks returned by block_block() (the
+  // Block module adds the title in block_list() instead), so we look it up
+  // manually, unless the title is overridden and does not use the %title
+  // placeholder.
+  if ($module == 'block' && (empty($conf['override_title']) || strpos($conf['override_title_text'], '%title') !== FALSE)) {
+    // {block}.title is plain text, but this hook should return an HTML title.
+    $block->subject = check_plain(db_result(db_query("SELECT title FROM {blocks} WHERE module = '%s' AND delta = '%s'", 'block', $delta)));
   }
 
   if (isset($block->subject)) {
@@ -111,7 +135,8 @@ function ctools_block_content_type_render($subtype, $conf) {
   $block_visibility = db_fetch_object($result);
 
   if ($block->module == 'block') {
-    $block->title = $block_visibility->title;
+    // {block}.title is plain text, but this hook should return an HTML title.
+    $block->title = check_plain($block_visibility->title);
   }
 
   if (empty($conf['block_visibility'])) {
@@ -229,7 +254,9 @@ function ctools_block_content_type_admin_title($subtype, $conf) {
     return t('Deleted/missing block @module-@delta', array('@module' => $module, '@delta' => $delta));
   }
 
-  $title = filter_xss_admin($block[$delta]['info']);
+  // The block description reported by hook_block() is plain text, but the title
+  // reported by this hook should be HTML.
+  $title = check_plain($block[$delta]['info']);
   return $title;
 }
 
@@ -240,6 +267,12 @@ function ctools_block_content_type_admin_title($subtype, $conf) {
 function ctools_block_content_type_admin_info($subtype, $conf) {
   list($module, $delta) = _ctools_block_get_module_delta($subtype, $conf);
   $block = (object) module_invoke($module, 'block', 'view', $delta);
+
+  // Sanitize the block because <script> tags can hose javascript up:
+  if (!empty($block->content)) {
+    $block->content = filter_xss_admin($block->content);
+  }
+
   if (!empty($block) && !empty($block->subject)) {
     $block->title = $block->subject;
     return $block;
@@ -272,7 +305,7 @@ function ctools_default_block_info($module, $delta, &$info) {
   }
 }
 
-// These are all on behalf of modules that don't implement ctools but we that
+// These are all on behalf of modules that don't implement ctools but that
 // we care about.
 function menu_ctools_block_info($module, $delta, &$info) {
   $info['icon'] = 'icon_core_block_menu.png';

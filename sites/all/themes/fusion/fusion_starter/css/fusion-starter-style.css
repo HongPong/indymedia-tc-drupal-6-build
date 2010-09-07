@@ -1,4 +1,4 @@
-/* $Id: fusion-starter-style.css,v 1.1.2.4 2009/12/02 00:47:46 sociotech Exp $ */
+/* $Id: fusion-starter-style.css,v 1.1.2.7 2010/07/04 01:51:31 sociotech Exp $ */
 
 /* Basic Typography & Colors
 -------------------------------------------------------------- */
@@ -34,7 +34,6 @@ a:active {
 
 /* HTML Elements
 -------------------------------------------------------------- */
-/* Add padding here if desired so edges of theme aren't flush with browser window */
 body {
 }
 
@@ -103,7 +102,7 @@ body {
 }
 
 
-/* Primary Menu   TODO: add default colours
+/* Primary Menu
 /-------------------------------------------------------------- */
 /* Add general styles for primary menu here, such as typography, borders, floats,
   or spacing above/below */
@@ -315,7 +314,7 @@ h1.title {
 h2.title {
 }
 
-/* Colors and styles for linked node titles */
+/* Colors and styles for linked node titles, ie. teaser listing at /node */
 h2.title a:link,
 h2.title a:visited {
 }
@@ -342,13 +341,49 @@ h2.title a:active {
 .node ul.links a {
 }
 
-/* Just more/read more links */
+/* Only more/read more links */
 div.node .read-more a,
 div.node .more-link a {
 }
 
+/* Drupal Messages
+/-------------------------------------------------------------- */
+/* General style for all errors/messages (border, padding, etc.) */
+div.content-messages div.messages,
+div.content-help div.help {
+}
 
-/* Default block styles
+/* Status messages: green */
+div.content-messages-inner div.status {
+}
+
+/* Warning messages: yellow */
+div.content-messages-inner div.warning {
+}
+
+/* Error messages: red */
+div.content-messages-inner div.error {
+}
+
+/* Help messages: blue */
+div.content-help-inner div.help {
+}
+
+/* Error that appears when a required form field is not filled out */
+.form-item input.error,
+.form-item textarea.error,
+.form-item select.error {
+  border: 1px solid #aa1144;
+}
+
+/* "New" text and required form field asterisk (default = red) */
+.marker,
+.form-required {
+  color: #aa1144;
+}
+
+
+/* Default block title styles
 /-------------------------------------------------------------- */
 h2.block-title {
 }
@@ -364,26 +399,11 @@ h2.block-title {
 }
 
 
-/* Drupal messages
-/-------------------------------------------------------------- */
-/* Error that appears when a required form field is not filled out */
-.form-item input.error,
-.form-item textarea.error,
-.form-item select.error {
-  border: 1px solid #aa1144;
-}
-
-/* Required field */
-.marker,
-.form-required {
-  color: #aa1144;
-}
-
-/* Tab Menus   TODO: tab styles?
+/* Tab Menus
 /-------------------------------------------------------------- */
 #content-tabs {
   background-color: transparent;
-  float: left;
+  float: left; /* LTR */
   margin: 20px 0;
   padding: 0;
 }
@@ -392,7 +412,7 @@ h2.block-title {
 #content-tabs ul.secondary {
   border-bottom: 1px solid #000;
   clear: both;
-  float: left;
+  float: left; /* LTR */
   margin: 0;
   padding: 0 10px;
 }
@@ -407,7 +427,7 @@ h2.block-title {
 #content-tabs ul.secondary li {
   border-style: none;
   display: inline;
-  float: left;
+  float: left; /* LTR */
   list-style: none;
   margin: 0 10px;
   padding: 0;
@@ -420,7 +440,7 @@ h2.block-title {
   background-color: transparent;
   border: none;
   color: #000;
-  float: left;
+  float: left; /* LTR */
   font-weight: bold;
   margin: 0;
   padding: 0 0 6px 0;
@@ -485,15 +505,15 @@ ul.pager a:focus {
 /* Forms
 /-------------------------------------------------------------- */
 /* Typography and backgrounds for all form buttons */
-.form-submit {
+form input.form-submit {
   margin: 2px;
   padding: 3px 5px;
 }
 
 /* Hover style for form buttons */
-.form-submit:hover,
-.form-submit.hover,
-.form-submit:focus {
+form input.form-submit:hover,
+form input.form-submit.hover,
+form input.form-submit:focus {
 }
 
 /* Typography, background, borders, padding for form fields */
@@ -595,6 +615,7 @@ tr.drag-previous td {
 .book-navigation .menu {
   border-top: 1px solid #ccc;
 }
+
 .book-navigation .page-links {
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
@@ -654,9 +675,6 @@ div.comment ul.links a {
 /* Poll
 /-------------------------------------------------------------- */
 div.poll div.bar {
-}
-
-div.poll div.bar {
   background-color: #ddd;
 }
 
@@ -667,27 +685,33 @@ div.poll div.bar div.foreground {
 
 /* Profiles
 /-------------------------------------------------------------- */
-/* Styles for sub-headings on user profiles */
 .profile .picture {
   float: none;
 }
 
+/* Styles for sub-headings on user profiles */
 .profile dt {
   background-color: #ccc;
 }
 
 
-/* Ubercart
+/* Ubercart - catalog
 /-------------------------------------------------------------- */
-#cart-form-products table th {
-  border-bottom: 3px solid #dec2c3;
+
+/* Horizontal list of subcategories in catalog */
+ul.uc-categories {
 }
 
-.add-to-cart {
+.uc-categories li a {
+  font-weight: bold;
+  padding: 0 5px 0 3px;
 }
 
-.catalog-grid-title a,
-.category a {
+/* Product and category names */
+.catalog-grid-title a:link,
+.catalog-grid-title a:visited,
+.category a:link,
+.category a:visited {
 }
 
 .catalog-grid-title a:hover,
@@ -696,9 +720,84 @@ div.poll div.bar div.foreground {
 .category a:focus {
 }
 
+/* Sell price in Ubercart catalog */
 .category-grid-products .catalog-grid-sell-price {
 }
 
+/* Ubercart - add to cart buttons
+/-------------------------------------------------------------- */
+
+/* Add to cart buttons */
+input.node-add-to-cart,
+input.list-add-to-cart {
+}
+
+/* Hover and focus styles, with .hover class added for IE6 support */
+input.node-add-to-cart:hover,
+input.node-add-to-cart.hover,
+input.node-add-to-cart:focus,
+input.list-add-to-cart:hover,
+input.list-add-to-cart.hover,
+input.list-add-to-cart:focus {
+}
+
+/* Ubercart - product nodes
+/-------------------------------------------------------------- */
+
+#field-group {
+}
+
+#price-group {
+}
+
+/* Product images */
+.product-image a img {
+}
+
+.product-image a:hover img,
+.product-image a:focus img {
+}
+
+/* Display price on full product nodes */
+.full-node .product-group .uc-price-display {
+}
+
+/* Product attributes on full nodes */
+.full-node .product-group .attributes {
+}
+
+/* Ubercart - general / checkout
+/-------------------------------------------------------------- */
+
+/* For optional "Powered by Ubercart" footer message */
+#store-footer {
+}
+
+#store-footer a:link,
+#store-footer a:visited {
+}
+
+/* View cart/Checkout links in Ubercart cart block */
+.cart-block-summary-links ul.links li a {
+}
+
+.cart-block-summary-links ul.links li.cart-block-checkout a:link,
+.cart-block-summary-links ul.links li.cart-block-checkout a:visited {
+}
+
+/* Key checkout process buttons: Checkout, Continue, and Submit Order */
+#uc-cart-view-form #edit-checkout,
+#uc-cart-checkout-form #edit-continue,
+#uc-cart-checkout-review-form #edit-submit {
+}
+
+/* Table on final order review page */
+.order-review-table {
+}
+
+#cart-form-products table th {
+  border-bottom: 3px solid #dec2c3;
+}
 
 
 /* Skinr

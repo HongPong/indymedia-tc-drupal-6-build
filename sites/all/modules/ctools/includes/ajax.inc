@@ -1,5 +1,5 @@
 <?php
-// $Id: ajax.inc,v 1.14.2.1 2009/10/01 21:34:36 merlinofchaos Exp $
+// $Id: ajax.inc,v 1.14.2.11 2010/07/26 21:38:55 merlinofchaos Exp $
 
 /**
  * @file
@@ -281,9 +281,9 @@ function ctools_ajax_command_changed($selector, $star = '') {
 }
 
 /**
- * Create a changed command for the AJAX responder.
+ * Create a css command for the AJAX responder.
  *
- * This will mark an item as 'changed'.
+ * This will directly add CSS to the page.
  *
  * @param $selector
  *   The CSS selector. This can be any selector jquery uses in $().
@@ -301,6 +301,22 @@ function ctools_ajax_command_css($selector, $argument) {
 /**
  * Create a settings command for the AJAX responder.
  *
+ * This will add CSS files to the output. Files that have already
+ * been processed will not be processed again.
+ *
+ * @param $argument
+ *   An array of CSS files.
+ */
+function ctools_ajax_command_css_files($argument) {
+  return array(
+    'command' => 'css_files',
+    'argument' => $argument,
+  );
+}
+
+/**
+ * Create a settings command for the AJAX responder.
+ *
  * This will extend Drupal.settings with the given array.
  *
  * @param $argument
@@ -309,6 +325,22 @@ function ctools_ajax_command_css($selector, $argument) {
 function ctools_ajax_command_settings($argument) {
   return array(
     'command' => 'settings',
+    'argument' => $argument,
+  );
+}
+
+/**
+ * Create a settings command for the AJAX responder.
+ *
+ * This will add javascript files to the output. Files that have already
+ * been processed will not be processed again.
+ *
+ * @param $argument
+ *   An array of javascript files.
+ */
+function ctools_ajax_command_scripts($argument) {
+  return array(
+    'command' => 'scripts',
     'argument' => $argument,
   );
 }
@@ -376,11 +408,14 @@ function ctools_ajax_command_restripe($selector) {
  * @param $url
  *   The url to be redirected to. This can be an absolute URL or a
  *   Drupal path.
+ * @param $delay
+ *   A delay before applying the redirection, in milliseconds.
  */
-function ctools_ajax_command_redirect($url) {
+function ctools_ajax_command_redirect($url, $delay = 0) {
   return array(
     'command' => 'redirect',
     'url' => url($url),
+    'delay' => $delay,
   );
 }
 
@@ -415,6 +450,58 @@ function ctools_ajax_command_submit($selector) {
  * to the AJAX requester.
  */
 function ctools_ajax_render($commands = array()) {
+  $js_files = array();
+  $settings = ctools_process_js_files($js_files, 'header');
+  $settings += ctools_process_js_files($js_files, 'footer');
+
+  $query_string = '?'. substr(variable_get('css_js_query_string', '0'), 0, 1);
+  $css = drupal_add_css();
+  foreach ($css as $media => $types) {
+    // If CSS preprocessing is off, we still need to output the styles.
+    // Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
+    foreach ($types as $type => $files) {
+      if ($type == 'module') {
+        // Setup theme overrides for module styles.
+        $theme_styles = array();
+        foreach (array_keys($css[$media]['theme']) as $theme_style) {
+          $theme_styles[] = basename($theme_style);
+        }
+      }
+      // The theme stuff should already be added and because of admin themes,
+      // this could cause different CSS to be added.
+      if ($type != 'theme') {
+        foreach ($types[$type] as $file => $preprocess) {
+          // If the theme supplies its own style using the name of the module style, skip its inclusion.
+          // This includes any RTL styles associated with its main LTR counterpart.
+          if ($type == 'module' && in_array(str_replace('-rtl.css', '.css', basename($file)), $theme_styles)) {
+            // Unset the file to prevent its inclusion when CSS aggregation is enabled.
+            unset($types[$type][$file]);
+            continue;
+          }
+          // Only include the stylesheet if it exists.
+          if (file_exists($file)) {
+            $css_files[] = array(
+              'file' => base_path() . $file . $query_string,
+              'media' => $media,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  if (!empty($js_files)) {
+    array_unshift($commands, ctools_ajax_command_scripts(array_keys($js_files)));
+  }
+
+  if (!empty($css_files)) {
+    array_unshift($commands, ctools_ajax_command_css_files($css_files));
+  }
+
+  if (!empty($settings)) {
+    array_unshift($commands, ctools_ajax_command_settings(call_user_func_array('array_merge_recursive', $settings)));
+  }
+
   if (!empty($_REQUEST['ctools_multipart'])) {
     // We don't use drupal_json here because the header is not true. We're not really
     // returning JSON, strictly-speaking, but rather JSON content wrapped in a <textarea>
@@ -464,16 +551,26 @@ function ctools_ajax_render_error($error = '') {
  * @param $dest
  *   The URL to associate the form element to.
  * @param $type
- *   A type to use, in case a different behavior should be attached. Defaults
- *   to ctools-use-ajax.
+ *   Optional; A type to use, in case a different behavior should be attached.
+ *   If empty the type will be set to "ctools-use-ajax" for submit elements and
+ *   "ctools-use-ajax-onchange" for other elements.
  */
-function ctools_ajax_associate_url_to_element(&$form, &$form_element, $dest, $type = 'ctools-use-ajax') {
+function ctools_ajax_associate_url_to_element(&$form, &$form_element, $dest, $type = '') {
   drupal_add_js('misc/jquery.form.js', 'core');
   if (!isset($form_element['#id'])) {
     //Create a unique ID to associate $form_element and hidden elements since we dont have an ID
     $form_element['#id'] = uniqid('ctools-ajax-url-');
 
-    $form_element['#attributes']['class'] = $type;
+    if (empty($type)) {
+      $type = $form_element['#type'] == 'submit' ? 'ctools-use-ajax' : 'ctools-use-ajax-onchange';
+    }
+
+    if (empty($form_element['#attributes']['class'])) {
+      $form_element['#attributes']['class'] = $type;
+    }
+    else {
+      $form_element['#attributes']['class'] .= " $type";
+    }
   }
 
   //Add hidden form element to hold base URL

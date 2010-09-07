@@ -1,4 +1,4 @@
-/* $Id: typography.css,v 1.1.2.2 2009/12/02 00:47:46 sociotech Exp $ */
+/* $Id: typography.css,v 1.1.2.4 2010/02/14 06:44:15 sociotech Exp $ */
 
 /* Typography
 -------------------------------------------------------------- */
@@ -9,6 +9,10 @@ body {
   font-family: Arial, Helvetica, Verdana, "Bitstream Vera Sans", sans-serif;     /* web safe fonts */
   font-size: 81.25%;   /* also set in fusion_core.info: settings[theme_font_size] = font-size-13 */
   line-height: 150%;   /* 1.5x vertical rhythm */
+}
+
+.form-text {
+  font-family: Arial, Helvetica, Verdana, "Bitstream Vera Sans", sans-serif;
 }
 
 
@@ -40,9 +44,6 @@ h6 {
 
 #footer {
   font-size: 95%;
-}
-
-table, thead, tbody, tr, th, td {
 }
 
 
@@ -79,19 +80,6 @@ div.comment ul.links a {
 
 /* Links
 /-------------------------------------------------------------- */
-h2.title a:link,
-h2.title a:visited {
-}
-
-h2.title a:hover,
-h2.title a:focus,
-h2.title a:active {
-}
-
-/* block menu links */
-.block ul.menu li a {
-}
-
 /* breadcrumbs */
 .breadcrumbs {
   font-size: 90%;
@@ -128,6 +116,7 @@ ul.menu li,
 
 .form-item .description {
   font-size: 95%;
+  line-height: 130%;
 }
 
 /* region labels on block admin page */
@@ -151,23 +140,6 @@ ul.menu li,
 }
 
 
-/* Drupal Messages
-/-------------------------------------------------------------- */
-div.messages,
-div.messages.status {
-  font-size: 100%;
-}
-
-.help,
-div.help {
-  font-size: 100%;
-}
-
-#content-region ul.tips li {
-  font-size: 100%;
-}
-
-
 /* Poll
 /-------------------------------------------------------------- */
 /* increase default font size and spacing of poll titles */
@@ -180,12 +152,6 @@ div.help {
 /-------------------------------------------------------------- */
 #forum .description {
   font-size: 90%;
-}
-
-
-/* Views
-/-------------------------------------------------------------- */
-.view {
 }
 
 
@@ -312,26 +278,32 @@ html.js .fusion-horiz-login#block-user-0 #user-login-form label {
 }
 
 /* font family */
-.font-family-sans-serif-sm {
-  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+.font-family-sans-serif-sm,
+.font-family-sans-serif-sm .form-text {
+  font-family: Arial, Helvetica, "Nimbus Sans L", FreeSans, sans-serif;
 }
 
-.font-family-sans-serif-lg {
+.font-family-sans-serif-lg,
+.font-family-sans-serif-lg .form-text {
   font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 }
 
-.font-family-serif-sm {
+.font-family-serif-sm,
+.font-family-serif-sm .form-text {
   font-family: Garamond, Perpetua, "Nimbus Roman No9 L", "Times New Roman", serif;
 }
 
-.font-family-serif-lg {
+.font-family-serif-lg,
+.font-family-serif-lg .form-text {
   font-family: Baskerville, Georgia, Palatino, "Palatino Linotype", "Book Antiqua", "URW Palladio L", serif;
 }
 
-.font-family-myriad {
+.font-family-myriad,
+.font-family-myriad .form-text {
   font-family: "Myriad Pro", Myriad, "Trebuchet MS", Arial, Helvetica, sans-serif;
 }
 
-.font-family-lucida {
+.font-family-lucida,
+.font-family-lucida .form-text {
   font-family: "Lucida Sans", "Lucida Grande", "Lucida Sans Unicode", Verdana, Geneva, sans-serif;
 }

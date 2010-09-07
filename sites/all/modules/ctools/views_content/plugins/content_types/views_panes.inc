@@ -1,5 +1,5 @@
 <?php
-// $Id: views_panes.inc,v 1.14.2.3 2009/10/21 19:52:07 merlinofchaos Exp $
+// $Id: views_panes.inc,v 1.14.2.14 2010/07/23 21:47:21 merlinofchaos Exp $
 
 /**
  * @file
@@ -146,6 +146,7 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
     return;
   }
 
+  $view->display_handler->set_pane_conf($conf);
 
   $args = array();
   $arguments = $view->display_handler->get_option('arguments');
@@ -176,7 +177,7 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
         break;
 
       case 'user':
-        $args[] = isset($conf['arguments'][$id]) ? $conf['arguments'][$id] : NULL;
+        $args[] = (isset($conf['arguments'][$id])  && $conf['arguments'][$id] !== '') ? $conf['arguments'][$id] : NULL;
         break;
 
      case 'wildcard':
@@ -201,6 +202,9 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
 
   $allow = $view->display_handler->get_option('allow');
 
+  if (!empty($conf['path'])) {
+    $conf['path'] = ctools_context_keyword_substitute($conf['path'], array(), $contexts);
+  }
   if ($allow['path_override'] && !empty($conf['path'])) {
     $view->override_path = $conf['path'];
   }
@@ -218,28 +222,72 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
   }
 
   // more link
-  if (($allow['more_link'] && !empty($conf['more_link'])) ||
-      (!$allow['more_link'] && $view->display_handler->get_option('more_link'))) {
-    $block->more = array('href' => $view->get_url());
-    $view->display_handler->set_option('use_more', FALSE);
-    // make sure the view runs the count query so we know whether or not the more link
-    // applies.
-    $view->get_total_rows = TRUE;
+  if ($allow['more_link']) {
+    if (empty($conf['more_link'])) {
+      $view->display_handler->set_option('use_more', FALSE);
+    }
+    else {
+      $view->display_handler->set_option('use_more', TRUE);
+      // make sure the view runs the count query so we know whether or not the
+      // more link applies.
+      $view->get_total_rows = TRUE;
+    }
+  }
+
+  if ($allow['items_per_page'] && isset($conf['items_per_page'])) {
+    $view->display_handler->set_option('items_per_page', $conf['items_per_page']);
+    // And here too, which works in Views 3 where the above does not.
+    $view->set_items_per_page($conf['items_per_page']);
+  }
+
+  if ($allow['offset']) {
+    $view->display_handler->set_option('offset', $conf['offset']);
+    $view->set_offset($conf['offset']);
   }
 
   if ($allow['use_pager']) {
     // Only set use_pager if they differ, this way we can avoid overwriting the
     // pager type that Views uses.
-    if (!$view->display_handler->get_option('use_pager') || empty($conf['use_pager'])) {
-      $view->display_handler->set_option('use_pager', $conf['use_pager']);
+    // Views 3 version
+    if (method_exists($view, 'init_pager')) {
+      $pager = $view->display_handler->get_option('pager');
+      if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
+        $pager['type'] = 'full';
+      }
+      elseif (!$conf['use_pager'] && $pager['type'] != 'none' && $pager['type'] != 'some') {
+        $pager['type'] = $view->get_items_per_page() || !empty($pager['options']['items_per_page']) ? 'some' : 'none';
+      }
+
+      if ($conf['use_pager']) {
+        if (!isset($pager['options']['id']) || $pager['options']['id'] != $conf['pager_id']) {
+          $pager['options']['id'] = $conf['pager_id'];
+        }
+      }
+
+      $view->display_handler->set_option('pager', $pager);
     }
-    $view->display_handler->set_option('pager_element', $conf['pager_id']);
+    else {
+      if (!$view->display_handler->get_option('use_pager') || empty($conf['use_pager'])) {
+        $view->display_handler->set_option('use_pager', $conf['use_pager']);
+      }
+
+      $view->display_handler->set_option('pager_element', $conf['pager_id']);
+    }
   }
-  if ($allow['items_per_page'] && isset($conf['items_per_page'])) {
-    $view->display_handler->set_option('items_per_page', $conf['items_per_page']);
+
+  if ($allow['fields_override']) {
+    if ($conf['fields_override']) {
+      $fields = $view->get_items('field');
+      foreach ($conf['fields_override'] as $field => $display) {
+        $fields[$field]['exclude'] = empty($conf['fields_override'][$field]);
+      }
+      $view->display_handler->set_option('fields', $fields);
+
+    }
   }
-  if ($allow['offset']) {
-    $view->display_handler->set_option('offset', $conf['offset']);
+
+  if ($allow['exposed_form'] && !empty($conf['exposed'])) {
+    $view->set_exposed_input($conf['exposed']);
   }
 
   $stored_feeds = drupal_add_feed();
@@ -273,6 +321,7 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
  */
 function views_content_views_panes_content_type_edit_form(&$form, &$form_state) {
   $conf = $form_state['conf'];
+  $contexts = $form_state['contexts'];
   // This allows older content to continue to work, where we used to embed
   // the display directly.
   list($name, $display_id) = explode('-', $form_state['subtype_name']);
@@ -298,6 +347,7 @@ function views_content_views_panes_content_type_edit_form(&$form, &$form_state) 
     $conf['offset'] = $view->display_handler->get_option('offset');
     $conf['path_override'] = FALSE;
     $conf['path'] = $view->get_path();
+    $conf['fields_override'] = $view->display_handler->get_option('fields_override');
   }
 
   $form['arguments']['#tree'] = TRUE;
@@ -311,21 +361,20 @@ function views_content_views_panes_content_type_edit_form(&$form, &$form_state) 
       );
     }
   }
-  if ($view->display_handler->has_path()) {
-    if ($allow['link_to_view'] ) {
-      $form['link_to_view'] = array(
-        '#type' => 'checkbox',
-        '#default_value' => isset($conf['link_to_view']) ? $conf['link_to_view'] : $view->display_handler->get_option('link_to_view'),
-        '#title' => t('Link title to page'),
-      );
-    }
-    if ($allow['more_link']) {
-      $form['more_link'] = array(
-        '#type' => 'checkbox',
-        '#default_value' => isset($conf['more_link']) ? $conf['more_link'] : $view->display_handler->get_option('more_link'),
-        '#title' => t('Provide a "more" link.'),
-      );
-    }
+  if ($allow['link_to_view'] ) {
+    $form['link_to_view'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => isset($conf['link_to_view']) ? $conf['link_to_view'] : $view->display_handler->get_option('link_to_view'),
+      '#title' => t('Link title to page'),
+    );
+  }
+  if ($allow['more_link']) {
+    $form['more_link'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => isset($conf['more_link']) ? $conf['more_link'] : $view->display_handler->get_option('use_more'),
+      '#description' => t('The text of this link will be "@more". This setting can only be modified on the View configuration.', array('@more' => $view->display_handler->use_more_text())),
+      '#title' => t('Provide a "more" link.'),
+    );
   }
 
   if (!empty($allow['feed_icons'])) {
@@ -334,6 +383,28 @@ function views_content_views_panes_content_type_edit_form(&$form, &$form_state) 
       '#default_value' => !empty($conf['feed_icons']),
       '#title' => t('Display feed icons'),
     );
+  }
+
+  $view->init_style();
+  if ($allow['fields_override'] && $view->style_plugin->uses_fields()) {
+    $form['fields_override'] = array(
+      '#type' => 'fieldset',
+      '#title' => 'Fields to display',
+      '#collapsible' => TRUE,
+      '#tree' => TRUE,
+    );
+    foreach ($view->display_handler->get_handlers('field') as $field => $handler) {
+      $title = $handler->ui_name();
+      if ($handler->options['label']) {
+        $title .= ' ('. $handler->options['label'] .')';
+      }
+
+      $form['fields_override'][$field] = array(
+        '#type' => 'checkbox',
+        '#title' => $title,
+        '#default_value' => isset($conf['fields_override'][$field]) ? $conf['fields_override'][$field] : TRUE,
+      );
+    }
   }
 
   ctools_include('dependent');
@@ -382,6 +453,81 @@ function views_content_views_panes_content_type_edit_form(&$form, &$form_state) 
       '#size' => 30,
       '#description' => t('If this is set, override the View URL path; this can sometimes be useful to set to the panel URL.'),
     );
+    if (!empty($contexts)) {
+      $form['path']['#description'] .= ' ' . t('You may use substitutions in this path.');
+
+      // Add js for collapsible fieldsets manually
+      drupal_add_js('misc/collapse.js');
+
+      // We have to create a manual fieldset because fieldsets do not support IDs.
+      // Use 'hidden' instead of 'markup' so that the process will run.
+      $form['contexts_prefix'] = array(
+        '#type' => 'hidden',
+        '#id' => 'edit-path-substitutions',
+        '#prefix' => '<div><fieldset id="edit-path-substitutions" class="collapsed collapsible"><legend>' . t('Substitutions') . '</legend>',
+      );
+
+      $rows = array();
+      foreach ($contexts as $context) {
+        foreach (ctools_context_get_converters('%' . check_plain($context->keyword) . ':', $context) as $keyword => $title) {
+          $rows[] = array(
+            check_plain($keyword),
+            t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
+          );
+        }
+      }
+
+      $header = array(t('Keyword'), t('Value'));
+      $form['contexts']['context'] = array('#value' => theme('table', $header, $rows));
+      $form['contexts_suffix'] = array(
+        '#value' => '</fieldset></div>',
+      );
+    }
+  }
+
+  if (empty($conf['exposed'])) {
+    $conf['exposed'] = array();
+  }
+
+  if ($allow['exposed_form']) {
+    // If the exposed form is part of pane configuration, get the exposed
+    // form re-tool it for our use.
+    $exposed_form_state = array(
+      'view' => &$view,
+      'display' => &$view->display[$display_id],
+    );
+
+    $view->set_exposed_input($conf['exposed']);
+
+    if (version_compare(views_api_version(), '3', '>=')) {
+      $exposed_form_state['exposed_form_plugin'] = $view->display_handler->get_plugin('exposed_form');
+    }
+    $view->init_handlers();
+    $exposed_form = views_exposed_form($exposed_form_state);
+
+    $form['exposed'] = array(
+      '#tree' => TRUE,
+    );
+
+    foreach ($exposed_form['#info'] as $id => $info) {
+      $form['exposed'][$id] = array(
+        '#type' => 'item',
+        '#id' => 'views-exposed-pane',
+      );
+
+      if (!empty($info['label'])) {
+        $form['exposed'][$id]['#title'] = $info['label'];
+      }
+
+      if (!empty($info['operator']) && !empty($exposed_form[$info['operator']])) {
+        $form['exposed'][$id][$info['operator']] = $exposed_form[$info['operator']];
+        $form['exposed'][$id][$info['operator']]['#parents'] = array('exposed', $info['operator']);
+        $form['exposed'][$id][$info['operator']]['#default_value'] = isset($conf['exposed'][$info['operator']]) ? $conf['exposed'][$info['operator']] : '';
+      }
+      $form['exposed'][$id][$info['value']] = $exposed_form[$info['value']];
+      $form['exposed'][$id][$info['value']]['#parents'] = array('exposed', $info['value']);
+      $form['exposed'][$id][$info['value']]['#default_value'] = isset($conf['exposed'][$info['value']]) ? $conf['exposed'][$info['value']] : '';
+    }
   }
 }
 
@@ -391,7 +537,7 @@ function views_content_views_panes_content_type_edit_form(&$form, &$form_state) 
 function views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
   // Copy everything from our defaults.
   $keys = array('link_to_view', 'more_link', 'feed_icons', 'use_pager',
-    'pager_id', 'items_per_page', 'offset', 'path_override', 'path', 'arguments');
+    'pager_id', 'items_per_page', 'offset', 'path_override', 'path', 'arguments', 'fields_override', 'exposed');
 
   foreach ($keys as $key) {
     if (isset($form_state['values'][$key])) {
@@ -407,10 +553,7 @@ function views_content_views_panes_content_type_edit_form_submit(&$form, &$form_
 function views_content_views_panes_content_type_admin_title($subtype, $conf, $contexts) {
   list($name, $display) = explode('-', $subtype);
   $view = views_get_view($name);
-  if (empty($view)) {
-    return t('Deleted/missing view @view', array('@view' => $name));
-  }
-  if (empty($view->display[$display])) {
+  if (empty($view) || empty($view->display[$display])) {
     return t('Deleted/missing view @view', array('@view' => $name));
   }
 
@@ -427,29 +570,35 @@ function views_content_views_panes_content_type_admin_info($subtype, $conf, $con
 
   list($view_name, $display_name) = explode('-', $subtype);
   $view = views_get_view($view_name);
+
+  if (empty($view) || empty($view->display[$display_name])) {
+    return;
+  }
+
   $view->set_display($display_name);
 
   // Add arguments first
-  if ($conf['arguments']) { 
+  if (!empty($conf['arguments'])) {
     $keys = array_keys($conf['arguments']);
     $values = array_values($conf['arguments']);
     $argument_input = $view->display_handler->get_option('argument_input');
 
-    foreach ($conf['arguments'] as $key => $value) { 
+    foreach ($conf['arguments'] as $key => $value) {
       $label = $argument_input[$key]['label'];
       $info[] = $label .': '. $value;
     }
   }
 
   $block = new stdClass;
-  if ($info) { 
+  if ($info) {
     $block->title = array_shift($info);
 
     $info[] = $view->display_handler->get_option('pane_description');
     $block->content = theme('item_list', $info);
   }
-  else { 
+  else {
     $block->title = $view->display_handler->get_option('pane_description');
+    $block->content = '';
   }
   return $block;
 }

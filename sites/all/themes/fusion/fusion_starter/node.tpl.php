@@ -1,5 +1,5 @@
 <?php
-// $Id: node.tpl.php,v 1.1.2.2 2009/11/11 05:25:58 sociotech Exp $
+// $Id: node.tpl.php,v 1.1.2.3 2010/01/11 00:08:12 sociotech Exp $
 ?>
 
 <div id="node-<?php print $node->nid; ?>" class="node <?php print $node_classes; ?>">

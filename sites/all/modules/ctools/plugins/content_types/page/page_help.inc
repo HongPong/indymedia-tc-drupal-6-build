@@ -1,5 +1,5 @@
 <?php
-// $Id: page_help.inc,v 1.1 2009/08/17 21:23:13 merlinofchaos Exp $
+// $Id: page_help.inc,v 1.1.2.2 2010/02/02 21:49:21 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,17 +8,17 @@
  */
 
 /**
- * Implementation of hook_ctools_content_types()
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_page_help_ctools_content_types() {
-  return array(
-    'title' => t('Help'),
-    'single' => TRUE,
-    'icon' => 'icon_page.png',
-    'description' => t('Add the help text of the current page as content.'),
-    'category' => t('Page elements'),
-  );
-}
+$plugin = array(
+  'title' => t('Help'),
+  'single' => TRUE,
+  'icon' => 'icon_page.png',
+  'description' => t('Add the help text of the current page as content.'),
+  'category' => t('Page elements'),
+  'render last' => TRUE,
+);
 
 /**
  * Output function for the 'page_help' content type.
@@ -26,11 +26,8 @@ function ctools_page_help_ctools_content_types() {
  * Outputs the breadcrumb for the current page.
  */
 function ctools_page_help_content_type_render($subtype, $conf, $panel_args) {
-  $token = '<!-- ctools-page-help -->';
-  ctools_set_page_token($token, 'variable', 'help');
-
   $block = new stdClass();
-  $block->content = $token;
+  $block->content = theme('help');
 
   return $block;
 }

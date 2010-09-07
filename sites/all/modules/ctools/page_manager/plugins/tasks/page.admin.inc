@@ -1,5 +1,5 @@
 <?php
-// $Id: page.admin.inc,v 1.18.2.2 2009/10/13 20:38:17 merlinofchaos Exp $
+// $Id: page.admin.inc,v 1.18.2.11 2010/07/21 17:37:04 merlinofchaos Exp $
 
 /**
  * @file
@@ -37,6 +37,10 @@ function page_manager_page_menu(&$items, $task) {
     'page arguments' => array('page_manager_page_import_subtask', 'page'),
     'type' => MENU_LOCAL_TASK,
   ) + $base;
+  if ($access_callback == 'user_access') {
+    $items['admin/build/pages/import']['access callback'] = 'ctools_access_multiperm';
+    $items['admin/build/pages/import']['access arguments'][] = 'use PHP for block visibility';
+  }
 
   // AJAX callbacks for argument modal.
   $items['admin/build/pages/argument'] = array(
@@ -81,13 +85,15 @@ function page_manager_page_menu(&$items, $task) {
         // placholder. This will allow to_args.
         if (!empty($subtask->arguments[$name])) {
           ctools_include('context');
-          $plugin = ctools_get_argument($subtask->arguments[$name]['name']);
-          if (isset($plugin['path placeholder'])) {
-            if (function_exists($plugin['path placeholder'])) {
-              $placeholder = $plugin['path placeholder']($subtask->arguments[$name]);
-            }
-            else {
-              $placeholder = $plugin['path placeholder'];
+          if (!empty($subtask->arguments[$name]['name'])) {
+            $plugin = ctools_get_argument($subtask->arguments[$name]['name']);
+            if (isset($plugin['path placeholder'])) {
+              if (function_exists($plugin['path placeholder'])) {
+                $placeholder = $plugin['path placeholder']($subtask->arguments[$name]);
+              }
+              else {
+                $placeholder = $plugin['path placeholder'];
+              }
             }
           }
         }
@@ -186,7 +192,13 @@ function page_manager_page_menu_item($task, $menu, $access_arguments, $page_argu
  * Page callback to add a subtask.
  */
 function page_manager_page_add_subtask($task_name = NULL, $step = NULL) {
+  ctools_include('context');
   $task = page_manager_get_task('page');
+  $task_handler_plugins = page_manager_get_task_handler_plugins($task);
+  if (empty($task_handler_plugins)) {
+    drupal_set_message(t('There are currently no variants available and a page may not be added. Perhaps you need to install the Panels module to get a variant?'), 'error');
+    return ' ';
+  }
 
   $form_info = array(
     'id' => 'page_manager_add_page',
@@ -226,7 +238,17 @@ function page_manager_page_add_subtask($task_name = NULL, $step = NULL) {
     }
 
     $form_info['path'] = "admin/build/pages/add/$task_name/%step";
+  }
+  else {
+    $new_page = page_manager_page_new();
+    $new_page->name = NULL;
 
+    $page = new stdClass();
+    page_manager_page_new_page_cache($new_page, $page);
+    $form_info['path'] = 'admin/build/pages/add/%task_name/%step';
+  }
+
+  if ($step && $step != 'basic') {
     $handler_plugin = page_manager_get_task_handler($page->handler);
 
     $form_info['forms'] += $handler_plugin['forms'];
@@ -268,12 +290,6 @@ function page_manager_page_add_subtask($task_name = NULL, $step = NULL) {
     }
   }
   else {
-    $new_page = page_manager_page_new();
-    $new_page->name = NULL;
-
-    $page = new stdClass();
-    page_manager_page_new_page_cache($new_page, $page);
-    $form_info['path'] = 'admin/build/pages/add/%task_name/%step';
     $form_info['show trail'] = FALSE;
     $form_info['order'] = array(
       'basic' => t('Basic settings'),
@@ -420,12 +436,12 @@ function page_manager_page_form_basic(&$form, &$form_state) {
       '#type' => 'checkbox',
       '#default_value' => !empty($page->make_frontpage),
       '#title' => t('Make this your site home page.'),
-      '#description' => t('To set this panel as your home page you must create a unique path name with no % placeholders in the path. The current site home page is set to %homepage.', array('%homepage' => '/' . $frontpage)),
+      '#description' => t('To set this panel as your home page you must create a unique path name with no % placeholders in the path. The site home page is currently set to %homepage on the !siteinfo configuration form.', array('!siteinfo' => l('Site Information', 'admin/settings/site-information'), '%homepage' => '/' . $frontpage)),
     );
   }
   else if ($path == $frontpage) {
     $form['frontpage_markup'] = array(
-      '#value' => '<b>' . t('This page is currently set to be your site home page.') . '</b>',
+      '#value' => '<b>' . t('This page is currently set to be your site home page. This can be modified on the !siteinfo configuration form.', array('!siteinfo' => l('Site Information', 'admin/settings/site-information'))) . '</b>',
     );
 
     $form['frontpage'] = array(
@@ -523,7 +539,7 @@ function page_manager_page_form_basic_validate(&$form, &$form_state) {
   $result = db_query("SELECT * FROM {menu_router} WHERE path = '%s'", $path);
   while ($router = db_fetch_object($result)) {
     if ($router->page_callback != 'page_manager_page_execute') {
-      form_error($form['path'], t('That path is already in used. This system cannot override existing paths.'));
+      form_error($form['path'], t('That path is already in use. This system cannot override existing paths.'));
     }
   }
 
@@ -572,6 +588,13 @@ function page_manager_page_form_basic_submit(&$form, &$form_state) {
     $cache->handler = $form_state['values']['handler'];
     $cache->subtask_id = $page->name;
     $plugin = page_manager_get_task_handler($cache->handler);
+
+    // If they created and went back, there might be old, dead handlers
+    // that are not going to be added.
+    //
+    // Remove them:
+    $cache->handlers = array();
+    $cache->handler_info = array();
 
     // Create a new handler.
     $handler = page_manager_new_task_handler($plugin);
@@ -995,7 +1018,7 @@ function page_manager_page_subtask_argument_ajax($step = NULL, $task_name = NULL
 
   // With 'modal' and 'ajax' true, rendering automatically happens here so
   // we do nothing with the result.
-  ctools_wizard_multistep_form($form_info, $step, $form_state);
+  $output = ctools_wizard_multistep_form($form_info, $step, $form_state);
 }
 
 /**

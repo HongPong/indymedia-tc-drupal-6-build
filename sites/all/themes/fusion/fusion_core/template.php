@@ -1,5 +1,5 @@
 <?php
-// $Id: template.php,v 1.1.2.5 2009/12/02 00:47:46 sociotech Exp $
+// $Id: template.php,v 1.1.2.9 2010/07/04 22:34:29 sociotech Exp $
 
 require_once('theme-settings.php');
 
@@ -8,14 +8,18 @@ require_once('theme-settings.php');
  * Initialize theme settings
  */
 global $theme_key;
-fusion_core_initialize_theme_settings($theme_key);
+if (db_is_active()) {
+  fusion_core_initialize_theme_settings($theme_key);
+}
 
 
 /**
  * Maintenance page preprocessing
  */
 function fusion_core_preprocess_maintenance_page(&$vars) {
-  fusion_core_preprocess_page($vars);
+  if (db_is_active()) {
+    fusion_core_preprocess_page($vars);
+  }
 }
 
 
@@ -68,17 +72,28 @@ function fusion_core_preprocess_page(&$vars) {
   $body_classes[] = theme_get_setting('theme_font_size');                                            // Font size
   $body_classes[] = (user_access('administer blocks', $user) && theme_get_setting('grid_mask')) ? 'grid-mask-enabled' : '';    // Grid mask overlay
   $body_classes[] = 'grid-type-' . $grid_type;                                                       // Fixed width or fluid
-  $body_classes[] = 'grid-width-' . $grid_width;                                                     // Grid width in units
+  $body_classes[] = 'grid-width-' . sprintf("%02d", $grid_width);                                    // Grid width in units
   $body_classes[] = ($grid_type == 'fluid') ? theme_get_setting('fluid_grid_width') : '';            // Fluid grid width in %
   $body_classes = array_filter($body_classes);                                                       // Remove empty elements
   $vars['body_classes'] = implode(' ', $body_classes);                                               // Create class list separated by spaces
   $vars['body_id'] = 'pid-' . strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', drupal_get_path_alias($_GET['q'])));            // Add a unique page id
 
-  // Generate menu tree from primary links, add Superfish class
+  // Generate links tree & add Superfish class if dropdown enabled, else make standard primary links
   $vars['primary_links_tree'] = '';
   if ($vars['primary_links']) {
-    $primary_tree = menu_tree(variable_get('menu_primary_links_source', 'primary-links'));
-    $vars['primary_links_tree'] = preg_replace('/^<ul class="menu/i', '<ul class="menu sf-menu', $primary_tree, 1);
+    if (theme_get_setting('primary_menu_dropdown') == 1) {
+      // Check for menu internationalization
+      if (module_exists('i18nmenu')) {
+        $vars['primary_links_tree'] = i18nmenu_translated_tree(variable_get('menu_primary_links_source', 'primary-links'));
+      }
+      else {
+        $vars['primary_links_tree'] = menu_tree(variable_get('menu_primary_links_source', 'primary-links'));
+      }
+      $vars['primary_links_tree'] = preg_replace('/<ul class="menu/i', '<ul class="menu sf-menu', $vars['primary_links_tree'], 1);
+    }
+    else {
+      $vars['primary_links_tree'] = theme('links', $vars['primary_links'], array('class' => 'menu'));
+    }
   }
 
   // Remove breadcrumbs if disabled
@@ -88,20 +103,17 @@ function fusion_core_preprocess_page(&$vars) {
 
   // Add grid, color, ie6, ie7, ie8 & local stylesheets, including inherited & rtl versions
   $grid_style = '/css/' . theme_get_setting('theme_grid');
-  $color_style = '/css/' . theme_get_setting('theme_color');
   $themes = fusion_core_theme_paths($theme_key);
   $vars['setting_styles'] = $vars['ie6_styles'] = $vars['ie7_styles'] = $vars['ie8_styles'] = $vars['local_styles'] = '';
   foreach ($themes as $name => $path) {
     $link = '<link type="text/css" rel="stylesheet" media="all" href="' . base_path() . $path;
     $vars['setting_styles'] .= (file_exists($path . $grid_style . '.css')) ? $link . $grid_style . '.css" />' . "\n" : '';
-    $vars['setting_styles'] .= (file_exists($path . $color_style . '.css')) ? $link . $color_style . '.css" />' . "\n" : '';
     $vars['ie6_styles'] .= (file_exists($path . '/css/ie6-fixes.css')) ? $link . '/css/ie6-fixes.css" />' . "\n" : '';
     $vars['ie7_styles'] .= (file_exists($path . '/css/ie7-fixes.css')) ? $link . '/css/ie7-fixes.css" />' . "\n" : '';
     $vars['ie8_styles'] .= (file_exists($path . '/css/ie8-fixes.css')) ? $link . '/css/ie8-fixes.css" />' . "\n" : '';
     $vars['local_styles'] .= (file_exists($path . '/css/local.css')) ? $link . '/css/local.css" />' . "\n" : '';
     if (defined('LANGUAGE_RTL') && $language->direction == LANGUAGE_RTL) {
       $vars['setting_styles'] .= (file_exists($path . $grid_style . '-rtl.css')) ? $link . $grid_style . '-rtl.css" />' . "\n" : '';
-      $vars['setting_styles'] .= (file_exists($path . $color_style . '-rtl.css')) ? $link . $color_style . '-rtl.css" />' . "\n" : '';
       $vars['ie6_styles'] .= (file_exists($path . '/css/ie6-fixes-rtl.css')) ? $link . '/css/ie6-fixes-rtl.css" />' . "\n" : '';
       $vars['ie7_styles'] .= (file_exists($path . '/css/ie7-fixes-rtl.css')) ? $link . '/css/ie7-fixes-rtl.css" />' . "\n" : '';
       $vars['ie8_styles'] .= (file_exists($path . '/css/ie8-fixes-rtl.css')) ? $link . '/css/ie8-fixes-rtl.css" />' . "\n" : '';
@@ -162,13 +174,23 @@ function fusion_core_preprocess_node(&$vars) {
     $vars['fusion_uc_body'] = drupal_render($node->content['body']);
     $vars['fusion_uc_display_price'] = drupal_render($node->content['display_price']);
     $vars['fusion_uc_add_to_cart'] = drupal_render($node->content['add_to_cart']);
-    $vars['fusion_uc_weight'] = drupal_render($node->content['weight']);
-    $vars['fusion_uc_dimensions'] = drupal_render($node->content['dimensions']);
-    $vars['fusion_uc_model'] = drupal_render($node->content['model']);
-    $vars['fusion_uc_list_price'] = drupal_render($node->content['list_price']);
     $vars['fusion_uc_sell_price'] = drupal_render($node->content['sell_price']);
     $vars['fusion_uc_cost'] = drupal_render($node->content['cost']);
-    $vars['fusion_uc_additional'] = drupal_render($node->content);
+    $vars['fusion_uc_weight'] = (!empty($node->weight)) ? drupal_render($node->content['weight']) : '';   // Hide weight if empty
+    if ($vars['fusion_uc_weight'] == '') {
+      unset($node->content['weight']);
+    }
+    $dimensions = !empty($node->height) && !empty($node->width) && !empty($node->length);                 // Hide dimensions if empty
+    $vars['fusion_uc_dimensions'] = ($dimensions) ? drupal_render($node->content['dimensions']) : '';
+    if ($vars['fusion_uc_dimensions'] == '') {
+      unset($node->content['dimensions']);
+    }
+    $list_price = !empty($node->list_price) && $node->list_price > 0;                                     // Hide list price if empty or zero
+    $vars['fusion_uc_list_price'] = ($list_price) ? drupal_render($node->content['list_price']) : '';
+    if ($vars['fusion_uc_list_price'] == '') {
+      unset($node->content['list_price']);
+    }
+    $vars['fusion_uc_additional'] = drupal_render($node->content);                                        // Render remaining fields
   }
 }
 
@@ -188,16 +210,10 @@ function fusion_core_preprocess_comment(&$vars) {
   $comment_classes[] = ($vars['comment']->new) ? 'comment-new' : '';                                      // Comment is new
   $comment_classes[] = ($vars['comment']->uid == 0) ? 'comment-by-anon' : '';                             // Comment is by anonymous user
   $comment_classes[] = ($user->uid && $vars['comment']->uid == $user->uid) ? 'comment-mine' : '';         // Comment is by current user
-  $node = node_load($vars['comment']->nid);                                                               // Comment is by node author
-  $vars['author_comment'] = ($vars['comment']->uid == $node->uid) ? TRUE : FALSE;
+  $vars['author_comment'] = ($vars['comment']->uid == $vars['node']->uid) ? TRUE : FALSE;                 // Comment is by node author
   $comment_classes[] = ($vars['author_comment']) ? 'comment-by-author' : '';
   $comment_classes = array_filter($comment_classes);                                                      // Remove empty elements
   $vars['comment_classes'] = implode(' ', $comment_classes);                                              // Create class list separated by spaces
-
-  // Date & author
-  $submitted_by = t('by ') .'<span class="comment-name">'.  theme('username', $vars['comment']) .'</span>';
-  $submitted_by .= t(' - ') .'<span class="comment-date">'.  format_date($vars['comment']->timestamp, 'small') .'</span>';     // Format date as small, medium, or large
-  $vars['submitted'] = $submitted_by;
 }
 
 
@@ -218,6 +234,11 @@ function fusion_core_preprocess_comment_wrapper(&$vars) {
 function fusion_core_preprocess_block(&$vars) {
   global $theme_info, $user;
   static $regions, $sidebar_first_width, $sidebar_last_width, $grid_name, $grid_width, $grid_fixed;
+
+  // Do not process blocks outside defined regions
+  if (!in_array($vars['block']->region, array_keys($theme_info->info['regions']))) {
+    return;
+  }
 
   // Initialize block region grid info once per page
   if (!isset($regions)) {
@@ -240,10 +261,10 @@ function fusion_core_preprocess_block(&$vars) {
   if (!isset($vars['skinr']) || (strpos($vars['skinr'], $grid_name) === false)) {
     // Stack blocks vertically in sidebars by setting to full sidebar width
     if ($vars['block']->region == 'sidebar_first') {
-      $width = $sidebar_first_width;
+      $width = ($grid_fixed) ? $sidebar_first_width : $grid_width;  // Sidebar width or 100% (if fluid)
     }
     elseif ($vars['block']->region == 'sidebar_last') {
-      $width = $sidebar_last_width;
+      $width = ($grid_fixed) ? $sidebar_last_width : $grid_width;  // Sidebar width or 100% (if fluid)
     }
     else {
       // Default block width = region width divided by total blocks, adding any extra width to last block
@@ -258,7 +279,7 @@ function fusion_core_preprocess_block(&$vars) {
      ($vars['block']->module == 'menu' || ($vars['block']->module == 'user' && $vars['block']->delta == 1))) {
     $superfish = ' sf-menu';
     $superfish .= (strpos($vars['skinr'], 'superfish-vertical')) ? ' sf-vertical' : '';
-    $vars['block']->content = preg_replace('/^<ul class="menu/i', '<ul class="menu' . $superfish, $vars['block']->content, 1);
+    $vars['block']->content = preg_replace('/<ul class="menu/i', '<ul class="menu' . $superfish, $vars['block']->content, 1);
   }
 
   // Add block edit links for admins
@@ -369,17 +390,18 @@ function fusion_core_theme() {
  * Row & block theme functions
  * Adds divs to elements in page.tpl.php
  */
-function fusion_core_grid_row($element, $name, $class='', $width='') {
+function fusion_core_grid_row($element, $name, $class='', $width='', $extra='') {
   $output = '';
+  $extra = ($extra) ? ' ' . $extra : '';
   if ($element) {
     if ($class == 'full-width') {
       $output .= '<div id="' . $name . '-wrapper" class="' . $name . '-wrapper full-width">' . "\n";
-      $output .= '<div id="' . $name . '" class="' . $name . ' row ' . $width . '">' . "\n";
+      $output .= '<div id="' . $name . '" class="' . $name . ' row ' . $width . $extra . '">' . "\n";
     }
     else {
-      $output .= '<div id="' . $name . '" class="' . $name . ' row ' . $class . ' ' . $width . '">' . "\n";
+      $output .= '<div id="' . $name . '" class="' . $name . ' row ' . $class . ' ' . $width . $extra . '">' . "\n";
     }
-    $output .= '<div id="' . $name . '-inner" class="' . $name . '-inner inner">' . "\n";
+    $output .= '<div id="' . $name . '-inner" class="' . $name . '-inner inner clearfix">' . "\n";
     $output .= $element;
     $output .= '</div><!-- /' . $name . '-inner -->' . "\n";
     $output .= '</div><!-- /' . $name . ' -->' . "\n";
@@ -393,7 +415,7 @@ function fusion_core_grid_block($element, $name) {
   $output = '';
   if ($element) {
     $output .= '<div id="' . $name . '" class="' . $name . ' block">' . "\n";
-    $output .= '<div id="' . $name . '-inner" class="' . $name . '-inner inner">' . "\n";
+    $output .= '<div id="' . $name . '-inner" class="' . $name . '-inner inner clearfix">' . "\n";
     $output .= $element;
     $output .= '</div><!-- /' . $name . '-inner -->' . "\n";
     $output .= '</div><!-- /' . $name . ' -->' . "\n";

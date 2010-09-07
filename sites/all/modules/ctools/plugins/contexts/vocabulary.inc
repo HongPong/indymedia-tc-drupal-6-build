@@ -1,5 +1,5 @@
 <?php
-// $Id: vocabulary.inc,v 1.3.2.1 2009/10/01 22:00:08 merlinofchaos Exp $
+// $Id: vocabulary.inc,v 1.3.2.3 2010/07/05 22:48:34 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,19 +8,18 @@
  */
 
 /**
- * Implementation of specially named hook_ctools_contexts().
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_vocabulary_ctools_contexts() {
-  return array(
-    'title' => t("Taxonomy vocabulary"),
-    'description' => t('A single taxonomy vocabulary object.'),
-    'context' => 'ctools_context_create_vocabulary',
-    'settings form' => 'ctools_context_vocabulary_settings_form',
-    'settings form validate' => 'ctools_context_vocabulary_settings_form_validate',
-    'keyword' => 'vocabulary',
-    'context name' => 'vocabulary',
-  );
-}
+$plugin = array(
+  'title' => t("Taxonomy vocabulary"),
+  'description' => t('A single taxonomy vocabulary object.'),
+  'context' => 'ctools_context_create_vocabulary',
+  'settings form' => 'ctools_context_vocabulary_settings_form',
+  'settings form validate' => 'ctools_context_vocabulary_settings_form_validate',
+  'keyword' => 'vocabulary',
+  'context name' => 'vocabulary',
+);
 
 /**
  * It's important to remember that $conf is optional here, because contexts
@@ -57,7 +56,7 @@ function ctools_context_vocabulary_settings_form($conf) {
     '#title' => t('Vocabulary'),
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => isset($conf['vids']) ? $conf['vids'] : array(),
+    '#default_value' => isset($conf['vid']) ? $conf['vid'] : array(),
     '#prefix' => '<div class="clear-block">',
     '#suffix' => '</div>',
     '#description' => t('Select the vocabulary for this form.'),

@@ -1,19 +1,18 @@
 <?php
-// $Id: node_form_input_format.inc,v 1.1 2009/04/18 02:00:35 merlinofchaos Exp $
+// $Id: node_form_input_format.inc,v 1.1.2.2 2010/04/14 21:02:12 merlinofchaos Exp $
 
 /**
- * Implementation of specially named hook_ctools_content_types()
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_node_form_input_format_ctools_content_types() {
-  return array(
-    'single' => TRUE,
-    'icon' => 'icon_node_form.png',
-    'title' => t('Node form input format'),
-    'description' => t('Input format for the body field on a node.'),
-    'required context' => new ctools_context_required(t('Form'), 'node_form'),
-    'category' => t('Form'),
-  );
-}
+$plugin = array(
+  'single' => TRUE,
+  'icon' => 'icon_node_form.png',
+  'title' => t('Node form input format'),
+  'description' => t('Input format for the body field on a node.'),
+  'required context' => new ctools_context_required(t('Form'), 'node_form'),
+  'category' => t('Form'),
+);
 
 function ctools_node_form_input_format_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
@@ -23,7 +22,7 @@ function ctools_node_form_input_format_content_type_render($subtype, $conf, $pan
   $block->delta = 'format-options';
 
   if (isset($context->form)) {
-    if (!empty($context->form->form_id) && !empty($context->form['body_filter']['format'])) {
+    if (!empty($context->form['form_id']) && !empty($context->form['body_filter']['format'])) {
       // remove the fieldset
       unset($context->form['body_filter']['format']['#type']);
       $block->content = drupal_render($context->form['body_filter']['format']);

@@ -1,20 +1,19 @@
 <?php
-// $Id: node_form_menu.inc,v 1.1 2009/04/18 02:00:35 merlinofchaos Exp $
+// $Id: node_form_menu.inc,v 1.1.2.2 2010/04/14 21:02:12 merlinofchaos Exp $
 
-/**
- * Implementation of specially named hook_ctools_content_types()
- */
-function ctools_node_form_menu_ctools_content_types() {
-  if (module_exists('menu')) {
-    return array(
-      'single' => TRUE,
-      'icon' => 'icon_node_form.png',
-      'title' => t('Node form menu settings'),
-      'description' => t('Menu settings on the Node form.'),
-      'required context' => new ctools_context_required(t('Form'), 'node_form'),
-      'category' => t('Form'),
-    );
-  }
+if (module_exists('menu')) {
+  /**
+   * Plugins are described by creating a $plugin array which will be used
+   * by the system that includes this file.
+   */
+  $plugin = array(
+    'single' => TRUE,
+    'icon' => 'icon_node_form.png',
+    'title' => t('Node form menu settings'),
+    'description' => t('Menu settings on the Node form.'),
+    'required context' => new ctools_context_required(t('Form'), 'node_form'),
+    'category' => t('Form'),
+  );
 }
 
 function ctools_node_form_menu_content_type_render($subtype, $conf, $panel_args, &$context) {
@@ -25,7 +24,7 @@ function ctools_node_form_menu_content_type_render($subtype, $conf, $panel_args,
   $block->delta = 'menu-options';
 
   if (isset($context->form)) {
-    if (!empty($context->form->form_id) && !empty($context->form['menu']['#access'])) {
+    if (!empty($context->form['form_id']) && !empty($context->form['menu']['#access'])) {
       // remove the fieldset
       unset($context->form['menu']['#type']);
       $context->form['menu']['link_title']['#size'] /= 2;

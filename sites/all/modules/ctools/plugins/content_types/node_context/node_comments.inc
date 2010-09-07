@@ -1,26 +1,24 @@
 <?php
-// $Id: node_comments.inc,v 1.2 2009/05/20 23:26:45 merlinofchaos Exp $
+// $Id: node_comments.inc,v 1.2.2.5 2010/07/23 17:47:12 merlinofchaos Exp $
 
-/**
- * Plugin declaration function - returns a plugin definition array that
- * describes the content type.
- */
-function ctools_node_comments_ctools_content_types() {
-  if (module_exists('comment')) {
-    return array(
-      'single' => TRUE,
-      'title' => t('Node comments'),
-      'icon' => 'icon_node.png',
-      'description' => t('The comments of the referenced node.'),
-      'required context' => new ctools_context_required(t('Node'), 'node'),
-      'category' => t('Node'),
-      'defaults' => array(
-        'mode' => variable_get('comment_default_mode', COMMENT_MODE_THREADED_EXPANDED),
-        'order' => variable_get('comment_default_order', COMMENT_ORDER_NEWEST_FIRST),
-        'comments_per_page' => variable_get('comment_default_per_page', '50'),
-      ),
-    );
-  }
+if (module_exists('comment')) {
+  /**
+   * Plugins are described by creating a $plugin array which will be used
+   * by the system that includes this file.
+   */
+  $plugin = array(
+    'single' => TRUE,
+    'title' => t('Node comments'),
+    'icon' => 'icon_node.png',
+    'description' => t('The comments of the referenced node.'),
+    'required context' => new ctools_context_required(t('Node'), 'node'),
+    'category' => t('Node'),
+    'defaults' => array(
+      'mode' => variable_get('comment_default_mode', COMMENT_MODE_THREADED_EXPANDED),
+      'order' => variable_get('comment_default_order', COMMENT_ORDER_NEWEST_FIRST),
+      'comments_per_page' => variable_get('comment_default_per_page', '50'),
+    ),
+  );
 }
 
 function ctools_node_comments_content_type_render($subtype, $conf, $panel_args, $context) {
@@ -33,7 +31,7 @@ function ctools_node_comments_content_type_render($subtype, $conf, $panel_args, 
   if (empty($node)) {
     $block->content = t('Node comments go here.');
   }
-  else {
+  else if ($node->comment) {
     $block->content = ctools_comment_render($node, $conf);
     // Update the history table, stating that this user viewed this node.
     node_tag_new($node->nid);
@@ -87,7 +85,7 @@ function ctools_node_comments_content_type_admin_title($subtype, $conf, $context
  */
 function ctools_comment_render($node, $conf) {
   $output = '';
-  if (!user_access('access comments')) {
+  if (!user_access('access comments') || !$node->comment) {
     return;
   }
 
@@ -96,8 +94,16 @@ function ctools_comment_render($node, $conf) {
   $comments_per_page = $conf['comments_per_page'];
 
   // Multiple comment view
-  $query_count = 'SELECT COUNT(*) FROM {comments} WHERE nid = %d';
-  $query = 'SELECT c.cid AS cid, c.pid, c.nid, c.subject, c.comment, c.format, c.timestamp, c.name, c.mail, c.homepage, u.uid, u.name AS registered_name, u.picture, u.data, c.thread, c.status, parent_user.uid as parent_uid, parent_user.data as parent_data, parent_user.name as parent_name, parent_user.picture as parent_picture FROM {comments} c INNER JOIN {users} u ON c.uid = u.uid LEFT OUTER JOIN {comments} parent ON c.pid = parent.cid LEFT OUTER JOIN {users} parent_user ON parent.uid = parent_user.uid WHERE c.nid = %d';
+  $query_count = 'SELECT COUNT(*) FROM {comments} c WHERE nid = %d';
+
+  if (db_column_exists('users', 'signature_format')) {
+    //We run drupal version > 6.13, users table has signature_format column
+    $query = 'SELECT c.cid AS cid, c.pid, c.nid, c.subject, c.comment, c.format, c.timestamp, c.name, c.mail, c.homepage, u.uid, u.name AS registered_name, u.picture, u.signature, u.signature_format, u.data, c.thread, c.status, parent_user.uid as parent_uid, parent_user.data as parent_data, parent_user.name as parent_name, parent_user.picture as parent_picture FROM {comments} c INNER JOIN {users} u ON c.uid = u.uid LEFT OUTER JOIN {comments} parent ON c.pid = parent.cid LEFT OUTER JOIN {users} parent_user ON parent.uid = parent_user.uid WHERE c.nid = %d';
+  }
+  else {
+    //We run outdated drupal version <= 6.13, users table doesn't have signature_format column
+    $query = 'SELECT c.cid AS cid, c.pid, c.nid, c.subject, c.comment, c.format, c.timestamp, c.name, c.mail, c.homepage, u.uid, u.name AS registered_name, u.picture, u.signature, u.data, c.thread, c.status, parent_user.uid as parent_uid, parent_user.data as parent_data, parent_user.name as parent_name, parent_user.picture as parent_picture FROM {comments} c INNER JOIN {users} u ON c.uid = u.uid LEFT OUTER JOIN {comments} parent ON c.pid = parent.cid LEFT OUTER JOIN {users} parent_user ON parent.uid = parent_user.uid WHERE c.nid = %d';
+  }
 
   $query_args = array($node->nid);
   if (!user_access('administer comments')) {
@@ -122,6 +128,8 @@ function ctools_comment_render($node, $conf) {
       $query .= ' ORDER BY SUBSTRING(c.thread, 1, (LENGTH(c.thread) - 1))';
     }
   }
+  $query = db_rewrite_sql($query, 'c', 'cid');
+  $query_count = db_rewrite_sql($query_count, 'c', 'cid');
 
   // Start a form, for use with comment control.
   $result = pager_query($query, $comments_per_page, 0, $query_count, $query_args);

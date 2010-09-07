@@ -1,4 +1,4 @@
-/* $Id: style.css,v 1.1.2.5 2009/12/02 00:47:46 sociotech Exp $ */
+/* $Id: style.css,v 1.1.2.11 2010/07/02 22:11:04 sociotech Exp $ */
 
 /* Margin, Padding, Border Resets
 -------------------------------------------------------------- */
@@ -18,7 +18,7 @@ img, abbr, acronym {
 /* HTML Elements
 -------------------------------------------------------------- */
 p {
-  margin: 0 0 1.25em 0;
+  margin: 1em 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -26,7 +26,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ul, ol, dd {
-  margin-left: 1.5em; /* LTR */
+  margin-bottom: 1.5em;
+  margin-left: 2em; /* LTR */
+}
+
+li ul, li ol {
+  margin-bottom: 0;
 }
 
 ul {
@@ -155,15 +160,17 @@ tr.drag-previous td {
   clear: both;
 }
 
-/* clear floats after last element in a container (also in ie6-fixes.css, ie7-fixes.css) */
+/* clear floats after an element */
+/* (also in ie6-fixes.css, ie7-fixes.css) */
 .clearfix:after,
-.clearfix .inner:after,
-.block .inner:after {
+.clearfix .inner:after {
   clear: both;
   content: ".";
   display: block;
   font-size: 0;
   height: 0;
+  line-height: 0;
+  overflow: auto;
   visibility: hidden;
 }
 
@@ -176,7 +183,10 @@ tr.drag-previous td {
   margin: 0 auto;
 }
 
-.row {
+/* fix layout/background display on floated elements */
+.row,
+.nested,
+.block {
   overflow: hidden;
 }
 
@@ -189,7 +199,6 @@ div.full-width {
 .nested {
   float: left; /* LTR */
   margin: 0;
-  overflow: hidden;
   width: 100%;
 }
 
@@ -218,7 +227,7 @@ div.superfish {
   position: absolute;
   top: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 997;
 }
 
 #grid-mask-overlay .row {
@@ -256,7 +265,7 @@ div.superfish {
   text-align: center;
   top: 22px;
   -webkit-border-radius: 5px;
-  z-index: 1000;
+  z-index: 998;
 }
 
 #grid-mask-toggle.grid-on {
@@ -269,6 +278,10 @@ div.superfish {
 -------------------------------------------------------------- */
 #header-site-info {
   width: auto;
+}
+
+#site-name-wrapper {
+  float: left;   /* LTR */
 }
 
 #site-name,
@@ -332,8 +345,18 @@ div.superfish {
 
 .block ul,
 .block ol {
-  margin-left: 1.5em; /* LTR */
+  margin-left: 2em; /* LTR */
   padding: 0;
+}
+
+.content-inner ul,
+.content-inner ol {
+  margin-bottom: 1.5em;
+}
+
+.content-inner li ul,
+.content-inner li ol {
+  margin-bottom: 0;
 }
 
 .block ul.links {
@@ -360,20 +383,32 @@ ul.links li {
   margin-left: 0; /* LTR */
 }
 
-/* styles for Superfish primary menu */
-.primary-menu .sf-menu {
-  margin-bottom: 0;
+/* remove bullets, float left */
+.primary-menu ul li {
+  float: left; /* LTR */
+  list-style: none;
+  position: relative;
 }
 
-.primary-menu .sf-menu a {
+/* style links, and unlinked parent items (via Special Menu Items module) */
+.primary-menu ul li a,
+.primary-menu ul li .nolink {
+  display: block;
+  padding: 0.75em 1em;
   text-decoration: none;
 }
 
-.primary-menu .sf-menu li:hover,
-.primary-menu .sf-menu li.sfHover,
-.primary-menu .sf-menu a:focus,
-.primary-menu .sf-menu a:hover,
-.primary-menu .sf-menu a:active {
+/* Add cursor style for unlinked parent menu items */
+.primary-menu ul li .nolink {
+  cursor: default;
+}
+
+/* remove outline */
+.primary-menu ul li:hover,
+.primary-menu ul li.sfHover,
+.primary-menu ul a:focus,
+.primary-menu ul a:hover,
+.primary-menu ul a:active {
   outline: 0;
 }
 
@@ -464,22 +499,21 @@ div.fusion-center {
   border: none;
 }
 
+/* Hide second level (and beyond) menu items */
 .fusion-inline-menu .inner ul li.expanded ul {
   display: none;
 }
 
 /* Multi-column menu style with bolded top level menu items */
 .fusion-multicol-menu .inner ul {
+  margin-left: 0; /* LTR */
   text-align: left; /* LTR */
 }
 
 .fusion-multicol-menu .inner ul li {
   border-right: none;
   display: block;
-  float: left; /* LTR */
   font-weight: bold;
-  text-transform: lowercase;
-  width: 150px;
 }
 
 .fusion-multicol-menu .inner ul li.last {
@@ -490,26 +524,30 @@ div.fusion-center {
   padding-right: 0; /* LTR */
 }
 
-.fusion-multicol-menu .inner ul li a {
-  padding: 0 5px;
+.fusion-multicol-menu .inner ul li.expanded,
+.fusion-multicol-menu .inner ul li.leaf {
+  float: left; /* LTR */
+  list-style-image: none;
+  margin-left: 50px; /* LTR */
 }
 
-.fusion-multicol-menu .inner ul li a:hover,
-.fusion-multicol-menu .inner ul li a.active {
+.fusion-multicol-menu .inner ul.menu li.first {
+  margin-left: 0; /* LTR */
 }
 
-.fusion-multicol-menu .inner ul li.expanded {
+.fusion-multicol-menu .inner ul li.expanded li.leaf {
+  float: none;
+  margin-left: 0; /* LTR */
 }
 
 .fusion-multicol-menu .inner ul li.expanded ul {
   display: block;
   margin-left: 0; /* LTR */
-  width: 150px;
 }
 
 .fusion-multicol-menu .inner ul li.expanded ul li {
   border: none;
-  display: block;
+  margin-left: 0; /* LTR */
   text-align: left; /* LTR */
 }
 
@@ -538,16 +576,20 @@ div.fusion-center {
 
 /* List with bottom border
     Fixes a common issue when list items have bottom borders and appear to be
-    doubled when lists end and begin. This removes the extra border-bottom
+    doubled when nested lists end and begin. This removes the extra border-bottom
  */
 .fusion-list-bottom-border .inner ul li {
+  list-style: none;
+  list-style-type: none;
+  list-style-image: none;
+}
+
+.fusion-list-bottom-border .inner ul li,
+.fusion-list-bottom-border .view-content div.views-row {
   padding: 0 0 0 10px; /* LTR */
   border-bottom-style: solid;
   border-bottom-width: 1px;
   line-height: 216.7%; /* 26px */
-  list-style: none;
-  list-style-type: none;
-  list-style-image: none;
 }
 
 .fusion-list-bottom-border .inner ul {
@@ -570,18 +612,23 @@ div.fusion-center {
     This is a common style for menus, which removes the bullet and adds more
     vertical padding for a simple list style
  */
-.fusion-list-vertical-spacing .inner ul {
+.fusion-list-vertical-spacing .inner ul,
+.fusion-list-vertical-spacing div.views-row-first {
   margin-left: 0;
   margin-top: 10px;
 }
 
-.fusion-list-vertical-spacing .inner ul li {
+.fusion-list-vertical-spacing .inner ul li,
+.fusion-list-vertical-spacing div.views-row {
   line-height: 133.3%; /* 16px/12px */
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.fusion-list-vertical-spacing .inner ul li {
   list-style: none;
   list-style-image: none;
   list-style-type: none;
-  margin-bottom: 10px;
-  padding: 0;
 }
 
 .fusion-list-vertical-spacing .inner ul li ul {
@@ -629,7 +676,7 @@ div.fusion-center {
 /* Superfish: vertical menus */
 .superfish-vertical {
   position: relative;
-  z-index: 10;
+  z-index: 9;
 }
 
 ul.sf-vertical {
@@ -738,14 +785,14 @@ ul.pager span.pager-ellipsis {
 }
 
 /* defaults for all form buttons */
-.form-submit {
+form input.form-submit {
   cursor: pointer;
   font-weight: bold;
   margin: 2px;
   padding: 3px 5px;
 }
 
-.form-submit:hover {
+form input.form-submit:hover {
   cursor: pointer;
 }
 
@@ -967,13 +1014,13 @@ html.js .fusion-horiz-login#block-user-0 #user-login-form div#edit-openid-identi
 .block {
   float: left; /* LTR */
   margin-bottom: 1.5em;
-  overflow: hidden;
   width: 100%;
 }
 
-/* only top margins (no gutters) for blocks in the content block */
+/* no gutters for blocks in content region */
 #content-content .inner {
-  margin: 0;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* administrator block edit links */
@@ -1032,7 +1079,7 @@ a.feed-icon img,
 ul.links img,
 th img {
   border: 0;
-  margin: 5px;
+  margin: 0 5px;
 }
 
 /* remove awkward link padding on login/register to comment links */
@@ -1168,49 +1215,44 @@ div.comment ul.links a {
 
 /* Drupal Messages
 /-------------------------------------------------------------- */
-div.messages,
-div.messages.status {
-  background-color: #EAF8E4;
-  border: 6px solid #8DC478;
-  color: #3E642F;
-  font-weight: 600;
+div.content-messages div.messages,
+div.content-help div.help {
+  border-style: solid;
+  border-width: 6px;
+  font-weight: bold;
   margin-bottom: 1.5em;
   overflow: hidden;
   padding: 14px;
 }
 
-div.warning,
-div.messages.warning {
+div.content-messages-inner div.status {
+  background-color: #EAF8E4;
+  border-color: #8DC478;
+  color: #3E642F;
+}
+
+div.content-messages-inner div.warning {
   background: #FFFFDD;
-  border: 6px solid #EED300;
+  border-color: #EED300;
   color: #745500;
 }
 
-div.messages a {
-}
-
-div.messages ul {
-  list-style-position: inside;
-}
-
-div.messages em {
-  color: #555555;
-}
-
-div.error {
+div.content-messages-inner div.error {
   background-color: #FFF2F2;
   border-color: #CC0000;
   color: #B20000;
 }
 
 .help,
-div.help {
+div.content-help-inner div.help {
   background-color: #E4EEF8;
-  border: 6px solid #57718A;
+  border-color: #57718A;
   color: #292929;
-  font-weight: 600;
-  overflow: hidden;
-  padding: 10px 16px;
+}
+
+div.messages ul,
+div.content-help .help ul {
+  list-style-position: inside;
 }
 
 div.messages a:link,
@@ -1219,7 +1261,8 @@ div.messages a:visited,
 .help a:visited,
 .help .more-help-link a:link,
 .help .more-help-link a:visited {
-  color: #0066B3;
+  color: #333;
+  text-decoration: underline;
 }
 
 div.messages a:hover,
@@ -1227,8 +1270,10 @@ div.messages a:active,
 .help a:hover,
 .help a:active,
 .help .more-help-link a:hover,
-.help .more-help-link a:active {
-  color: #000;
+.help .more-help-link a:active,
+div.messages em {
+  color: #333;
+  text-decoration: none;
 }
 
 #content-region ul.tips li {
@@ -1238,15 +1283,6 @@ div.messages a:active,
   list-style-position: inside;
 }
 
-/* TODO: what are these? */
-.tips {
-}
-
-.marker {
-}
-
-.description {
-}
 
 /* Welcome Page
 /-------------------------------------------------------------- */
@@ -1254,12 +1290,27 @@ div.messages a:active,
   clear: both;
 }
 
+
 /* Maintenance Page
 /-------------------------------------------------------------- */
 /* let site name & slogan drop under logo */
-.in-maintenance #logo {
+.in-maintenance .page #logo {
   float: none;
 }
+
+/* default margins for logo and site name */
+.in-maintenance .page .header-site-info {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+/* default padding with no db */
+.db-offline .page .header-group-inner,
+.db-offline .page .main-inner {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 
 /* Poll
 /-------------------------------------------------------------- */
@@ -1296,6 +1347,43 @@ div.view div.views-admin-links li {
   background: transparent;
 }
 
+/* Reset any list/link styling on views admin links */
+div.view div.views-admin-links ul.links,
+div.view div.views-admin-links ul.links li,
+div.view div.views-admin-links ul.links li a:link,
+div.view div.views-admin-links ul.links li a:visited,
+div.view div.views-admin-links ul.links li a:hover,
+div.view div.views-admin-links ul.links li a:focus {
+  background-image: none;
+  border: 0;
+  display: inline;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+}
+
+div.view div.views-admin-links ul.links li {
+  list-style: none;
+  list-style-image: none;
+}
+
+div.view div.views-admin-links ul.links li a:link,
+div.view div.views-admin-links ul.links li a:visited {
+  background-color: #fff;
+  color: #000;
+  filter: alpha(opacity=75);
+  -khtml-opacity: 0.75;
+	-moz-opacity: 0.75;
+  opacity: 0.75;
+  padding: 3px;
+}
+
+div.view div.views-admin-links ul.links li a:hover,
+div.view div.views-admin-links ul.links li a:focus {
+  text-decoration: underline;
+}
+
 
 /* Ubercart
 /-------------------------------------------------------------- */
@@ -1316,6 +1404,11 @@ div.view div.views-admin-links li {
   float: none;
   margin-left: 0;
   padding-left: 0;
+}
+
+/* limit quantity field width */
+.add-to-cart .form-text[name=qty] {
+  width: 25px;
 }
 
 /* category grid products */
@@ -1355,7 +1448,6 @@ div.view div.views-admin-links li {
 
 .category-grid-products .form-item .form-text {
   margin: 0;
-  width: 25px;
 }
 
 .category-grid-products .catalog-grid-title {
@@ -1375,7 +1467,14 @@ div.view div.views-admin-links li {
   text-align: center;
 }
 
-/* Vertical tabs */
+.uc-price-list_price,
+.uc-price-list {
+  text-decoration: line-through;
+}
+
+
+/* Vertical tabs
+/-------------------------------------------------------------- */
 .vertical-tabs {
   margin-left: 0;
 }
@@ -1392,4 +1491,132 @@ div.view div.views-admin-links li {
 
 .vertical-tabs ul li.last {
   border-bottom: none;
+}
+
+.vertical-tabs-list li a:link,
+.vertical-tabs-list li a:visited,
+.vertical-tabs-list li a:hover,
+.vertical-tabs-list li a:active {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+}
+
+
+/* Quicktabs
+/-------------------------------------------------------------- */
+.quicktabs .block {
+  float: none;   /* keep content in div */
+}
+
+
+/* Views admin links
+/-------------------------------------------------------------- */
+.block div.view div.views-admin-links {
+  margin-top: 0;
+}
+
+
+/* Skinr preview
+/-------------------------------------------------------------- */
+html.js span.preview-icon {
+  background: url(../images/skinrpreviews/skinr-image-preview.png) no-repeat bottom right;
+  cursor: help;
+  display: inline-block;
+  height: 20px;
+  margin: 0 0 -6px 3px;
+  width: 20px;
+}
+
+span.preview-icon {
+  display: block;
+  text-indent: -9000px;
+}
+
+#screenshot {
+  background: #333;
+  color: #333;
+  display: block;
+  height: 190px;
+  padding: 5px 5px 0 5px;
+  position: absolute;
+  z-index: 100;
+  box-shadow: 3px 3px 3px #999;
+  -moz-border-radius: 3px;
+  -moz-box-shadow: 3px 3px 3px #999;
+  -webkit-border-radius: 3px;
+  -webkit-box-shadow: 3px 3px 3px #999;
+}
+
+#screenshot .screenshot-caption {
+  bottom: 0;
+  color: #fff;
+  height: 30px;
+  font-weight: bold;
+  line-height: 100%;
+  margin: 0 0 -3px -5px;
+  overflow: hidden;
+  padding: 0 10px;
+  position: absolute;
+  text-align: center;
+  z-index: 100;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+#screenshot .screenshot-preview {
+  background: #333;
+  display: block;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 100;
+}
+
+/* Skinr image preview - General styles */
+#screenshot .fusion-general-styles-fusion-callout {
+  background: url(../images/skinrpreviews/fusion-general-styles-fusion-callout.png) no-repeat;
+}
+
+#screenshot .fusion-general-styles-fusion-padding {
+  background: url(../images/skinrpreviews/fusion-general-styles-fusion-padding.png) no-repeat;
+}
+
+#screenshot .fusion-general-styles-fusion-border {
+  background: url(../images/skinrpreviews/fusion-general-styles-fusion-border.png) no-repeat;
+}
+
+#screenshot .fusion-general-styles-bold-links {
+  background: url(../images/skinrpreviews/fusion-general-styles-bold-links.png) no-repeat;
+}
+
+#screenshot .fusion-general-styles-equal-heights {
+  background: url(../images/skinrpreviews/fusion-general-styles-equal-heights.png) no-repeat;
+}
+
+/* Skinr image preview - Stackable list/menu styles */
+#screenshot .list-styles-bottom-border {
+  background: url(../images/skinrpreviews/list-styles-bottom-border.png) no-repeat;
+}
+
+#screenshot .list-styles-extra-vertical-spacing {
+  background: url(../images/skinrpreviews/list-styles-extra-vertical-spacing.png) no-repeat;
+}
+
+/* Skinr image preview - Stackable list/menu styles */
+#screenshot .fusion-menu-fusion-inline-menu {
+  background: url(../images/skinrpreviews/fusion-menu-fusion-inline-menu.png) no-repeat;
+}
+
+#screenshot .fusion-menu-fusion-multicol-menu {
+  background: url(../images/skinrpreviews/fusion-menu-fusion-multicol-menu.png) no-repeat;
+}
+
+/* Skinr image preview - Superfish menu styles */
+#screenshot .fusion-superfish-superfish-vertical {
+  background: url(../images/skinrpreviews/fusion-superfish-superfish-vertical.png) no-repeat;
+}
+
+/* Skinr image preview - User login block styles */
+#screenshot .fusion-login-fusion-horiz-login {
+  background: url(../images/skinrpreviews/fusion-login-fusion-horiz-login.png) no-repeat;
 }

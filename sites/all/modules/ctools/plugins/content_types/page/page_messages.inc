@@ -1,5 +1,5 @@
 <?php
-// $Id: page_messages.inc,v 1.1 2009/08/17 21:23:13 merlinofchaos Exp $
+// $Id: page_messages.inc,v 1.1.2.2 2010/02/02 21:49:21 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,17 +8,17 @@
  */
 
 /**
- * Implementation of hook_ctools_content_types()
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_page_messages_ctools_content_types() {
-  return array(
-    'title' => t('Status messages'),
-    'single' => TRUE,
-    'icon' => 'icon_page.png',
-    'description' => t('Add the status messages of the current page as content.'),
-    'category' => t('Page elements'),
-  );
-}
+$plugin = array(
+  'title' => t('Status messages'),
+  'single' => TRUE,
+  'icon' => 'icon_page.png',
+  'description' => t('Add the status messages of the current page as content.'),
+  'category' => t('Page elements'),
+  'render last' => TRUE,
+);
 
 /**
  * Output function for the 'page_messages' content type.
@@ -26,11 +26,8 @@ function ctools_page_messages_ctools_content_types() {
  * Outputs the breadcrumb for the current page.
  */
 function ctools_page_messages_content_type_render($subtype, $conf, $panel_args) {
-  $token = '<!-- ctools-page-messages -->';
-  ctools_set_page_token($token, 'variable', 'messages');
-
   $block = new stdClass();
-  $block->content = $token;
+  $block->content = theme('status_messages');
 
   return $block;
 }

@@ -1,4 +1,4 @@
-; $Id: fusion_core.info,v 1.1.2.4 2009/12/02 00:47:46 sociotech Exp $
+; $Id: fusion_core.info,v 1.1.2.9 2010/07/04 01:48:17 sociotech Exp $
 
 name = Fusion Core
 description = <a href="http://drupal.org/project/fusion">Fusion Core</a> is the grid-enabled base theme for powerful sub-themes.  With the <a href="http://drupal.org/project/skinr">Skinr</a> module, it enables easy point-and-click theming. By <a href="http://www.topnotchthemes.com">TopNotchThemes</a>
@@ -11,8 +11,6 @@ stylesheets[all][] = css/superfish.css
 stylesheets[all][] = css/superfish-navbar.css
 stylesheets[all][] = css/superfish-vertical.css
 
-scripts[] = js/jquery.overlabel.js
-scripts[] = js/jquery.equalheights.js
 scripts[] = js/jquery.bgiframe.min.js
 scripts[] = js/hoverIntent.js
 scripts[] = js/supposition.js
@@ -118,7 +116,7 @@ skinr[grid12-width][options][9][label] = 9 units wide (720px/75%)
 skinr[grid12-width][options][9][class] = grid12-9
 skinr[grid12-width][options][10][label] = 10 units wide (800px/83.33%)
 skinr[grid12-width][options][10][class] = grid12-10
-skinr[grid12-width][options][11][label] = 11 units wide (680px/91.67%)
+skinr[grid12-width][options][11][label] = 11 units wide (880px/91.67%)
 skinr[grid12-width][options][11][class] = grid12-11
 skinr[grid12-width][options][12][label] = 12 units wide (960px/100%)
 skinr[grid12-width][options][12][class] = grid12-12
@@ -150,25 +148,39 @@ skinr[fusion-general-styles][title] = General styles
 skinr[fusion-general-styles][type] = checkboxes
 skinr[fusion-general-styles][description] = These are some generally useful options for blocks
 skinr[fusion-general-styles][features][] = block
+skinr[fusion-general-styles][features][] = panels_display
 skinr[fusion-general-styles][features][] = panels_pane
-skinr[fusion-general-styles][options][1][label] = Text: large, bold callout style
+skinr[fusion-general-styles][features][] = panels_panel
+skinr[fusion-general-styles][options][1][label] = <span class="preview-text">Text: large, bold callout style <span class="preview-icon" id="fusion-general-styles-fusion-callout"></span></span>
 skinr[fusion-general-styles][options][1][class] = fusion-callout
-skinr[fusion-general-styles][options][2][label] = Links: bold all links
+skinr[fusion-general-styles][options][2][label] = <span class="preview-text">Links: bold all links <span class="preview-icon" id="fusion-general-styles-bold-links"></span></span>
 skinr[fusion-general-styles][options][2][class] = fusion-bold-links
-skinr[fusion-general-styles][options][3][label] = Padding: add 30px extra padding inside block
+skinr[fusion-general-styles][options][3][label] = <span class="preview-text">Padding: add 30px extra padding inside block <span class="preview-icon" id="fusion-general-styles-fusion-padding"></span></span>
 skinr[fusion-general-styles][options][3][class] = fusion-padding
-skinr[fusion-general-styles][options][4][label] = Border: add 1px border and 10px padding
+skinr[fusion-general-styles][options][4][label] = <span class="preview-text">Border: add 1px border and 10px padding <span class="preview-icon" id="fusion-general-styles-fusion-border"></span></span>
 skinr[fusion-general-styles][options][4][class] = fusion-border
-skinr[fusion-general-styles][options][5][label] = Equal heights: equalize the heights of blocks with this style in the same region
-skinr[fusion-general-styles][options][5][class] = equal-heights
+
+; General style - Equal heights
+skinr[fusion-equal-heights][title] = Equal heights
+skinr[fusion-equal-heights][type] = checkboxes
+skinr[fusion-equal-heights][description] = Make blocks in a region the same height
+skinr[fusion-equal-heights][features][] = block
+skinr[fusion-equal-heights][features][] = panels_display
+skinr[fusion-equal-heights][features][] = panels_pane
+skinr[fusion-equal-heights][features][] = panels_panel
+skinr[fusion-equal-heights][scripts][] = js/jquery.equalheights.js
+skinr[fusion-equal-heights][options][1][label] = <span class="preview-text">Equal heights: equalize the heights of blocks with this style in the same region <span class="preview-icon" id="fusion-general-styles-equal-heights"></span></span>
+skinr[fusion-equal-heights][options][1][class] = equal-heights
 
 ; List styles
 skinr[fusion-multicol][title] = List columns
 skinr[fusion-multicol][type] = select
 skinr[fusion-multicol][description] = Put items in lists (menus, list views, etc.) in multiple columns
 skinr[fusion-multicol][features][] = block
+skinr[fusion-multicol][features][] = panels_display
 skinr[fusion-multicol][features][] = panels_pane
-skinr[fusion-multicol][features][] = vieww_view
+skinr[fusion-multicol][features][] = panels_panel
+skinr[fusion-multicol][features][] = views_view
 skinr[fusion-multicol][options][1][label] = 2-column list/menu (50%/50%)
 skinr[fusion-multicol][options][1][class] = fusion-2-col-list clearfix
 skinr[fusion-multicol][options][2][label] = 3-column list/menu (33%/33%/33%)
@@ -179,21 +191,25 @@ skinr[fusion-menu][title] = Menu layout
 skinr[fusion-menu][type] = radios
 skinr[fusion-menu][description] = Different layouts and alignment options for your menus
 skinr[fusion-menu][features][] = block
+skinr[fusion-menu][features][] = panels_display
 skinr[fusion-menu][features][] = panels_pane
-skinr[fusion-menu][options][1][label] = Single line menu with separators
+skinr[fusion-menu][features][] = panels_panel
+skinr[fusion-menu][options][1][label] = <span class="preview-text">Single line menu with separators <span class="preview-icon" id="fusion-menu-fusion-inline-menu"></span></span>
 skinr[fusion-menu][options][1][class] = fusion-inline-menu
-skinr[fusion-menu][options][2][label] = Multi-column menu with bold headers (set menu items to Expanded)
+skinr[fusion-menu][options][2][label] = <span class="preview-text">Multi-column menu with bold headers (set menu items to Expanded) <span class="preview-icon" id="fusion-menu-fusion-multicol-menu"></span></span>
 skinr[fusion-menu][options][2][class] = fusion-multicol-menu clearfix
 
 ; Stackable list/menu styles
 skinr[fusion-list-styles][title] = List/menu styles
 skinr[fusion-list-styles][type] = checkboxes
 skinr[fusion-list-styles][features][] = block
+skinr[fusion-list-styles][features][] = panels_display
 skinr[fusion-list-styles][features][] = panels_pane
+skinr[fusion-list-styles][features][] = panels_panel
 skinr[fusion-list-styles][features][] = views_view
-skinr[fusion-list-styles][options][1][label] = Bottom border (no bullets)
+skinr[fusion-list-styles][options][1][label] = <span class="preview-text">Bottom border (no bullets) <span class="preview-icon" id="list-styles-bottom-border"></span></span>
 skinr[fusion-list-styles][options][1][class] = fusion-list-bottom-border
-skinr[fusion-list-styles][options][2][label] = Extra vertical spacing (no bullets)
+skinr[fusion-list-styles][options][2][label] = <span class="preview-text">Extra vertical spacing (no bullets) <span class="preview-icon" id="list-styles-extra-vertical-spacing"></span></span>
 skinr[fusion-list-styles][options][2][class] = fusion-list-vertical-spacing
 
 ; Superfish menu styles
@@ -201,10 +217,8 @@ skinr[fusion-superfish][title] = Superfish menu styles
 skinr[fusion-superfish][type] = radios
 skinr[fusion-superfish][description] = Superfish dropdown menus (must also set menu items to Expanded)
 skinr[fusion-superfish][features][] = block
-;skinr[fusion-superfish][options][1][label] = Standard horizontal menu with dropdowns
-;skinr[fusion-superfish][options][1][class] = superfish
-skinr[fusion-superfish][options][2][label] = Vertical menu (for sidebar blocks)
-skinr[fusion-superfish][options][2][class] = superfish superfish-vertical
+skinr[fusion-superfish][options][1][label] = <span class="preview-text">Vertical menu (for sidebar blocks) <span class="preview-icon" id="fusion-superfish-superfish-vertical"></span></span>
+skinr[fusion-superfish][options][1][class] = superfish superfish-vertical
 
 ; Image styles
 skinr[fusion-float-imagefield][title] = Image floating styles
@@ -222,13 +236,16 @@ skinr[fusion-float-imagefield][options][2][class] = fusion-float-imagefield-righ
 skinr[fusion-login][title] = User login block styles
 skinr[fusion-login][type] = radios
 skinr[fusion-login][features][] = block
+skinr[fusion-login][features][] = panels_display
 skinr[fusion-login][features][] = panels_pane
-skinr[fusion-login][options][1][label] = Horizontal: puts user login block on a single line with label overlays (good for Header Top region)
+skinr[fusion-login][features][] = panels_panel
+skinr[fusion-login][scripts][] = js/jquery.overlabel.js
+skinr[fusion-login][options][1][label] = <span class="preview-text">Horizontal: puts user login block on a single line with label overlays (good for Header Top region) <span class="preview-icon" id="fusion-login-fusion-horiz-login"></span></span>
 skinr[fusion-login][options][1][class] = fusion-horiz-login
 
-; Information added by drupal.org packaging script on 2009-12-02
-version = "6.x-1.0-beta3"
+; Information added by drupal.org packaging script on 2010-07-08
+version = "6.x-1.0"
 core = "6.x"
 project = "fusion"
-datestamp = "1259718029"
+datestamp = "1278618609"
 

@@ -1,5 +1,5 @@
 <?php
-// $Id: term.inc,v 1.5.2.1 2009/10/01 22:00:08 merlinofchaos Exp $
+// $Id: term.inc,v 1.5.2.3 2010/04/14 20:37:40 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,27 +8,27 @@
  */
 
 /**
- * Implementation of specially named hook_ctools_contexts().
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_term_ctools_contexts() {
-  return array(
-    'title' => t("Taxonomy term"),
-    'description' => t('A single taxonomy term object.'),
-    'context' => 'ctools_context_create_term',
-    'settings form' => 'ctools_context_term_settings_form',
-    'settings form validate' => 'ctools_context_term_settings_form_validate',
-    'settings form submit' => 'ctools_context_term_settings_form_submit',
-    'keyword' => 'term',
-    'context name' => 'term',
-    'convert list' => array(
-      'tid' => t('Term ID'),
-      'name' => t('Term name'),
-      'vid' => t('Vocabulary ID'),
-    ),
-    'convert' => 'ctools_context_term_convert',
-    'js' => array('misc/autocomplete.js'),
-  );
-}
+$plugin = array(
+  'title' => t("Taxonomy term"),
+  'description' => t('A single taxonomy term object.'),
+  'context' => 'ctools_context_create_term',
+  'settings form' => 'ctools_context_term_settings_form',
+  'settings form validate' => 'ctools_context_term_settings_form_validate',
+  'settings form submit' => 'ctools_context_term_settings_form_submit',
+  'keyword' => 'term',
+  'context name' => 'term',
+  'convert list' => array(
+    'tid' => t('Term ID'),
+    'name' => t('Term name'),
+    'description' => t('Term Description'),
+    'vid' => t('Vocabulary ID'),
+  ),
+  'convert' => 'ctools_context_term_convert',
+  'js' => array('misc/autocomplete.js'),
+);
 
 /**
  * It's important to remember that $conf is optional here, because contexts
@@ -45,11 +45,12 @@ function ctools_context_create_term($empty, $data = NULL, $conf = FALSE) {
   if ($conf && isset($data['tid'])) {
     $data = taxonomy_get_term($data['tid']);
   }
-
+  
   if (!empty($data)) {
-    $context->data     = $data;
-    $context->title    = $data->name;
-    $context->argument = $data->tid;
+    $context->data        = $data;
+    $context->title       = $data->name;
+    $context->argument    = $data->tid;
+    $context->description = $data->description;
     return $context;
   }
 }
@@ -60,6 +61,7 @@ function ctools_context_term_settings_form($conf) {
       'vid' => '',
       'tid' => '',
       'term' => '',
+      'description' => '',
     );
   }
 
@@ -164,5 +166,7 @@ function ctools_context_term_convert($context, $type) {
       return $context->data->name;
     case 'vid':
       return $context->data->vid;
+    case 'description':
+      return $context->data->description;
   }
 }

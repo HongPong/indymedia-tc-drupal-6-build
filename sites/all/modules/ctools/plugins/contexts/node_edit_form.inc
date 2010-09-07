@@ -1,5 +1,5 @@
 <?php
-// $Id: node_edit_form.inc,v 1.10.2.2 2009/10/06 18:08:24 merlinofchaos Exp $
+// $Id: node_edit_form.inc,v 1.10.2.7 2010/07/20 20:49:21 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,38 +8,41 @@
  */
 
 /**
- * Implementation of specially named hook_ctools_contexts().
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_node_edit_form_ctools_contexts() {
-  return array(
-    'title' => t("Node edit form"),
-    'description' => t('A node edit form.'),
-    'context' => 'ctools_context_create_node_edit_form',
-    'settings form' => 'ctools_context_node_edit_form_settings_form',
-    'settings form validate' => 'ctools_context_node_edit_form_settings_form_validate',
-    'settings form validate' => 'ctools_context_node_edit_form_settings_form_validate',
-    'settings form submit' => 'ctools_context_node_edit_form_settings_form_submit',
-    'defaults' => array('nid' => ''),
-    'keyword' => 'node_edit',
-    'context name' => 'node_edit_form',
-    'placeholder form' => array(
-      '#type' => 'textfield',
-      '#description' => t('Enter the node ID of a node for this argument:'),
-    ),
-  );
-}
+$plugin = array(
+  'title' => t("Node edit form"),
+  'description' => t('A node edit form.'),
+  'context' => 'ctools_context_create_node_edit_form',
+  'settings form' => 'ctools_context_node_edit_form_settings_form',
+  'settings form validate' => 'ctools_context_node_edit_form_settings_form_validate',
+  'settings form validate' => 'ctools_context_node_edit_form_settings_form_validate',
+  'settings form submit' => 'ctools_context_node_edit_form_settings_form_submit',
+  'defaults' => array('nid' => ''),
+  'keyword' => 'node_edit',
+  'context name' => 'node_edit_form',
+  'convert list' => 'ctools_context_node_edit_convert_list',
+  'convert' => 'ctools_context_node_edit_convert',
+  'placeholder form' => array(
+    '#type' => 'textfield',
+    '#description' => t('Enter the node ID of a node for this argument:'),
+  ),
+);
 
 /**
  * It's important to remember that $conf is optional here, because contexts
  * are not always created from the UI.
  */
 function ctools_context_create_node_edit_form($empty, $node = NULL, $conf = FALSE) {
-  $context = new ctools_context(array('form', 'node_edit', 'node_form', 'node'));
+  static $created;
+  $context = new ctools_context(array('form', 'node_edit', 'node_form', 'node', 'node_edit_form'));
   $context->plugin = 'node_edit_form';
 
-  if ($empty) {
+  if ($empty || (isset($created) && $created)) {
     return $context;
   }
+  $created = TRUE;
 
   if ($conf) {
     // In this case, $node is actually our $conf array.
@@ -174,4 +177,22 @@ function ctools_context_node_edit_form_settings_form_submit($form, &$form_values
 
   // Don't let this be stored.
   unset($form_values['set_identifier']);
+}
+
+/**
+ * Provide a list of ways that this context can be converted to a string.
+ */
+function ctools_context_node_edit_convert_list() {
+  // Pass through to the "node" context convert list.
+  $plugin = ctools_get_context('node');
+  return ctools_context_node_convert_list();
+}
+
+/**
+ * Convert a context into a string.
+ */
+function ctools_context_node_edit_convert($context, $type) {
+  // Pass through to the "node" context convert list.
+  $plugin = ctools_get_context('node');
+  return ctools_context_node_convert($context, $type);
 }

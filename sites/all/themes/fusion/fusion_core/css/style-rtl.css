@@ -1,10 +1,12 @@
+/* $Id: style-rtl.css,v 1.1.2.4 2010/04/08 07:02:59 sociotech Exp $ */
+
 body {
   direction: rtl;
 }
 
 ul, ol, dd {
   margin-left: 0;
-  margin-right: 1.5em;
+  margin-right: 2em;
 }
 
 .nested {
@@ -20,10 +22,14 @@ ul, ol, dd {
   float: left;
 }
 
+#site-name-wrapper {
+  float: right;
+}
+
 .block ul,
 .block ol {
   margin-left: 0;
-  margin-right: 1.5em;
+  margin-right: 2em;
 }
 
 .block ul.links {
@@ -33,6 +39,11 @@ ul, ol, dd {
 /* remove left margin from primary menu list */
 #primary-menu.block ul {
   margin-right: 0;
+}
+
+/* float right */
+.primary-menu ul li {
+  float: right;
 }
 
 .secondary-menu-inner ul.links {
@@ -67,15 +78,27 @@ div.fusion-right {
 
 /* Multi-column menu style with bolded top level menu items */
 .fusion-multicol-menu .inner ul {
+  margin-right: 0;
   text-align: right;
-}
-
-.fusion-multicol-menu .inner ul li {
-  float: right;
 }
 
 .fusion-multicol-menu .inner ul li.last a {
   padding-left: 0;
+}
+
+.fusion-multicol-menu .inner ul li.expanded,
+.fusion-multicol-menu .inner ul li.leaf {
+  float: right;
+  margin-left: 0;
+  margin-right: 50px;
+}
+
+.fusion-multicol-menu .inner ul li.expanded li.leaf {
+  margin-right: 0;
+}
+
+.fusion-multicol-menu .inner ul.menu li.first {
+  margin-right: 0;
 }
 
 .fusion-multicol-menu .inner ul li.expanded ul {
@@ -83,6 +106,7 @@ div.fusion-right {
 }
 
 .fusion-multicol-menu .inner ul li.expanded ul li {
+  margin-right: 0;
   text-align: right;
 }
 
@@ -97,7 +121,8 @@ div.fusion-right {
   float: right;
 }
 
-.fusion-list-bottom-border .inner ul li {
+.fusion-list-bottom-border .inner ul li,
+.fusion-list-bottom-border .view-content div.views-row {
   padding: 0 10px 0 0;
 }
 
@@ -199,5 +224,3 @@ html.js .fusion-horiz-login#block-user-0 #user-login-form div#edit-openid-identi
   padding-left: 5px;
   text-align: left;
 }
-
-

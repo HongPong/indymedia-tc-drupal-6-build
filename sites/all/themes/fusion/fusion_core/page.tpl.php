@@ -1,5 +1,5 @@
 <?php
-// $Id: page.tpl.php,v 1.1.2.3 2009/12/02 00:47:46 sociotech Exp $
+// $Id: page.tpl.php,v 1.1.2.5 2010/04/08 07:02:59 sociotech Exp $
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="<?php print $language->language; ?>" xml:lang="<?php print $language->language; ?>">
 
@@ -17,9 +17,7 @@
   <!--[if lte IE 6]>
   <?php print $ie6_styles; ?>
   <![endif]-->
-  <?php if ($local_styles): ?>
   <?php print $local_styles; ?>
-  <?php endif; ?>
   <?php print $scripts; ?>
 </head>
 
@@ -36,7 +34,7 @@
       <!-- header-group row: width = grid_width -->
       <div id="header-group-wrapper" class="header-group-wrapper full-width">
         <div id="header-group" class="header-group row <?php print $grid_width; ?>">
-          <div id="header-group-inner" class="header-group-inner inner">
+          <div id="header-group-inner" class="header-group-inner inner clearfix">
             <?php print theme('grid_block', theme('links', $secondary_links), 'secondary-menu'); ?>
             <?php print theme('grid_block', $search_box, 'search-box'); ?>
 
@@ -48,11 +46,15 @@
                   <a href="<?php print check_url($front_page); ?>" title="<?php print t('Home'); ?>"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" /></a>
                 </div>
                 <?php endif; ?>
-                <?php if ($site_name): ?>
-                <span id="site-name"><a href="<?php print check_url($front_page); ?>" title="<?php print t('Home'); ?>"><?php print $site_name; ?></a></span>
-                <?php endif; ?>
-                <?php if ($site_slogan): ?>
-                <span id="slogan"><?php print $site_slogan; ?></span>
+                <?php if ($site_name || $site_slogan): ?>
+                <div id="site-name-wrapper" class="clearfix">
+                  <?php if ($site_name): ?>
+                  <span id="site-name"><a href="<?php print check_url($front_page); ?>" title="<?php print t('Home'); ?>"><?php print $site_name; ?></a></span>
+                  <?php endif; ?>
+                  <?php if ($site_slogan): ?>
+                  <span id="slogan"><?php print $site_slogan; ?></span>
+                  <?php endif; ?>
+                </div><!-- /site-name-wrapper -->
                 <?php endif; ?>
               </div><!-- /header-site-info-inner -->
             </div><!-- /header-site-info -->
@@ -70,7 +72,7 @@
       <!-- main row: width = grid_width -->
       <div id="main-wrapper" class="main-wrapper full-width">
         <div id="main" class="main row <?php print $grid_width; ?>">
-          <div id="main-inner" class="main-inner inner">
+          <div id="main-inner" class="main-inner inner clearfix">
             <?php print theme('grid_row', $sidebar_first, 'sidebar-first', 'nested', $sidebar_first_width); ?>
 
             <!-- main group: width = grid_width - sidebar_first_width -->
@@ -139,7 +141,7 @@
       <!-- footer-message row: width = grid_width -->
       <div id="footer-message-wrapper" class="footer-message-wrapper full-width">
         <div id="footer-message" class="footer-message row <?php print $grid_width; ?>">
-          <div id="footer-message-inner" class="footer-message-inner inner">
+          <div id="footer-message-inner" class="footer-message-inner inner clearfix">
             <?php print theme('grid_block', $footer_message, 'footer-message-text'); ?>
           </div><!-- /footer-message-inner -->
         </div><!-- /footer-message -->

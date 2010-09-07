@@ -1,5 +1,5 @@
 <?php
-// $Id: context-task-handler.inc,v 1.23.2.2 2009/10/01 22:26:30 merlinofchaos Exp $
+// $Id: context-task-handler.inc,v 1.23.2.6 2010/06/18 20:16:52 merlinofchaos Exp $
 
 /**
  * @file
@@ -44,7 +44,7 @@ function ctools_context_handler_render($task, $subtask, $contexts, $args, $page 
   foreach ($handlers as $handler) {
     if ($function = page_manager_get_renderer($handler)) {
       if ($info = $function($handler, $contexts, $args)) {
-        drupal_alter('ctools_render', $info, $page, $args, $contexts, $task, $subtask);
+        drupal_alter('ctools_render', $info, $page, $args, $contexts, $task, $subtask, $handler);
         // If we don't own the page, let the caller deal with rendering.
         if (!$page) {
           return $info;
@@ -114,9 +114,22 @@ function ctools_context_handler_pre_render($handler, $contexts, $args) {
   if (user_access('administer page manager') && isset($handler->task)) {
     // Provide a tab to edit this context:
     ctools_include('menu');
+    $task = page_manager_get_task($handler->task);
+
+    $title = !empty($task['tab title']) ? $task['tab title'] : t('Edit @type', array('@type' => $plugin['title']));
+    $trail = array();
+    if (!empty($plugin['tab operation'])) {
+      if (is_array($plugin['tab operation'])) {
+        $trail = $plugin['tab operation'];
+      }
+      else if (function_exists($plugin['tab operation'])) {
+        $trail = $plugin['tab operation']($handler, $contexts, $args);
+      }
+    }
+
     ctools_menu_add_tab(array(
-      'title' => t('Edit @type', array('@type' => $plugin['title'])),
-      'href' => page_manager_edit_url(page_manager_make_task_name($handler->task, $handler->subtask)),
+      'title' => $title,
+      'href' => page_manager_edit_url(page_manager_make_task_name($handler->task, $handler->subtask), $trail),
     ));
   }
 }
@@ -295,6 +308,10 @@ function ctools_context_handler_edit_criteria(&$form, &$form_state) {
   }
 
   ctools_include('context');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_modal_add_plugin_js(ctools_get_access_plugins());
+  ctools_include('context-access-admin');
   $form_state['module'] = 'page_manager_task_handler';
   // Encode a bunch of info into the argument so we can get our cache later
   $form_state['callback argument'] = $form_state['task_name'] . '*' . $form_state['handler']->name;
@@ -302,7 +319,6 @@ function ctools_context_handler_edit_criteria(&$form, &$form_state) {
   $form_state['no buttons'] = TRUE;
   $form_state['contexts'] = ctools_context_handler_get_all_contexts($form_state['task'], $form_state['subtask'], $form_state['handler']);
 
-  ctools_include('context-access-admin');
   $form['markup'] = array(
     '#value' => '<div class="description">' .
     t('If there is more than one variant on a page, when the page is visited each variant is given an opportunity to be displayed. Starting from the first variant and working to the last, each one tests to see if its selection rules will pass. The first variant that its criteria (as specified below) will be used.') .
@@ -356,9 +372,6 @@ function ctools_context_handler_edit_context(&$form, &$form_state) {
     '#value' => theme('ctools_context_list', $cache, t('Summary of contexts')),
   );
 
-  // @todo -- this CSS is actually dependent upon the plugins which means
-  // the plugins need to be able to add it.
-  drupal_add_css(panels_get_path('css/panels_admin.css'));
   $form_state['context_object'] = &$cache;
 }
 

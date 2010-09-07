@@ -1,5 +1,5 @@
 <?php
-// $Id: node_form_publishing.inc,v 1.1 2009/04/18 02:00:35 merlinofchaos Exp $
+// $Id: node_form_publishing.inc,v 1.1.2.2 2010/04/14 21:02:12 merlinofchaos Exp $
 
 /**
  * @file
@@ -8,18 +8,17 @@
  */
 
 /**
- * Implementation of specially named hook_ctools_content_types()
+ * Plugins are described by creating a $plugin array which will be used
+ * by the system that includes this file.
  */
-function ctools_node_form_publishing_ctools_content_types() {
-  return array(
-    'single' => TRUE,
-    'title' => t('Node form publishing options'),
-    'icon' => 'icon_node_form.png',
-    'description' => t('Publishing options on the Node form.'),
-    'required context' => new ctools_context_required(t('Form'), 'node_form'),
-    'category' => t('Form'),
-  );
-}
+$plugin = array(
+  'single' => TRUE,
+  'title' => t('Node form publishing options'),
+  'icon' => 'icon_node_form.png',
+  'description' => t('Publishing options on the Node form.'),
+  'required context' => new ctools_context_required(t('Form'), 'node_form'),
+  'category' => t('Form'),
+);
 
 function ctools_node_form_publishing_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
@@ -29,7 +28,7 @@ function ctools_node_form_publishing_content_type_render($subtype, $conf, $panel
   $block->delta = 'publishing-options';
 
   if (isset($context->form)) {
-    if (!empty($context->form->form_id) && $context->form['options']['#type'] == 'fieldset') {
+    if (!empty($context->form['form_id']) && $context->form['options']['#type'] == 'fieldset') {
       // remove the fieldset
       unset($context->form['options']['#type']);
       $block->content = drupal_render($context->form['options']);

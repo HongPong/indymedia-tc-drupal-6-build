@@ -1,15 +1,12 @@
 <?php
-// $Id: search_result.inc,v 1.1.2.2 2009/10/12 21:39:24 merlinofchaos Exp $
+// $Id: search_result.inc,v 1.1.2.4 2010/07/22 22:26:04 merlinofchaos Exp $
 
-/**
- * Callback function to supply a list of content types.
- */
-function ctools_search_result_ctools_content_types() {
-  if (!module_exists('search')) {
-    return;
-  }
-
-  return array(
+if (module_exists('search')) {
+  /**
+   * Plugins are described by creating a $plugin array which will be used
+   * by the system that includes this file.
+   */
+  $plugin = array(
     'single' => TRUE,
     'title' => t('Search results'),
     'icon' => 'icon_search.png',
@@ -88,6 +85,9 @@ function ctools_search_result_content_type_render($subtype, $conf, $panel_args, 
  */
 function ctools_search_result_content_type_edit_form(&$form, &$form_state) {
   $conf = $form_state['conf'];
+
+  // Add js for collapsible fieldsets manually
+  drupal_add_js('misc/collapse.js');
 
   $types = array();
   foreach (module_implements('search') as $name) {
