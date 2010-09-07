@@ -1,18 +1,21 @@
-$Id: README.txt,v 1.3 2009/12/04 21:17:57 wwalc Exp $
+$Id: README.txt,v 1.3.2.7 2010/03/11 12:39:54 wwalc Exp $
 
 CONTENTS OF THIS FILE
 ---------------------
 
  * Overview
  * Required components
- * More information and licence
+ * More information and license
  * Requirements
  * Installation / Configuration
  * Installation troubleshooting
  * Plugins: Teaser break and Pagebreak
+ * Plugins: MediaEmbed
+ * Plugins: IMCE
  * Uploading images and files
  * How to install CKFinder
  * Modules: Link to content (EXPERIMENTAL)
+ * Setting up filters
  * Upgrading instructions
  * Help & Contribution
  * Credits
@@ -32,7 +35,7 @@ http://ckeditor.com/
 More information and licence
 ----------------------------
 CKEditor - The text editor for internet
-Copyright (C) 2003-2009 CKSource - Frederico Knabben
+Copyright (C) 2003-2010 CKSource - Frederico Knabben
 
 Licensed under the terms of the GNU Lesser General Public License:
     http://www.opensource.org/licenses/lgpl-license.php
@@ -45,7 +48,7 @@ Requirements
 ------------
   - Drupal 6.x
   - PHP 4.3.0 or greater
-  - CKEditor 3.0.2 or greater (http://ckeditor.com/)
+  - CKEditor 3.1 or greater (http://ckeditor.com/)
 
 Installation / Configuration
 -------------------
@@ -75,7 +78,9 @@ Note: this instruction assumes that you install CKEditor in
       <del> <ins> <sub> <sup> <quote> <blockquote> <pre> <address> <code>
       <cite> <embed> <object> <param> <strike> <caption> <tbody>
       Fore easier usage (copying), all tags are below in one line:
-      <a> <p> <span> <div> <h1> <h2> <h3> <h4> <h5> <h6> <img> <map> <area> <hr> <br> <br /> <ul> <ol> <li> <dl> <dt> <dd> <table> <tr> <td> <em> <b> <u> <i> <strong> <del> <ins> <sub> <sup> <quote> <blockquote> <pre> <address> <code> <cite> <embed> <object> <param> <strike> <caption> <tbody> 
+      <a> <p> <span> <div> <h1> <h2> <h3> <h4> <h5> <h6> <img> <map> <area> <hr> <br> <br /> <ul> <ol> <li> <dl> <dt> <dd> <table> <tr> <td> <em> <b> <u> <i> <strong> <del> <ins> <sub> <sup> <quote> <blockquote> <pre> <address> <code> <cite> <embed> <object> <param> <strike> <caption> <tbody>
+      If you're going to use CKEditor with Filtered HTML input format,
+      please read also "Setting up filters" section. 
    7. To have a better control over line breaks, you may disable Line break converter
       in the chosen filter (recommended).
    8. Modify the ckeditor.config.js file to custom your needs (optional).
@@ -124,7 +129,7 @@ Both plugins are automatically enabled.
 
    1. To add 'DrupalBreak' and 'DrupalPageBreak' buttons to the toolbar,
       open sites/all/modules/ckeditor/ckeditor.config.js and add them to the toolbar 
-      definiton (both buttons are enabled in DrupalFiltered and DrupalFull
+      definition (both buttons are enabled in DrupalFiltered and DrupalFull
       toolbars by default).
       The 'DrupalBreak' button will automatically disappear from the toolbar
       on textareas where teaser cannot be created.
@@ -135,6 +140,53 @@ Both plugins are automatically enabled.
       module documentation for detailed installation instructions.
       If you don't install Paging module, the 'DrupalPageBreak' will automatically disappear.
 
+Plugins: MediaEmbed
+-------------------
+MediaEmbed is a simple plugin that can be helpful when embedding Youtube movies (for example).
+To enable it, do the following:
+
+   1. Open /drupal/modules/ckeditor/ckeditor.config.js
+
+   2. Uncomment the following lines (remove "//") in ckeditor.config.js:
+      // config.extraPlugins += (config.extraPlugins ? ',mediaembed' : 'mediaembed' );
+      // CKEDITOR.plugins.addExternal('mediaembed', Drupal.settings.ckeditor.module_path + '/plugins/mediaembed/');
+
+   3. Add button to the toolbar. The button name is: MediaEmbed. 
+      For example if you have a toolbar with an array of buttons defined as follows:
+
+      ['Link','Unlink','Anchor']
+
+      simply add button at the end of array (or somewhere in the middle):
+
+      ['Link','Unlink','MediaEmbed','Anchor']
+
+      (remember about single quotes).
+
+Plugins: IMCE
+-------------------
+CKEditor comes with an IMCE plugin, that adds a button to the toolbar that opens IMCE in a new window.
+This might be helpful if you want to avoid having to open the Image Dialog and then clicking the "Browse Server" button
+and instead open IMCE with a single click. 
+
+To enable it, do the following:
+
+   1. Open /drupal/modules/ckeditor/ckeditor.config.js
+
+   2. Uncomment the following lines (remove "//") in ckeditor.config.js:
+      //config.extraPlugins += (config.extraPlugins ? ',imce' : 'imce' );
+      //CKEDITOR.plugins.addExternal('imce', Drupal.settings.ckeditor.module_path + '/plugins/imce/');
+
+   3. Add button to the toolbar. The button name is: IMCE. 
+      For example if you have a toolbar with an array of buttons defined as follows:
+
+      ['Link','Image']
+
+      simply add button at the end of array (or somewhere in the middle):
+
+      ['Link','Image','IMCE']
+
+      (remember about single quotes).
+
 Uploading images and files
 --------------------------
 
@@ -143,7 +195,7 @@ by using modules like IMCE, WebFM, Image Browser or by using the core upload mod
 
 To select preferred file browser, under "Administer > Site configuration > CKEditor", adjust 
 CKEditor profiles. In each profile you can choose which file browser will be used (in "File browser settings" section).
-Note: to choose IMCE, WebFM or Image Browser you should install an appropiate Drupal module first.
+Note: to choose IMCE, WebFM or Image Browser you should install an appropriate Drupal module first.
 
  How to install CKFinder
 ------------------------
@@ -196,6 +248,11 @@ CKFinder is an AJAX based file manager created by CKEditor developers: http://ck
       (in selected CKEditor profile scroll down to "File browser settings" section).
       In the "File browser settings" section you may also change destination folders for files uploaded with CKFinder.
 
+   6. Locate file named settings.php inside your drupal directory
+      (usually sites/default/settings.php) and set $cookie_domain variable to the
+      appropiate domain (remember to uncomment that line). If you don't do this,
+      CKFinder may show an information that the connector is disabled. 
+
 Modules: Link to content (EXPERIMENTAL)
 ---------------------------------------
 Link to content module can be integrated with CKEditor.
@@ -224,13 +281,42 @@ Then do the following steps to add Linktocontent button to the CKEditor toolbar:
       Both buttons are enabled in DrupalFiltered and DrupalFull toolbars by default.
       If you don't install linktocontent module, both buttons will automatically disappear from the toolbar. 
 
+Setting up filters
+------------------
+In "Administer -> Input formats", Filtered HTML is the default filter. 
+Due to security reasons, enabling Full HTML is only an option for trusted users.
+To take the full advantage of using CKEditor you can extend the list of allowed tags in 
+HTML filter that is enabled in Filtered HTML input format.
+If you not do this, you may notice that created page looks different after saving it.
+
+Unfortunately, even if you extend the list of allowed tags, there is still one problem: 
+Filtered HTML not only strips disallowed tags, but also strips inline style definitions. 
+Basically, it means that you are unable to apply different font color, size, family, align images etc. 
+using CKEditor out of the box. You can solve this problem by creating another input format, 
+that will work in a similar way like Filtered HTML (will only allow specific tags), 
+but in a much better way - i.e. it will not strip inline styles that CKEditor is using when 
+formatting text or images after the page is saved 
+To create such input format, you'll need a so-called filter. Below are listed three 
+the most popular modules that provide HTML filter: 
+
+ - WYSIWYG Filter - seems to be the easiest to install, does not require third-party libraries
+   http://drupal.org/project/wysiwyg_filter
+ - HTML Purifier - the most popular and powerful, although some people claim that it might be a bit slow
+   http://drupal.org/project/htmlpurifier
+ - htmLawed - another alternative, less popular than both modules above
+   http://drupal.org/project/htmLawed
+
+It's up to you which one you decide to use. Just make sure that you'll allow to use only proper 
+inline styles, tags and attributes.
+See also http://drupal.ckeditor.com/filters for the latest version of this instruction.
+
 Upgrading instructions (migration from FCKeditor)
 -------------------------------------------------
    During the installation, CKEditor will check for the existence of FCKeditor module and 
    copy all FCKeditor settings, profiles etc. (to save your time, just disable FCKeditor module 
-   during CKEditor installation, if you unistall FCKeditor module before installing CKEditor, 
+   during CKEditor installation, if you uninstall FCKeditor module before installing CKEditor, 
    all FCKeditor settings will be deleted from the database and CKEditor will not copy them).
-   After installing CKEditor you may unsinstall FCKeditor module.
+   After installing CKEditor you may uninstall FCKeditor module.
 
    If both modules are enabled (CKEditor and FCKeditor) you may get javascript errors, if both editors
    will try to attach to the same textarea, be sure that's not a problem if you have problems after upgrading.

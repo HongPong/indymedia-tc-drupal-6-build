@@ -1,5 +1,5 @@
 <?php
-// $Id: ckeditor.page.inc,v 1.1 2009/12/04 20:36:57 wwalc Exp $
+// $Id: ckeditor.page.inc,v 1.1.2.2 2010/01/14 08:50:08 wwalc Exp $
 /**
  * CKEditor - The text editor for Internet - http://ckeditor.com
  * Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved.
@@ -99,16 +99,20 @@ function ckeditor_help_delegate($path, $arg) {
         array(
           '!adminpath' => l(t('Administer') .' > '. t('Site configuration') .' > '. t('CKEditor'), 'admin/settings/ckeditor'),
         )) .'</li>';
-      $output .= '<li>'. t('For the Rich Text Editing to work you also need to configure your !filterlink for the users that may access Rich Text Editing. Either grant those users Full HTML access or use the following:',
+      $output .= '<li>'. t('For the Rich Text Editing to work you also need to configure your !filterlink for the users that may access Rich Text Editing. Either grant those users Full HTML access or use the following list of tags in the HTML filter:',
         array(
           '!filterlink' => l(t('filters'), 'admin/settings/filters'),
         )) .
-        '<br /><code>'. htmlspecialchars('<a> <p> <span> <div> <h1> <h2> <h3> <h4> <h5> <h6> <img> <map> <area> <hr> <br> <br /> <ul> <ol> <li> <dl> <dt> <dd> <table> <tr> <td> <em> <b> <u> <i> <strong> <font> <del> <ins> <sub> <sup> <quote> <blockquote> <pre> <address> <code> <cite> <embed> <object> <param> <strike> <caption>') .'</code></li>';
+        '<br /><code>'. htmlspecialchars('<a> <p> <span> <div> <h1> <h2> <h3> <h4> <h5> <h6> <img> <map> <area> <hr> <br> <br /> <ul> <ol> <li> <dl> <dt> <dd> <table> <tr> <td> <em> <b> <u> <i> <strong> <font> <del> <ins> <sub> <sup> <quote> <blockquote> <pre> <address> <code> <cite> <embed> <object> <param> <strike> <caption>') .'</code><br />';
+      $output .= t('If you\'re going to use CKEditor with Filtered HTML input format, please read also "Setting up filters" section in !readme',
+        array(
+        '!readme' => l('README.txt', drupal_get_path('module', 'ckeditor') .'/README.txt')
+        )) .'</li>';
       $output .= '<li>'. t('To have a better control over line breaks, you should disable %settingname in the chosen filter (recommended).',
         array(
           '%settingname' => t('Line break converter'),
         )) .'</li>';
-      $output .= '<li>'. t('Modify the %ckconfig file to custom your needs (optional). Available configuration settings are available in the !apidocs.',
+      $output .= '<li>'. t('Modify the %ckconfig file to your custom needs (optional). Available configuration settings are available in the !apidocs.',
         array(
           '%ckconfig' => base_path() . drupal_get_path('module', 'ckeditor') .'/ckeditor/ckeditor.config.js',
           '!apidocs' => l(t('API documentation'), 'http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html')
@@ -141,7 +145,11 @@ function ckeditor_help_delegate($path, $arg) {
 
       $output .= '<h3>'. t('Troubleshooting') .'</h3>';
       $output .= '<p>';
-      $output .= t('Take a look at !listlink when installing CKEditor.', array('!listlink' => l(t('list of common problems'), 'http://drupal.ckeditor.com/troubleshooting')));
+      $output .= t('Take a look at !listlink when installing CKEditor (or check !troubleshooting).',
+        array(
+          '!listlink' => l(t('the list of common problems'), 'http://drupal.ckeditor.com/troubleshooting'),
+          '!troubleshooting' => l('TROUBLESHOOTING.txt', drupal_get_path('module', 'ckeditor') .'/TROUBLESHOOTING.txt')
+        ));
       $output .= ' '. t('If you are looking for more information, have any trouble in configuration or if you found an issue, please visit the !officiallink.', array('!officiallink' => l(t('official project page'), 'http://drupal.org/project/ckeditor')));
       $output .= ' '. t('More information about how to tune up CKEditor for your theme can be found !herelink.', array('!herelink' => l(t('here'), 'http://drupal.fckeditor.net/tricks')));
       $output .= '</p>';

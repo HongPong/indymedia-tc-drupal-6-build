@@ -35,22 +35,22 @@ CKEDITOR.plugins.add( 'drupalbreaks',
 		);
 
 		// Register the toolbar buttons.
-		if ( Drupal.ckeditorTeaserInfo(editor.name) ) {
+		if ( Drupal.ckeditorTeaserInfo(editor.name) || Drupal.settings.ckeditor.teaser == editor.name ) {
 			editor.ui.addButton( 'DrupalBreak',
 				{
 					label : Drupal.t('Insert Teaser Break'),
-					icon : this.path + '/images/drupalbreak.gif',
+					icon : this.path + 'images/drupalbreak.gif',
 					command : 'drupalbreak'
 				});
-		}
 
-		if ( Drupal.ckeditorTeaserInfo(editor.name) && Drupal.settings.ckeditor.pagebreak ) {
-			editor.ui.addButton( 'DrupalPageBreak',
-			{
-				label : Drupal.t( 'Insert Page Break' ),
-				icon : this.path + '/images/drupalpagebreak.gif',
-				command : 'drupalpagebreak'
-			});
+			if ( Drupal.settings.ckeditor.pagebreak ) {
+				editor.ui.addButton( 'DrupalPageBreak',
+						{
+							label : Drupal.t( 'Insert Page Break' ),
+							icon : this.path + 'images/drupalpagebreak.gif',
+							command : 'drupalpagebreak'
+						});
+			}
 		}
 
 		// Register the commands.
