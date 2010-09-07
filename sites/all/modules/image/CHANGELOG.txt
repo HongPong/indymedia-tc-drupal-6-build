@@ -1,4 +1,4 @@
-// $Id: CHANGELOG.txt,v 1.122 2009/09/13 08:01:23 joachim Exp $
+// $Id: CHANGELOG.txt,v 1.144.2.20 2010/08/25 13:35:11 joachim Exp $
 
 Image x.x-x.x, xxxx-xx-xx
 ------------------------
@@ -6,6 +6,62 @@ Image x.x-x.x, xxxx-xx-xx
 
 Image 6.x-1.x, xxxx-xx-xx
 -------------------------
+#207557 by joachim: (Revisited) Fixed update errors due to duplicate data in 
+  Drupal 5 files table.
+#892816 by joachim: Fixed attached image limit not checked if new image 
+  uploaded with the node save button.
+#867386 by joachim: (Followup) Fixed remaining checks for 'Attach' button.
+#790670 by skyredwang: Changed error message for image attach maximum.
+#888578 by Agileware: Fixed block passing empty param to theme function.
+#883338 by joachim: Fixed direct calling of hook_file_download() implementation.
+#867386 by sun: Changed image attach form's 'Attach' button to 'Upload'.
+#868442 by sun, joachim: Code clean-up.
+#824324 by jonathan1055: Fixed theme function allowing duplicate ALT and TITLE 
+ in IMG tag.
+#642052 by joachim: Fixed schema mis-match introduced by image_update_5200().
+#649384 by sp3boy: Fixed gallery thumbnail HTML to pass W3C validation.
+#825130 by joachim: Fixed image attach Views field showing only last attached
+  image per node.
+#412288 by joachim: (Continued) Changed structure of theming functions for 
+  attached images, this time with Views support.
+#841680 by dman: Fixed inappropriate inspection of submitted values in $form 
+  array rather than $form_values in image_admin_settings_validate().
+#703542 by the_real_codecowboy, joachim: Added option for keeping the original
+  file to the create image node from file API function.
+#777966 by joachim: Fixed whitespace in image attach.
+#773888 by joachim: Added a different css class for each attached image.
+#774314 by kylegt: Fixed missing element size on image attach form upload field.
+#741484 by joachim: Fixed missing t() on form text.
+#705582 by joachim: Fixed image gallery default view showing unpublished nodes.
+#412288 by joachim: Changed structure of theming functions for attached images.
+
+
+Image 6.x-1.0-BETA5, 2010-01-16
+-------------------------------
+#625666 by joachim: Added note about what happens when no image title is given.
+#581174 by jonathan1055, joachim | skyredwang: Added ability to limit the number
+  of attached images.
+#680672 by joachim: Fixed mention of 'upload' when user can't create images.
+#680644 by joachim: Cleaned up code in image attach's hook_form_alter().
+by joachim: Added tests for image attach.
+#580864 by joachim: Fixed new nodes not respecting the 'don't attach existing 
+  images' setting.
+#273426 by joachim: Added test for image thumbnails in teasers.
+#575374 by joachim: Fixed image import allowing selection of too big images. 
+#662252 by joachim: Changed description text in image attach form to be plural.
+
+
+Image 6.x-1.0-BETA4, 2009-12-21
+-------------------------------
+#659182 by jonathan1055, joachim: Fixed removal of first attached image on
+  programmatic node save.
+#232557 by joachim: Added thumbnails to list on image import page.
+#630546 by jonathan1055: Fixed attached image not appearing in teaser preview.
+#620234 by unjello: Fixed undefined variable in Views image attach handler.
+#602740 by Vin7: Fixed theme function to take $form by value.
+#592852 by joachim: Fixed SQL error when View attached images field is empty.
+#579320 by joachim: Fixed link to node in attached images block.
+#226121 by sp3boy: Fixed bad logic from previous patch to this issue.
 
 
 Image 6.x-1.0-BETA3, 2009-09-13

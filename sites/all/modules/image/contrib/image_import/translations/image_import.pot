@@ -1,19 +1,19 @@
-# $Id: image_import.pot,v 1.5 2009/09/02 09:18:16 joachim Exp $
+# $Id: image_import.pot,v 1.6 2010/01/06 11:41:20 goofyx Exp $
 #
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
 #  image_import.admin.inc,v 1.3 2009/03/09 02:57:25 sun
-#  image_import.pages.inc,v 1.3 2009/03/09 03:22:43 sun
+#  image_import.pages.inc,v 1.7 2009/12/29 23:12:10 joachim
+#  image_import.info,v 1.4 2008/01/06 22:15:25 drewish
 #  image_import.module,v 1.21 2009/03/09 02:57:25 sun
 #  image_import.install,v 1.7 2009/01/15 02:10:52 sun
-#  image_import.info,v 1.4 2008/01/06 22:15:25 drewish
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-08-29 23:25+0200\n"
+"POT-Creation-Date: 2010-01-06 13:39+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -42,103 +42,111 @@ msgstr ""
 msgid "Your settings are configured correctly, you can import images <a href='!image_import_page'>here</a>."
 msgstr ""
 
-#: image_import.pages.inc:12
+#: image_import.pages.inc:18
 msgid "Not a JPG, GIF or PNG file."
 msgstr ""
 
-#: image_import.pages.inc:23
+#: image_import.pages.inc:25
+msgid "File too big."
+msgstr ""
+
+#: image_import.pages.inc:39
 msgid "You need to configure the import directory on the image import module's <a href='!admin-settings-import'>settings page</a>."
 msgstr ""
 
-#: image_import.pages.inc:56
+#: image_import.pages.inc:72
 msgid "Reproduce directories structure with subgalleries"
 msgstr ""
 
-#: image_import.pages.inc:57
+#: image_import.pages.inc:73
 msgid "A subgallery will be created only if the folder contains at least an image."
 msgstr ""
 
-#: image_import.pages.inc:138
+#: image_import.pages.inc:154
 msgid "Import"
 msgstr ""
 
-#: image_import.pages.inc:144
+#: image_import.pages.inc:160
 msgid "No files were found."
 msgstr ""
 
-#: image_import.pages.inc:156
+#: image_import.pages.inc:175 image_import.info:0
+msgid "Image"
+msgstr ""
+
+#: image_import.pages.inc:175
 msgid "Name"
 msgstr ""
 
-#: image_import.pages.inc:156
+#: image_import.pages.inc:175
 msgid "Size"
 msgstr ""
 
-#: image_import.pages.inc:156
+#: image_import.pages.inc:175
 msgid "Dimensions"
 msgstr ""
 
-#: image_import.pages.inc:184
+#: image_import.pages.inc:207
 msgid "Importing image"
 msgstr ""
 
-#: image_import.pages.inc:238
+#: image_import.pages.inc:264
 msgid "Imported %origname as !link @status [!edit-link]."
 msgstr ""
 
-#: image_import.pages.inc:241
+#: image_import.pages.inc:267
 msgid "(Unpublished)"
 msgstr ""
 
-#: image_import.pages.inc:242;313
+#: image_import.pages.inc:268;342
 msgid "edit"
 msgstr ""
 
-#: image_import.pages.inc:247
+#: image_import.pages.inc:273
 msgid "Error importing %filename."
 msgstr ""
 
-#: image_import.pages.inc:256
+#: image_import.pages.inc:285
 msgid "There was a problem importing files: !bad-list"
 msgstr ""
 
-#: image_import.pages.inc:259
+#: image_import.pages.inc:288
 msgid "There was a problem importing the files."
 msgstr ""
 
-#: image_import.pages.inc:263
+#: image_import.pages.inc:292
 msgid "Successfully imported: !good-list"
 msgstr ""
 
-#: image_import.pages.inc:311
+#: image_import.pages.inc:340
 msgid "Created gallery !link [!edit-link]."
 msgstr ""
 
-#: image_import.pages.inc:318
+#: image_import.pages.inc:347
 msgid "Error creating gallery %gallery_path."
 msgstr ""
 
-#: image_import.pages.inc:371
+#: image_import.pages.inc:403
 msgid "Deleted directories: !dir-list."
 msgstr ""
 
-#: image_import.pages.inc:376
+#: image_import.pages.inc:408
 msgid "No directories were deleted."
 msgstr ""
 
-#: image_import.pages.inc:246;265;317
+#: image_import.pages.inc:272;294;346
 msgid "image_import"
 msgstr ""
 
-#: image_import.pages.inc:246
+#: image_import.pages.inc:272
 msgid "There was an error that prevented %filename from being imported."
 msgstr ""
 
-#: image_import.pages.inc:265
+#: image_import.pages.inc:294
 msgid "Completed image import."
 msgstr ""
 
-#: image_import.pages.inc:317
+#: image_import.pages.inc:346
 msgid "There was an error that prevented gallery %gallery_path from being created."
 msgstr ""
 
@@ -188,9 +196,5 @@ msgstr ""
 
 #: image_import.info:0
 msgid "Allows batches of images to be imported from a directory on the server."
-msgstr ""
-
-#: image_import.info:0
-msgid "Image"
 msgstr ""
 
