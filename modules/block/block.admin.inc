@@ -1,5 +1,4 @@
 <?php
-// $Id: block.admin.inc,v 1.14.2.5 2008/11/24 06:00:02 dries Exp $
 
 /**
  * @file
