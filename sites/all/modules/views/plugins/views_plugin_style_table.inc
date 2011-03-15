@@ -1,5 +1,5 @@
 <?php
-// $Id: views_plugin_style_table.inc,v 1.5.2.6 2010/03/11 00:06:14 merlinofchaos Exp $
+// $Id: views_plugin_style_table.inc,v 1.7.2.3 2010/03/11 00:06:18 merlinofchaos Exp $
 /**
  * @file
  * Contains the table style plugin.
@@ -215,18 +215,6 @@ class views_plugin_style_table extends views_plugin_style {
           '#dependency' => array($id => array($field)),
         );
       }
-      $form['info'][$field]['align'] = array(
-        '#type' => 'select',
-        '#default_value' => !empty($this->options['info'][$field]['align']) ? $this->options['info'][$field]['align'] : '',
-        '#options' => array(
-          '' => t('None'),
-          'views-align-left' => t('Left'),
-          'views-align-center' => t('Center'),
-          'views-align-right' => t('Right'),
-          ),
-        '#process' => array('views_process_dependency'),
-        '#dependency' => array($id => array($field)),
-      );
       $form['info'][$field]['separator'] = array(
         '#type' => 'textfield',
         '#size' => 10,

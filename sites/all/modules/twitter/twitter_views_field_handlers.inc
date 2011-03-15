@@ -63,3 +63,4 @@ class twitter_views_handler_field_profile_image extends views_handler_field {
     return theme('image', $value, '', '', array(), FALSE);
   }
 }
+

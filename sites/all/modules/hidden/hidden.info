@@ -1,13 +1,12 @@
-; $Id: hidden.info,v 1.4 2008/07/01 13:12:15 ekes Exp $
 name = Hidden
 description = "Hide nodes or comments"
 package = Indymedia
 dependencies[] = comment
 core = 6.x
 
-; Information added by drupal.org packaging script on 2010-07-11
+; Information added by drupal.org packaging script on 2011-02-25
 version = "6.x-1.x-dev"
 core = "6.x"
 project = "hidden"
-datestamp = "1278834477"
+datestamp = "1298619376"
 

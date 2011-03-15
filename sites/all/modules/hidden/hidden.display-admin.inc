@@ -1,5 +1,4 @@
 <?php
-// $Id: hidden.display-admin.inc,v 1.2 2008/12/12 19:23:35 ekes Exp $
 
 /**
  * @file

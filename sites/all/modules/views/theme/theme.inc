@@ -1,5 +1,5 @@
 <?php
-// $Id: theme.inc,v 1.73.2.28 2010/04/06 20:08:47 merlinofchaos Exp $
+// $Id: theme.inc,v 1.84.2.14.2.1 2010/12/15 05:24:41 merlinofchaos Exp $
 
 /**
  * @file theme.inc
@@ -62,21 +62,41 @@ function template_preprocess_views_view(&$vars) {
     $vars['classes_array'][] = $vars['css_class'];
   }
 
-  $empty = empty($vars['rows']);
-
-  $vars['header'] = $view->display_handler->render_area('header', $empty);
-  $vars['footer'] = $view->display_handler->render_area('footer', $empty);
-  if ($empty) {
-    $vars['empty'] = $view->display_handler->render_area('empty');
+  if (!$vars['rows']) {
+    $vars['empty']    = $view->display_handler->render_empty();
+    if (!$view->display_handler->get_option('header_empty')) {
+      $vars['header'] = '';
+    }
+    if (!$view->display_handler->get_option('footer_empty')) {
+      $vars['footer'] = '';
+    }
+  }
+  else {
+    $vars['empty']    = '';
+    $header = TRUE;
   }
 
   $vars['exposed']    = !empty($view->exposed_widgets) ? $view->exposed_widgets : '';
+  if (!isset($vars['header'])) {
+    $vars['header']   = $view->display_handler->render_header();
+  }
+  if (!isset($vars['footer'])) {
+    $vars['footer']   = $view->display_handler->render_footer();
+  }
   $vars['more']       = $view->display_handler->render_more_link();
   $vars['feed_icon']  = !empty($view->feed_icon) ? $view->feed_icon : '';
-  $vars['pager']      = $view->query->render_pager();
 
   $vars['attachment_before'] = !empty($view->attachment_before) ? $view->attachment_before : '';
   $vars['attachment_after'] = !empty($view->attachment_after) ? $view->attachment_after : '';
+
+  $vars['pager']      = '';
+
+  $exposed_input = isset($view->exposed_data_raw) ? $view->exposed_data_raw : NULL;
+  if ($view->display_handler->render_pager()) {
+    $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
+    $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
+    $vars['pager']    = theme($pager_theme, $exposed_input, $view->pager['items_per_page'], $view->pager['element']);
+  }
 
   // if administrator, add some links. These used to be tabs, but this is better.
   if (user_access('administer views') && module_exists('views_ui') && empty($view->hide_admin_links) && !variable_get('views_no_hover_links', FALSE)) {
@@ -130,15 +150,15 @@ function template_preprocess_views_view(&$vars) {
           array(
             'view_name' => $view->name,
             'view_display_id' => $view->current_display,
-            'view_args' => implode('/', $view->args),
-            'view_path' => $_GET['q'],
+            'view_args' => check_plain(implode('/', $view->args)),
+            'view_path' => check_plain($_GET['q']),
             // Pass through URL to ensure we get e.g. language prefixes.
 //            'view_base_path' => isset($view->display['page']) ? substr(url($view->display['page']->display_options['path']), strlen($base_path)) : '',
             'view_base_path' => $view->get_path(),
             'view_dom_id' => $vars['dom_id'],
             // To fit multiple views on a page, the programmer may have
             // overridden the display's pager_element.
-            'pager_element' => isset($view->query->pager) ? $view->query->pager->get_pager_id() : 0,
+            'pager_element' => $view->pager['element'],
           ),
         ),
       ),
@@ -342,29 +362,25 @@ function template_preprocess_views_view_table(&$vars) {
       $vars['fields'][$field] .= ' active';
     }
 
-    // Add a CSS align class to each field if one was set
-    if (!empty($options['info'][$field]['align'])) {
-      $vars['fields'][$field] .= ' ' . views_css_safe($options['info'][$field]['align']);
-    }
-
     // Render each field into its appropriate column.
     foreach ($result as $num => $row) {
       if (!empty($fields[$field]) && empty($fields[$field]->options['exclude'])) {
         $field_output = $renders[$num][$field];
 
+        if (!isset($vars['rows'][$num][$column])) {
+          $vars['rows'][$num][$column] = '';
+        }
+
         // Don't bother with separators and stuff if the field does not show up.
-        if (empty($field_output) && !empty($vars['rows'][$num][$column])) {
+        if ($field_output === '') {
           continue;
         }
 
         // Place the field into the column, along with an optional separator.
-        if (!empty($vars['rows'][$num][$column])) {
+        if ($vars['rows'][$num][$column] !== '') {
           if (!empty($options['info'][$column]['separator'])) {
             $vars['rows'][$num][$column] .= filter_xss_admin($options['info'][$column]['separator']);
           }
-        }
-        else {
-          $vars['rows'][$num][$column] = '';
         }
 
         $vars['rows'][$num][$column] .= $field_output;
@@ -414,8 +430,8 @@ function template_preprocess_views_view_grid(&$vars) {
       }
     }
     if ($row) {
-      // Fill up the last line.
-      if (count($rows)) {
+      // Fill up the last line only if it's configured, but this is default.
+      if (!empty($handler->options['fill_single_line']) || count($rows)) {
         for ($i = 0; $i < ($columns - $row_count); $i++) {
           $row[] = '';
         }
@@ -460,21 +476,21 @@ function template_preprocess_views_view_unformatted(&$vars) {
   $view     = $vars['view'];
   $rows     = $vars['rows'];
 
-  $vars['classes_array'] = array();
   $vars['classes'] = array();
   // Set up striping values.
   foreach ($rows as $id => $row) {
-    $vars['classes_array'][$id][] = 'views-row';
-    $vars['classes_array'][$id][] = 'views-row-' . ($id + 1);
-    $vars['classes_array'][$id][] = 'views-row-' . ($id % 2 ? 'even' : 'odd');
+    $row_classes = array();
+    $row_classes[] = 'views-row';
+    $row_classes[] = 'views-row-' . ($id + 1);
+    $row_classes[] = 'views-row-' . ($id % 2 ? 'even' : 'odd');
     if ($id == 0) {
-      $vars['classes_array'][$id][] = 'views-row-first';
+      $row_classes[] = 'views-row-first';
     }
     if ($id == count($rows) -1) {
-      $vars['classes_array'][$id][] = 'views-row-last';
+      $row_classes[] = 'views-row-last';
     }
     // Flatten the classes to a string for each row for the template file.
-    $vars['classes'][$id] = implode(' ', $vars['classes_array'][$id]);
+    $vars['classes'][$id] = implode(' ', $row_classes);
   }
 }
 
@@ -613,19 +629,6 @@ function template_preprocess_views_exposed_form(&$vars) {
   unset($form['form_build_id']);
   unset($form['form_token']);
 
-  if (isset($form['sort_by'])) {
-    $vars['sort_by'] = drupal_render($form['sort_by']);
-    $vars['sort_order'] = drupal_render($form['sort_order']);
-  }
-  if (isset($form['items_per_page'])) {
-    $vars['items_per_page'] = drupal_render($form['items_per_page']);
-  }
-  if (isset($form['offset'])) {
-    $vars['offset'] = drupal_render($form['offset']);
-  }
-  if (isset($form['reset'])) {
-    $vars['reset_button'] = drupal_render($form['reset']);
-  }
   // This includes the submit button.
   $vars['button'] = drupal_render($form);
 }

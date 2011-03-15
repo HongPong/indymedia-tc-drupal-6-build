@@ -1,5 +1,5 @@
 <?php
-// $Id: twitter_actions.module,v 1.1.2.3 2009/05/25 19:35:38 walkah Exp $
+// $Id: twitter_actions.module,v 1.2.2.3 2010/10/20 15:59:11 walkah Exp $
 
 /**
  * @file
@@ -36,8 +36,8 @@ function twitter_actions_action_info() {
 function twitter_actions_set_status_action_form($context = array()) {
   // Set default values for form.
   $context += array(
+    'account_id' => -1,
     'screen_name' => '',
-    'password' => '',
     'message' => '',
   );
 
@@ -49,47 +49,35 @@ function twitter_actions_set_status_action_form($context = array()) {
     '#required'      => TRUE,
   );
 
-  $form['password'] = array(
-    '#title'         => t('Twitter password'),
-    '#type'          => 'password',
-    '#size'          => 25,
-    '#required'      => TRUE,
-  );
-
   $form['message'] = array(
     '#type' => 'textarea',
     '#title' => t('Message'),
     '#default_value' => $context['message'],
     '#cols' => '80',
     '#rows' => '3',
-    '#description' => t('The message that should be sent. You may include the following variables: %site_name, %username, %node_url, %node_type, %title, %teaser, %body. Not all variables will be available in all contexts.'),
+    '#description' => t('The message that should be sent. You may include the following variables: %site_name, %username, %node_url, %node_type, %title, %teaser, %body, %tinyurl. Not all variables will be available in all contexts.'),
     '#required'      => TRUE,
   );
   return $form;
 }
 
 function twitter_actions_set_status_action_validate($form, $form_state) {
-  module_load_include('inc', 'twitter');
-  $verify = FALSE;
-
-  $pass = $form_state['values']['password'];
-  $name = $form_state['values']['screen_name'];
-
-  module_load_include('inc', 'twitter');
-
-  $valid = twitter_authenticate($name, $pass);
-  if (!$valid) {
-    form_set_error('password', t('Twitter authentication failed. Please check your account name and try again.'));
+  if (!_twitter_use_oauth()) {
+    form_set_error('screen_name', t('Oath has not yet been setup.'));
+  }
+  if (!db_result(db_query("SELECT twitter_uid FROM {twitter_account} WHERE screen_name = '%s'", $form_state['values']['screen_name']))) {
+    form_set_error('screen_name', t('Twitter authentication failed. Please check your account name and try again.'));
   }
 }
 
 function twitter_actions_set_status_action_submit($form, $form_state) {
   $form_values = $form_state['values'];
+  $twitter_uid = db_result(db_query("SELECT twitter_uid FROM {twitter_account} WHERE screen_name = '%s'", $form_values['screen_name']));
   // Process the HTML form to store configuration. The keyed array that
   // we return will be serialized to the database.
   $params = array(
+    'twitter_uid' => $twitter_uid,
     'screen_name' => $form_values['screen_name'],
-    'password'   => $form_values['password'],
     'message'   => $form_values['message'],
   );
   return $params;
@@ -105,6 +93,7 @@ function twitter_actions_set_status_action($object, $context) {
 
   switch ($context['hook']) {
     case 'nodeapi':
+    case 'workflow':
       // Because this is not an action of type 'node' the node
       // will not be passed as $object, but it will still be available
       // in $context.
@@ -170,8 +159,16 @@ function twitter_actions_set_status_action($object, $context) {
     );
   }
 
+  // Only make a tinyurl if it was asked for.
+  if (strstr($context['message'], '%tinyurl') !== FALSE) {
+    $variables = array_merge($variables, array(
+      '%tinyurl' => twitter_shorten_url(url('node/'. $node->nid, array('absolute' => TRUE))),
+    ));
+  }
+
   $message = strtr($context['message'], $variables);
 
   module_load_include('inc', 'twitter');
-  twitter_set_status($context['screen_name'], $context['password'], $message);
+  $twitter_account = twitter_account_load($context['twitter_uid']);
+  twitter_set_status($twitter_account, $message);
 }

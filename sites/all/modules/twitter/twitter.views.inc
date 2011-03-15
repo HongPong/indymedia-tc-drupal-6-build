@@ -1,5 +1,5 @@
 <?php
-// $Id: twitter.views.inc,v 1.1.2.4 2009/06/20 16:29:14 eaton Exp $
+// $Id: twitter.views.inc,v 1.6.2.1 2009/05/28 06:45:21 walkah Exp $
 /**
  * @file
  * Provide views data and handlers for twitter.module
@@ -66,23 +66,6 @@ function twitter_views_data() {
     ),
   );
 
-  // Twitter status id
-  $data['twitter']['twitter_id'] = array(
-    'title' => t('Status ID'),
-    'help' => t('The ID of the Twitter status message.'),
-    'field' => array(
-      'handler' => 'views_handler_field',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
-      'allow empty' => TRUE,
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-  );
-
   // Twitter message timestamp
   $data['twitter']['created_time'] = array(
     'title' => t('Created time'),
@@ -128,44 +111,10 @@ function twitter_views_data() {
     ),
   );
 
-  // Twitter reply-to-status id
-  $data['twitter']['in_reply_to_status_id'] = array(
-    'title' => t('Reply ID'),
-    'help' => t('The ID of the Twitter status this message is replying to.'),
-    'field' => array(
-      'handler' => 'views_handler_field',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
-      'allow empty' => TRUE,
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-  );
 
-  // Twitter reply-to-status screen name
-  $data['twitter']['in_reply_to_screen_name'] = array(
-    'title' => t('Reply name'),
-    'help' => t('The login account of the Twitter user this message is replying to.'),
-    'field' => array(
-      'handler' => 'views_handler_field',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_string',
-      'allow empty' => TRUE,
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-    'argument' => array(
-      'handler' => 'views_handler_argument_string',
-    ),
-  );
 
-  $data['twitter_account']['table']['group']  = t('Twitter account');
+
+  $data['twitter_account']['table']['group']  = t('Twitter');
 
   $data['twitter_account']['table']['join'] = array(
     'twitter' => array(
@@ -173,9 +122,9 @@ function twitter_views_data() {
       'field' => 'screen_name',
     ),
     'users' => array(
-      'field' => 'screen_name',
-      'left_table' => 'twitter_user',
-      'left_field' => 'screen_name',
+      'left_field' => 'uid',
+      'field' => 'uid',
+      //      'left_table' => 'twitter_user',
     ),
   );
 
@@ -324,39 +273,13 @@ function twitter_views_data() {
     ),
   );
 
-
-  $data['twitter_user']['table']['group']  = t('Twitter');
-
-  $data['twitter_user']['table']['join'] = array(
-    'users' => array(
-      'left_field' => 'uid',
-      'field' => 'uid',
-    ),
-    'twitter_account' => array(
-      'left_field' => 'screen_name',
-      'field' => 'screen_name',
-    ),
-    'twitter' => array(
-      'left_table' => 'twitter_account',
-      'left_field' => 'screen_name',
-      'field' => 'screen_name',
-    ),
-  );
-
   // Twitter account description
-  $data['twitter_user']['uid'] = array(
+  $data['twitter_account']['uid'] = array(
     'title' => t('User ID'),
     'help' => t('The UID of the Twitter account.'),
   );
-
-  // Twitter account description
-  $data['twitter_user']['screen_name'] = array(
-    'title' => t('Screen name'),
-    'help' => t('The screen name of the Twitter account.'),
-  );
-
   // Twitter account protected
-  $data['twitter_user']['import'] = array(
+  $data['twitter_account']['import'] = array(
     'title' => t('Import status'),
     'help' => t('Whether posts from this Twitter account should be imported automatically.'),
     'field' => array(
@@ -371,23 +294,18 @@ function twitter_views_data() {
     ),
   );
 
-
   return $data;
 }
 
 
 function twitter_views_data_alter(&$data) {
   $data['users']['table']['join']['twitter'] = array(
-    'left_table' => 'twitter_user',
+    'left_table' => 'twitter_account',
     'left_field' => 'uid',
     'field' => 'uid',
   );
   $data['users']['table']['join']['twitter_account'] = array(
-    'left_table' => 'twitter_user',
-    'left_field' => 'uid',
-    'field' => 'uid',
-  );
-  $data['users']['table']['join']['twitter_user'] = array(
+    //    'left_table' => 'twitter_user',
     'left_field' => 'uid',
     'field' => 'uid',
   );

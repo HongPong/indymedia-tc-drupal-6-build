@@ -1,5 +1,5 @@
 <?php
-// $Id: ajax.inc,v 1.19.2.3 2010/04/07 23:40:32 merlinofchaos Exp $
+// $Id: ajax.inc,v 1.20.2.1 2010/04/07 23:40:35 merlinofchaos Exp $
 
 /**
  * @file ajax.inc
@@ -21,15 +21,6 @@ function views_ajax() {
     $path = isset($_REQUEST['view_path']) ? $_REQUEST['view_path'] : NULL;
     $dom_id = isset($_REQUEST['view_dom_id']) ? intval($_REQUEST['view_dom_id']) : NULL;
     $pager_element = isset($_REQUEST['pager_element']) ? intval($_REQUEST['pager_element']) : NULL;
-
-    $ajax_arguments = array(
-      'view_name' => $name,
-      'view_display_id' => $display_id,
-      'view_args' => $_REQUEST['view_args'],
-      'view_path' => $path,
-      'view_dom_id' => $dom_id,
-      'pager_element' => $pager_element,
-    );
     views_include('ajax');
     $object = new stdClass();
 
@@ -45,7 +36,6 @@ function views_ajax() {
     }
     // Load the view.
     if ($view = views_get_view($name)) {
-      $view->ajax_path = array($_GET['q'], $ajax_arguments);
       if ($view->access($display_id)) {
 
         // Fix 'q' for paging.

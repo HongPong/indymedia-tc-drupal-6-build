@@ -1,5 +1,10 @@
 <?php
-// $Id: feeds_mapper_filefield.test,v 1.5 2010/06/20 16:46:12 alexb Exp $
+// $Id: feeds_mapper_filefield.test,v 1.9 2010/09/15 19:27:42 alexb Exp $
+
+/**
+ * @file
+ * Test case for Filefield mapper mappers/filefield.inc.
+ */
 
 require_once(drupal_get_path('module', 'feeds') . '/tests/feeds_mapper_test.inc');
 
@@ -15,7 +20,7 @@ class FeedsMapperFileFieldTestCase extends FeedsMapperTestCase {
   public static function getInfo() {
     return array(
       'name' => t('Mapper: FileField'),
-      'description' => t('Test Feeds Mapper support for FileField CCK fields. <strong>Requires CCK and filefield module</strong>.'),
+      'description' => t('Test Feeds Mapper support for FileField CCK fields. <strong>Requires CCK and filefield module; requires SimplePie library</strong>.'),
       'group' => t('Feeds'),
     );
   }
@@ -25,7 +30,7 @@ class FeedsMapperFileFieldTestCase extends FeedsMapperTestCase {
    */
   public function setUp() {
     // Call parent setup with the required module
-    parent::setUp('feeds', 'feeds_ui', 'ctools', 'content', 'filefield', 'libraries');
+    parent::setUp('feeds', 'feeds_ui', 'ctools', 'job_scheduler', 'content', 'filefield', 'libraries');
 
     // Create user and login
     $this->drupalLogin($this->drupalCreateUser(
@@ -54,8 +59,8 @@ class FeedsMapperFileFieldTestCase extends FeedsMapperTestCase {
       ),
     ));
 
-    //Create importer configuration
-    $this->createFeedConfiguration(); //Create a default importer configuration
+    // Create importer configuration.
+    $this->createImporterConfiguration(); //Create a default importer configuration
     $this->setPlugin('syndication', 'FeedsSimplePieParser');
     $this->setSettings('syndication', 'FeedsNodeProcessor', array('content_type' => $typename)); //Processor settings
     $this->addMappings('syndication', array(

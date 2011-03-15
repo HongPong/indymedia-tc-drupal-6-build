@@ -1,4 +1,3 @@
-// $Id: devel_themer.js,v 1.17.2.7 2009/04/07 12:43:06 jjeff Exp $
 
 if (Drupal.jsEnabled) {
   $(document).ready(function () {

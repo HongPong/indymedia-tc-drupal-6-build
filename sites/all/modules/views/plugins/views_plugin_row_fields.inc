@@ -1,5 +1,5 @@
 <?php
-// $Id: views_plugin_row_fields.inc,v 1.1.2.2 2010/03/11 00:06:14 merlinofchaos Exp $
+// $Id: views_plugin_row_fields.inc,v 1.2.2.1 2010/03/11 00:06:18 merlinofchaos Exp $
 /**
  * @file
  * Contains the base row style plugin.
@@ -55,7 +55,6 @@ class views_plugin_row_fields extends views_plugin_row {
       '#default_value' => $this->options['hide_empty'],
       '#description' => t('Do not display fields, labels or markup for fields that are empty.'),
     );
-
   }
 
   /**

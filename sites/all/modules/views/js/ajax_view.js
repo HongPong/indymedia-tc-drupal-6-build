@@ -1,4 +1,4 @@
-// $Id: ajax_view.js,v 1.17.2.8 2010/03/25 18:25:33 merlinofchaos Exp $
+// $Id: ajax_view.js,v 1.19.2.5 2010/03/25 18:25:28 merlinofchaos Exp $
 
 /**
  * @file ajaxView.js
@@ -65,13 +65,6 @@ Drupal.behaviors.ViewsAjaxView = function() {
         // but this method is submitting elsewhere.
         $('input[name=q]', this).remove();
         var form = this;
-
-        $('input[type=submit], button', this).click(function () {
-          $(this).after('<span class="views-throbbing">&nbsp</span>');
-          // We have to actually tell it what button got clicked if we want
-          // anything to be sent:
-          form.clk = this;
-        });
         // ajaxSubmit doesn't accept a data argument, so we have to
         // pass additional fields this way.
         $.each(settings, function(key, setting) {
@@ -80,6 +73,7 @@ Drupal.behaviors.ViewsAjaxView = function() {
       })
       .addClass('views-processed')
       .submit(function () {
+        $('input[type=submit], button', this).after('<span class="views-throbbing">&nbsp</span>');
         var object = this;
         $(this).ajaxSubmit({
           url: ajax_path,

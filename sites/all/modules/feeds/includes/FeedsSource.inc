@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsSource.inc,v 1.15 2010/07/11 13:53:17 alexb Exp $
+// $Id: FeedsSource.inc,v 1.21.2.1 2010/09/26 17:39:45 alexb Exp $
 
 /**
  * @file
@@ -120,8 +120,11 @@ class FeedsSource extends FeedsConfigurable {
    *   Throws Exception if an error occurs when fetching or parsing.
    */
   public function preview() {
-    $batch = $this->importer->fetcher->fetch($this);
-    $this->importer->parser->parse($batch, $this);
+    $this->batch = $this->importer->fetcher->fetch($this);
+    $this->importer->parser->parse($this->batch, $this);
+    module_invoke_all('feeds_after_parse', $this->importer, $this);
+    $batch = $this->batch;
+    unset($this->batch);
     return $batch;
   }
 
@@ -140,8 +143,10 @@ class FeedsSource extends FeedsConfigurable {
       if (!$this->batch || !($this->batch instanceof FeedsImportBatch)) {
         $this->batch = $this->importer->fetcher->fetch($this);
         $this->importer->parser->parse($this->batch, $this);
+        module_invoke_all('feeds_after_parse', $this->importer, $this);
       }
-      $result = $this->importer->processor->process($this->batch, $this);
+      $this->importer->processor->process($this->batch, $this);
+      $result = $this->batch->getProgress();
       if ($result == FEEDS_BATCH_COMPLETE) {
         unset($this->batch);
         module_invoke_all('feeds_after_import', $this->importer, $this);
@@ -170,12 +175,14 @@ class FeedsSource extends FeedsConfigurable {
     try {
       $this->importer->fetcher->clear($this);
       $this->importer->parser->clear($this);
-      if (!$this->batch) {
-        $this->batch = new FeedsBatch();
+      if (!$this->batch || !($this->batch instanceof FeedsClearBatch)) {
+        $this->batch = new FeedsClearBatch();
       }
-      $result = $this->importer->processor->clear($this->batch, $this);
+      $this->importer->processor->clear($this->batch, $this);
+      $result = $this->batch->getProgress();
       if ($result == FEEDS_BATCH_COMPLETE) {
         unset($this->batch);
+        module_invoke_all('feeds_after_clear', $this->importer, $this);
       }
     }
     catch (Exception $e) {
@@ -185,6 +192,32 @@ class FeedsSource extends FeedsConfigurable {
     }
     $this->save();
     return $result;
+  }
+
+  /**
+   * Schedule this source.
+   */
+  public function schedule() {
+    // Check whether any fetcher is overriding the import period.
+    $period = $this->importer->config['import_period'];
+    $fetcher_period = $this->importer->fetcher->importPeriod($this);
+    if (is_numeric($fetcher_period)) {
+      $period = $fetcher_period;
+    }
+    $job = array(
+      'callback' => 'feeds_source_import',
+      'type' => $this->id,
+      'id' => $this->feed_nid,
+      // Schedule as soon as possible if a batch is active.
+      'period' => $this->batch ? 0 : $period,
+      'periodic' => TRUE,
+    );
+    if ($job['period'] != FEEDS_SCHEDULE_NEVER) {
+      job_scheduler()->set($job);
+    }
+    else {
+      job_scheduler()->remove($job);
+    }
   }
 
   /**
@@ -244,6 +277,31 @@ class FeedsSource extends FeedsConfigurable {
       $this->importer->$type->sourceDelete($this);
     }
     db_query("DELETE FROM {feeds_source} WHERE id = '%s' AND feed_nid = %d", $this->id, $this->feed_nid);
+    // Remove from schedule.
+    $job = array(
+      'callback' => 'feeds_source_import',
+      'type' => $this->id,
+      'id' => $this->feed_nid,
+    );
+    job_scheduler()->remove($job);
+  }
+
+  /**
+   * Only return source if configuration is persistent and valid.
+   *
+   * @see FeedsConfigurable::existing().
+   */
+  public function existing() {
+    // If there is no feed nid given, there must be no content type specified.
+    // If there is a feed nid given, there must be a content type specified.
+    // Ensure that importer is persistent (= defined in code or DB).
+    // Ensure that source is persistent (= defined in DB).
+    if ((empty($this->feed_nid) && empty($this->importer->config['content_type'])) ||
+        (!empty($this->feed_nid) && !empty($this->importer->config['content_type']))) {
+      $this->importer->existing();
+      return parent::existing();
+    }
+    throw new FeedsNotExistingException(t('Source configuration not valid.'));
   }
 
   /**

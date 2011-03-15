@@ -1,5 +1,5 @@
 <?php
-// $Id: link.inc,v 1.3 2010/07/18 18:42:31 alexb Exp $
+// $Id: link.inc,v 1.4 2010/09/14 15:00:47 alexb Exp $
 
 /**
  * @file
@@ -50,6 +50,7 @@ function link_feeds_node_processor_targets_alter(&$targets, $content_type) {
  *   The value to assign to the CCK field.
  */
 function link_feeds_set_target($node, $target, $value) {
+  module_load_include('inc', 'link');
   if (!empty($value)) {
     static $defaults = array();
     list($field_name, $sub_field) = split(':', $target);

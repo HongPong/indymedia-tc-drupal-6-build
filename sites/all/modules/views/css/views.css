@@ -1,4 +1,4 @@
-/* $Id: views.css,v 1.11.2.3 2010/03/12 00:25:33 merlinofchaos Exp $ */
+/* $Id: views.css,v 1.11.4.2 2010/03/12 00:25:37 merlinofchaos Exp $ */
 .views-exposed-form .views-exposed-widget {
   float: left; /* LTR */
   padding: .5em 1em 0 0; /* LTR */
@@ -20,17 +20,6 @@
 
 .views-exposed-widgets {
   margin-bottom: .5em;
-}
-
-/* table style column align */
-.views-align-left {
-  text-align: left;
-}
-.views-align-right {
-  text-align: right;
-}
-.views-align-center {
-  text-align: center;
 }
 
 html.js a.views-throbbing,

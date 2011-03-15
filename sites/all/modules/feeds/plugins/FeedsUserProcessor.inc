@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsUserProcessor.inc,v 1.17 2010/07/18 19:47:37 alexb Exp $
+// $Id: FeedsUserProcessor.inc,v 1.19 2010/09/07 17:29:36 alexb Exp $
 
 /**
  * @file
@@ -21,10 +21,10 @@ class FeedsUserProcessor extends FeedsProcessor {
 
     while ($item = $batch->shiftItem()) {
 
-      if (!($uid = $this->existingItemId($item, $source)) || $this->config['update_existing']) {
+      if (!($uid = $this->existingItemId($batch, $source)) || $this->config['update_existing']) {
 
         // Map item to a term.
-        $account = $this->map($item);
+        $account = $this->map($batch);
 
         // Check if user name and mail are set, otherwise continue.
         if (empty($account->name) || empty($account->mail) || !valid_email_address($account->mail)) {
@@ -80,8 +80,6 @@ class FeedsUserProcessor extends FeedsProcessor {
     else {
       drupal_set_message(t('There are no new users.'));
     }
-
-    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -96,7 +94,7 @@ class FeedsUserProcessor extends FeedsProcessor {
   /**
    * Execute mapping on an item.
    */
-  protected function map($source_item) {
+  protected function map(FeedsImportBatch $batch) {
     // Prepare term object.
     $target_account = new stdClass();
     $target_account->uid = 0;
@@ -104,8 +102,7 @@ class FeedsUserProcessor extends FeedsProcessor {
     $target_account->status = $this->config['status'];
 
     // Have parent class do the iterating.
-    self::loadMappers();
-    return parent::map($source_item, $target_account);
+    return parent::map($batch, $target_account);
   }
 
   /**
@@ -200,11 +197,11 @@ class FeedsUserProcessor extends FeedsProcessor {
   /**
    * Get id of an existing feed item term if available.
    */
-  protected function existingItemId($source_item, FeedsSource $source) {
+  protected function existingItemId(FeedsImportBatch $batch, FeedsSource $source) {
 
     // Iterate through all unique targets and try to find a user for the
     // target's value.
-    foreach ($this->uniqueTargets($source_item) as $target => $value) {
+    foreach ($this->uniqueTargets($batch) as $target => $value) {
       switch ($target) {
         case 'name':
           $uid = db_result(db_query("SELECT uid FROM {users} WHERE name = '%s'", $value));

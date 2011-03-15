@@ -142,4 +142,3 @@ ekes <ekes <at> aktivix <dot> org>
   updated for Drupal 6 and testing framework
 Testing: kameron, alster 
 
-$Id: README.txt,v 1.3 2008/12/18 15:29:06 ekes Exp $

@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsParser.inc,v 1.15 2010/07/25 14:02:55 alexb Exp $
+// $Id: FeedsParser.inc,v 1.22.2.4 2010/10/25 22:53:53 alexb Exp $
 
 /**
  * Abstract class, defines interface for parsers.
@@ -47,7 +47,17 @@ abstract class FeedsParser extends FeedsPlugin {
    *   @endcode
    */
   public function getMappingSources() {
-    return FALSE;
+    self::loadMappers();
+    $sources = array();
+    drupal_alter('feeds_parser_sources', $sources, feeds_importer($this->id)->config['content_type']);
+    if (!feeds_importer($this->id)->config['content_type']) {
+      return $sources;
+    }
+    $sources['parent:uid'] = array(
+      'name' => t('Feed node: User ID'),
+      'description' => t('The feed node author uid.'),
+    );
+    return $sources;
   }
 
   /**
@@ -60,8 +70,8 @@ abstract class FeedsParser extends FeedsPlugin {
    *
    * @ingroup mappingapi
    *
-   * @param $item
-   *   The source item that the source element should be retrieved from.
+   * @param $batch
+   *   FeedsImportBatch object containing the sources to be mapped from.
    * @param $element_key
    *   The key identifying the element that should be retrieved from $source
    *
@@ -71,7 +81,11 @@ abstract class FeedsParser extends FeedsPlugin {
    * @see FeedsProcessor::map()
    * @see FeedsCSVParser::getSourceElement().
    */
-  public function getSourceElement($item, $element_key) {
+  public function getSourceElement(FeedsImportBatch $batch, $element_key) {
+    if (($node = node_load($batch->feed_nid)) && $element_key == 'parent:uid') {
+      return $node->uid;
+    }
+    $item = $batch->currentItem();
     return isset($item[$element_key]) ? $item[$element_key] : '';
   }
 }
@@ -95,6 +109,8 @@ class FeedsElement {
   }
 
   /**
+   * @todo Make value public and deprecate use of getValue().
+   *
    * @return
    *   Standard value of this FeedsElement.
    */
@@ -113,7 +129,63 @@ class FeedsElement {
     if (is_object($this->value)) {
       return 'Object';
     }
-    return (string) $this->value;
+    return (string) $this->getValue();
+  }
+}
+
+/**
+ * Encapsulates a taxonomy style term object.
+ *
+ * Objects of this class can be turned into a taxonomy term style arrays by
+ * casting them.
+ *
+ * @code
+ *   $term_object = new FeedsTermElement($term_array);
+ *   $term_array = (array)$term_object;
+ * @endcode
+ */
+class FeedsTermElement extends FeedsElement {
+  public $tid, $vid, $name;
+
+  /**
+   * @param $term
+   *   An array or a stdClass object that is a Drupal taxonomy term.
+   */
+  public function __construct($term) {
+    if (is_array($term)) {
+      parent::__construct($term['name']);
+      foreach ($this as $key => $value) {
+        $this->$key = isset($term[$key]) ? $term[$key] : NULL;
+      }
+    }
+    elseif (is_object($term)) {
+      parent::__construct($term->name);
+      foreach ($this as $key => $value) {
+        $this->$key = isset($term->$key) ? $term->$key : NULL;
+      }
+    }
+  }
+
+  /**
+   * Use $name as $value.
+   */
+  public function getValue() {
+    return $this->name;
+  }
+}
+
+/**
+ * A geo term element.
+ */
+class FeedsGeoTermElement extends FeedsTermElement {
+  public $lat, $lon, $bound_top, $bound_right, $bound_bottom, $bound_left, $geometry;
+  /**
+   * @param $term
+   *   An array or a stdClass object that is a Drupal taxonomy term. Can include
+   *   geo extensions.
+   */
+  public function __construct($term) {
+    parent::__construct($term);
   }
 }
 
@@ -125,11 +197,30 @@ class FeedsEnclosure extends FeedsElement {
   protected $file;
 
   /**
+   * Delete flag, denoting whether a file should be deleted when this object
+   * is destroyed.
+   *
+   * @see __destruct()
+   * @see getFile()
+   */
+  protected $delete_file;
+
+  /**
    * Constructor, requires MIME type.
    */
   public function __construct($value, $mime_type) {
     parent::__construct($value);
     $this->mime_type = $mime_type;
+    $this->delete_file = FALSE;
+  }
+
+  /**
+   * Destructor, clean up any temporary files.
+   */
+  public function __destruct() {
+    if (!empty($this->file) && $this->delete_file) {
+      file_delete($this->file);
+    }
   }
 
   /**
@@ -155,21 +246,32 @@ class FeedsEnclosure extends FeedsElement {
 
   /**
    * @return
-   *   A temporary file path to the downloaded resource referenced by the
-   *   enclosure. Downloads resource if not downloaded yet. The file path is
-   *   valid for the time of the page load.
+   *   A path pointing to a file containing the resource referenced by the
+   *   enclosure. This method downloads the resource if it is not local. The
+   *   file path must be considered temporary and is only valid for the current
+   *   page load.
    *
    * @todo Get file extension from mime_type.
    * @todo This is not concurrency safe.
    */
   public function getFile() {
     if(empty($this->file) && $this->getValue()) {
+      // Check if this enclosure contains a local file.
+      if (!parse_url($this->getValue(), PHP_URL_SCHEME)) {
+        if (file_check_location($this->getValue(), file_directory_path()) || file_check_location($this->getValue(), file_directory_temp())) {
+          if (file_exists($this->getValue())) {
+            $this->file = $this->getValue();
+            return $this->file;
+          }
+        }
+        throw new Exception(t('Invalid enclosure %enclosure', array('%enclosure' => $this->getValue())));
+      }
       $filename = basename($this->getValue());
       if (module_exists('transliteration')) {
         require_once (drupal_get_path('module', 'transliteration') . '/transliteration.inc');
         $filename = transliteration_clean_filename($filename);
       }
-      $dest = file_destination(file_directory_temp() .'/'. get_class($this) .'-'. $filename, FILE_EXISTS_RENAME);
+      $dest = file_destination(file_directory_temp() .'/'. $filename, FILE_EXISTS_RENAME);
       if (ini_get('allow_url_fopen')) {
         $this->file = copy($this->getValue(), $dest) ? $dest : 0;
       }
@@ -179,6 +281,7 @@ class FeedsEnclosure extends FeedsElement {
       if ($this->file === 0) {
         throw new Exception(t('Cannot write content to %dest', array('%dest' => $dest)));
       }
+      $this->delete_file = TRUE;
     }
     return $this->file;
   }
@@ -384,19 +487,33 @@ class FeedsDateTime extends DateTime {
    *   PHP DateTimeZone object, NULL allowed
    */
   public function __construct($time = '', $tz = NULL) {
+    // Assume UNIX timestamp if numeric.
     if (is_numeric($time)) {
-      // Assume timestamp.
       $time = "@". $time;
     }
+
     // PHP < 5.3 doesn't like the GMT- notation for parsing timezones.
     $time = str_replace("GMT-", "-", $time);
     $time = str_replace("GMT+", "+", $time);
-    parent::__construct($time, $tz ? $tz : new DateTimeZone("UTC"));
-    $this->setGranularityFromTime($time, $tz);
+
+    // Some PHP 5.2 version's DateTime class chokes on invalid dates.
+    if (!strtotime($time)) {
+      $time = 'now';
+    }
+
+    // Create and set time zone separately, PHP 5.2.6 does not respect time zone
+    // argument in __construct().
+    parent::__construct($time);
+    $tz = $tz ? $tz : new DateTimeZone("UTC");
+    $this->setTimeZone($tz);
+
+    // Verify that timezone has not been specified as an offset.
     if (!preg_match('/[a-zA-Z]/', $this->getTimezone()->getName())) {
-      // This tz was given as just an offset, which causes problems
       $this->setTimezone(new DateTimeZone("UTC"));
     }
+
+    // Finally set granularity.
+    $this->setGranularityFromTime($time, $tz);
   }
 
   /**

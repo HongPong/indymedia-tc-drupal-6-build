@@ -1,5 +1,5 @@
 <?php
-// $Id: node.views.inc,v 1.93.2.12 2010/03/25 01:14:18 merlinofchaos Exp $
+// $Id: node.views.inc,v 1.97.2.7 2010/03/25 01:14:22 merlinofchaos Exp $
 /**
  * @file
  * Provide views data and handlers for node.module
@@ -268,7 +268,7 @@ function node_views_data() {
       'handler' => 'views_handler_field_node_link_delete',
     ),
   );
-  
+
   $data['node']['path'] = array(
     'field' => array(
       'title' => t('Path'),
@@ -276,7 +276,7 @@ function node_views_data() {
       'handler' => 'views_handler_field_node_path',
     ),
   );
-  
+
 
   // Bogus fields for aliasing purposes.
 
@@ -388,18 +388,6 @@ function node_views_data() {
     ),
   );
 
-  // uid field
-  $data['node']['uid'] = array(
-    'title' => t('Author'),
-    'help' => t('Relate a node to the user who created it.'),
-    'relationship' => array(
-      'handler' => 'views_handler_relationship',
-      'base' => 'users',
-      'base field' => 'uid',
-      'label' => t('user'),
-    ),
-  );
-
   // ----------------------------------------------------------------------
   // Node revisions table
 
@@ -423,15 +411,15 @@ function node_views_data() {
     ),
   );
 
-  // uid field for node revisions
+  // uid field
   $data['node_revisions']['uid'] = array(
     'title' => t('User'),
     'help' => t('Relate a node revision to the user who created the revision.'),
     'relationship' => array(
       'handler' => 'views_handler_relationship',
       'base' => 'users',
-      'field' => 'uid',
-      'label' => t('revision user'),
+      'base field' => 'uid',
+      'label' => t('user'),
     ),
   );
 

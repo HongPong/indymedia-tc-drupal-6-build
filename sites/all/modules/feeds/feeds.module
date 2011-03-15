@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds.module,v 1.50 2010/07/11 16:30:36 alexb Exp $
+// $Id: feeds.module,v 1.55.2.3 2010/10/28 19:58:22 alexb Exp $
 
 /**
  * @file
@@ -14,8 +14,6 @@ define('FEEDS_SCHEDULE_NEVER', -1);
 define('FEEDS_EXPIRE_NEVER', -1);
 // An object that is not persistent. Compare EXPORT_IN_DATABASE, EXPORT_IN_CODE.
 define('FEEDS_EXPORT_NONE', 0x0);
-// The Drupal Queue FeedsScheduler may use for scheduling importing or expiry.
-define('FEEDS_SCHEDULER_QUEUE', 'feeds_queue');
 // Status of batched operations.
 define('FEEDS_BATCH_COMPLETE', 1);
 define('FEEDS_BATCH_ACTIVE', 0);
@@ -29,7 +27,17 @@ define('FEEDS_BATCH_ACTIVE', 0);
  * Implementation of hook_cron().
  */
 function feeds_cron() {
-  feeds_scheduler()->cron();
+  if ($importers = feeds_reschedule()) {
+    foreach ($importers as $id) {
+      feeds_importer($id)->schedule();
+      $result = db_query("SELECT feed_nid FROM {feeds_source} WHERE id = '%s'", $id);
+      while ($row = db_fetch_object($result)) {
+        feeds_source($id, $row->feed_nid)->schedule();
+      }
+    }
+    feeds_reschedule(FALSE);
+    return;
+  }
 }
 
 /**
@@ -39,11 +47,77 @@ function feeds_cron() {
  */
 function feeds_cron_queue_info() {
   $queues = array();
-  $queues[FEEDS_SCHEDULER_QUEUE] = array(
-    'worker callback' => 'feeds_scheduler_work',
+  $queues['feeds_source_import'] = array(
+    'worker callback' => 'feeds_source_import',
+    'time' => variable_get('feeds_worker_time', 15),
+  );
+  $queues['feeds_importer_expire'] = array(
+    'worker callback' => 'feeds_importer_expire',
     'time' => variable_get('feeds_worker_time', 15),
   );
   return $queues;
+}
+
+/**
+ * Scheduler callback for importing from a source.
+ */
+function feeds_source_import($job) {
+  $source = feeds_source($job['type'], $job['id']);
+  try {
+    $source->existing()->import();
+  }
+  catch (FeedsNotExistingException $e) {}
+  catch (Exception $e) {
+    watchdog('feeds_source_import()', $e->getMessage(), array(), WATCHDOG_ERROR);
+  }
+  $source->schedule();
+}
+
+/**
+ * Scheduler callback for expiring content.
+ */
+function feeds_importer_expire($job) {
+  $importer = feeds_importer($job['type']);
+  try {
+    $importer->existing()->expire();
+  }
+  catch (FeedsNotExistingException $e) {}
+  catch (Exception $e) {
+    watchdog('feeds_importer_expire()', $e->getMessage(), array(), WATCHDOG_ERROR);
+  }
+  $importer->schedule();
+}
+
+/**
+ * Reschedule one or all importers.
+ *
+ * Note: variable_set('feeds_reschedule', TRUE) is used in update hook
+ * feeds_update_6013() and as such must be maintained as part of the upgrade
+ * path from pre 6.x 1.0 beta 6 versions of Feeds.
+ *
+ * @param $importer_id
+ *   If TRUE, all importers will be rescheduled, if FALSE, no importers will
+ *   be rescheduled, if an importer id, only importer of that id will be
+ *   rescheduled.
+ *
+ * @return
+ *   TRUE if all importers need rescheduling. FALSE if no rescheduling is
+ *   required. An array of importers that need rescheduling.
+ */
+function feeds_reschedule($importer_id = NULL) {
+  $reschedule = variable_get('feeds_reschedule', FALSE);
+  if ($importer_id === TRUE || $importer_id === FALSE) {
+    $reschedule = $importer_id;
+  }
+  elseif (is_string($importer_id) && $reschedule !== TRUE) {
+    $reschedule = is_array($reschedule) ? $reschedule : array();
+    $reschedule[$importer_id] = $importer_id;
+  }
+  variable_set('feeds_reschedule', $reschedule);
+  if ($reschedule === TRUE) {
+    return feeds_enabled_importers();
+  }
+  return $reschedule;
 }
 
 /**
@@ -65,10 +139,10 @@ function feeds_perm() {
  */
 function feeds_forms() {
   $forms = array();
-  $forms['FeedsImporter_feeds_config_form']['callback'] = 'feeds_config_form';
+  $forms['FeedsImporter_feeds_form']['callback'] = 'feeds_form';
   $plugins = feeds_get_plugins();
   foreach ($plugins as $plugin) {
-    $forms[$plugin['handler']['class'] .'_feeds_config_form']['callback'] = 'feeds_config_form';
+    $forms[$plugin['handler']['class'] .'_feeds_form']['callback'] = 'feeds_form';
   }
   return $forms;
 }
@@ -190,7 +264,7 @@ function feeds_page_access() {
     return TRUE;
   }
   foreach (feeds_enabled_importers() as $id) {
-    if (user_access("import $id feed")) {
+    if (user_access("import $id feeds")) {
       return TRUE;
     }
   }
@@ -303,17 +377,20 @@ function feeds_nodeapi(&$node, $op, $form) {
         if ($op == 'insert' && feeds_importer($importer_id)->config['import_on_create'] && !isset($node_feeds['suppress_import'])) {
           feeds_batch_set(t('Importing'), 'import', $importer_id, $node->nid);
         }
-        // Add import to scheduler.
-        feeds_scheduler()->add($importer_id, 'import', $node->nid);
-        // Add expiry to schedule, in case this is the first feed of this
-        // configuration.
-        feeds_scheduler()->add($importer_id, 'expire');
+        // Add source to schedule, make sure importer is scheduled, too.
+        if ($op == 'insert') {
+          $source->schedule();
+          $source->importer->schedule();
+        }
         $node_feeds = NULL;
         break;
       case 'delete':
-        // Remove feed from scheduler and delete source.
-        feeds_scheduler()->remove($importer_id, 'import', $node->nid);
-        feeds_source($importer_id, $node->nid)->delete();
+        $source = feeds_source($importer_id, $node->nid);
+        if ($source->importer->processor->config['delete_with_source']) {
+          feeds_batch_set(t('Deleting'), 'clear', $importer_id, $node->nid);
+        }
+        // Remove attached source.
+        $source->delete();
         break;
     }
   }
@@ -350,6 +427,29 @@ function _feeds_nodeapi_node_processor($node, $op) {
 }
 
 /**
+ * Implementation of hook_taxonomy().
+ */
+function feeds_taxonomy($op = NULL, $type = NULL, $term = NULL) {
+  if ($type =='term' && $term['tid']) {
+    switch ($op) {
+      case 'delete':
+        db_query("DELETE FROM {feeds_term_item} WHERE tid = %d", $term['tid']);
+        break;
+      case 'update':
+        if (isset($term['importer_id'])) {
+          db_query("DELETE FROM {feeds_term_item} WHERE tid = %d", $term['tid']);
+        }
+      case 'insert':
+        if (isset($term['importer_id'])) {
+          $term['id'] = $term['importer_id'];
+          drupal_write_record('feeds_term_item', $term);
+        }
+        break;
+    }
+  }
+}
+
+/**
  * Implementation of hook_form_alter().
  */
 function feeds_form_alter(&$form, $form_state, $form_id) {
@@ -371,19 +471,6 @@ function feeds_form_alter(&$form, $form_state, $form_id) {
       $form['#feed_id'] = $importer_id;
     }
   }
-}
-
-/**
- * Refreshes a feed identified by $job.
- *
- * Used as a worker callback for drupal_queue.
- *
- * @param $job
- *   Array where the key 'id' is the id of a FeedsImporter object and the key
- *   'feed_nid' is the node id of feed node.
- */
-function feeds_scheduler_work($job) {
-  feeds_scheduler()->work($job);
 }
 
 /**
@@ -513,7 +600,7 @@ function _feeds_importer_digest() {
     else {
       $importers = array();
       foreach (feeds_importer_load_all() as $importer) {
-        $importers[$importer->id] = $importer->config['content_type'];
+        $importers[$importer->id] = isset($importer->config['content_type']) ? $importer->config['content_type'] : '';
       }
       cache_set(__FUNCTION__, $importers);
     }
@@ -601,19 +688,6 @@ function feeds_importer($id) {
 function feeds_source($importer_id, $feed_nid = 0) {
   feeds_include('FeedsImporter');
   return FeedsSource::instance($importer_id, $feed_nid);
-}
-
-/**
- * Gets a scheduler instance.
- *
- * @return
- *   A FeedsScheduler object or an object of a class defined by the Drupal
- *   variable 'feeds_scheduler_class'.
- */
-function feeds_scheduler() {
-  feeds_include('FeedsImporter');
-  feeds_include('FeedsScheduler');
-  return FeedsScheduler::instance();
 }
 
 /**

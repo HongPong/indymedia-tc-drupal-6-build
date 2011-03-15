@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds_ui.test,v 1.5 2010/07/10 23:13:45 alexb Exp $
+// $Id: feeds_ui.test,v 1.7 2010/09/15 19:27:42 alexb Exp $
 
 /**
  * @file
@@ -29,7 +29,7 @@ class FeedsUIUserInterfaceTestCase extends FeedsWebTestCase {
    * Set up test.
    */
   public function setUp() {
-    parent::setUp('feeds', 'feeds_ui', 'ctools');
+    parent::setUp('feeds', 'feeds_ui', 'ctools', 'job_scheduler');
 
     $this->drupalLogin(
       $this->drupalCreateUser(
@@ -48,8 +48,8 @@ class FeedsUIUserInterfaceTestCase extends FeedsWebTestCase {
    */
   public function testEditFeedConfiguration() {
 
-    // Create a feed.
-    $this->createFeedConfiguration('Test feed', 'test_feed');
+    // Create an importer.
+    $this->createImporterConfiguration('Test feed', 'test_feed');
 
     // Assert UI elements.
     $this->drupalGet('admin/build/feeds/edit/test_feed');
@@ -101,8 +101,8 @@ class FeedsUIUserInterfaceTestCase extends FeedsWebTestCase {
     $this->drupalGet('import');
     $this->assertNoText('Test feed');
 
-    // Create the same feed again.
-    $this->createFeedConfiguration('Test feed', 'test_feed');
+    // Create the same importer again.
+    $this->createImporterConfiguration('Test feed', 'test_feed');
 
     // Test basic settings settings.
     $edit = array(

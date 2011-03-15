@@ -1,5 +1,4 @@
 <?php
-// $Id: hidden.action-pages.inc,v 1.4.2.1 2009/03/13 11:44:09 ekes Exp $
 
 /**
  * @file

@@ -1,5 +1,5 @@
 <?php
-// $Id: twitter_actions.rules.inc,v 1.1.2.1 2009/04/08 14:19:59 eaton Exp $
+// $Id: twitter_actions.rules.inc,v 1.2 2009/05/27 19:00:08 walkah Exp $
 /**
  * @file
  * Provide better intergration into the rules module

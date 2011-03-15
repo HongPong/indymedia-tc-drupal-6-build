@@ -1,9 +1,9 @@
 <?php
-// $Id: feeds_mapper_profile.test,v 1.1 2010/06/19 15:32:07 alexb Exp $
+// $Id: feeds_mapper_profile.test,v 1.4 2010/09/15 19:27:42 alexb Exp $
 
 /**
  * @file
- * Test suite for the feeds profile mapper.
+ * Test suite for profile mapper mappers/profile.inc.
  */
 
 require_once(drupal_get_path('module', 'feeds') . '/tests/feeds_mapper_test.inc');
@@ -26,7 +26,7 @@ class FeedsMapperProfileTestCase extends FeedsMapperTestCase {
    */
   function setUp() {
     // Call parent setup with required modules.
-    parent::setUp('feeds', 'feeds_ui', 'ctools', 'profile');
+    parent::setUp('feeds', 'feeds_ui', 'ctools', 'job_scheduler', 'profile');
 
     // Create user and login.
     $this->drupalLogin($this->drupalCreateUser(
@@ -58,8 +58,8 @@ class FeedsMapperProfileTestCase extends FeedsMapperTestCase {
     );
     $name = $this->drupalPost('admin/user/profile/add/selection', $edit, t('Save field'));
 
-    // Create a feed.
-    $this->createFeedConfiguration('Profile import', 'profile_import');
+    // Create an importer.
+    $this->createImporterConfiguration('Profile import', 'profile_import');
 
     // Set and configure plugins.
     $this->setPlugin('profile_import', 'FeedsFileFetcher');

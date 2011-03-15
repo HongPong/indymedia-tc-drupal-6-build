@@ -1,5 +1,5 @@
 <?php
-// $Id: comment.views_default.inc,v 1.7.2.1 2010/03/10 20:02:20 merlinofchaos Exp $
+// $Id: comment.views_default.inc,v 1.7.4.1 2010/03/10 20:02:26 merlinofchaos Exp $
 /**
  * @file
  * Contains default views on behalf of the comment module.

@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsImporter.inc,v 1.21 2010/07/13 20:18:55 alexb Exp $
+// $Id: FeedsImporter.inc,v 1.23.2.1 2010/09/17 13:50:04 alexb Exp $
 
 /**
  * @file
@@ -20,7 +20,7 @@ require_once(dirname(__FILE__) .'/FeedsBatch.inc');
  * each of the three plugins.
  *
  * Its most important responsibilities are configuration management, interfacing
- * with FeedsScheduler class and expiring of all items produced by this
+ * with the job scheduler and expiring of all items produced by this
  * importer.
  *
  * When a FeedsImporter is instantiated, it loads its configuration. Then it
@@ -79,52 +79,22 @@ class FeedsImporter extends FeedsConfigurable {
   }
 
   /**
-   * Callback for scheduler to invoke task. Do not execute if this importer is
-   * not persistent at all.
-   *
-   * @see FeedsScheduler::work().
-   *
-   * @param $job
-   *   Array that is a FeedsScheduler job definition.
-   *
-   * @return
-   *   FEEDS_BATCH_COMPLETE if complete, a float between 0 and 1 indicating
-   *   progress otherwise.
-   *
-   * @throws
-   *   Throws Exception if an error occurs working off the job.
+   * Schedule this importer.
    */
-  public function work($job) {
-    switch ($job['callback']) {
-      case 'import':
-        return feeds_source($job['id'], $job['feed_nid'])->import();
-      case 'expire':
-        return $this->expire();
+  public function schedule() {
+    $job = array(
+      'callback' => 'feeds_importer_expire',
+      'type' => $this->id,
+      'period' => 0,
+      'periodic' => TRUE,
+    );
+    if (FEEDS_EXPIRE_NEVER != $this->processor->expiryTime()) {
+      $job['period'] = 3600;
+      job_scheduler()->set($job);
     }
-    return FEEDS_BATCH_COMPLETE;
-  }
-
-  /**
-   * Get the refresh period for import() or expire().
-   */
-  public function getSchedulePeriod($callback) {
-    switch ($callback) {
-      case 'import':
-        return $this->config['import_period'];
-      case 'expire':
-        // If a processor has expiry time set, run expiry every hour.
-        if (FEEDS_EXPIRE_NEVER != $this->processor->expiryTime()) {
-          return 3600;
-        }
-        return FEEDS_SCHEDULE_NEVER;
+    else {
+      job_scheduler()->remove($job);
     }
-  }
-
-  /**
-   * Expose available schedule callbacks.
-   */
-  public function getScheduleCallbacks() {
-    return array('import', 'expire');
   }
 
   /**
@@ -165,6 +135,17 @@ class FeedsImporter extends FeedsConfigurable {
    */
   public function delete() {
     db_query("DELETE FROM {feeds_importer} WHERE id = '%s'", $this->id);
+    $job = array(
+      'callback' => 'feeds_importer_expire',
+      'type' => $this->id,
+      'id' => 0,
+    );
+    if ($this->export_type & EXPORT_IN_CODE) {
+      feeds_reschedule($this->id);
+    }
+    else {
+      job_scheduler()->remove($job);
+    }
   }
 
   /**
@@ -277,11 +258,21 @@ class FeedsImporter extends FeedsConfigurable {
     );
     $form['import_on_create'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Import on create'),
+      '#title' => t('Import on submission'),
       '#description' => t('Check if content should be imported at the moment of feed submission.'),
       '#default_value' => $this->config['import_on_create'],
     );
     return $form;
+  }
+
+  /**
+   * Reschedule if import period changes.
+   */
+  public function configFormSubmit(&$values) {
+    if ($this->config['import_period'] != $values['import_period']) {
+      feeds_reschedule($this->id);
+    }
+    parent::configFormSubmit($values);
   }
 }
 

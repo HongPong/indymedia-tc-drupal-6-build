@@ -1,5 +1,5 @@
 <?php
-// $Id: views_plugin_cache.inc,v 1.1.2.7 2010/01/05 01:12:34 merlinofchaos Exp $
+// $Id: views_plugin_cache.inc,v 1.5.2.1 2010/01/05 01:12:38 merlinofchaos Exp $
 
 /**
  * The base plugin to handle caching.
@@ -28,13 +28,19 @@ class views_plugin_cache extends views_plugin {
   function init(&$view, &$display) {
     $this->view = &$view;
     $this->display = &$display;
+    $this->options = array();
 
     if (is_object($display->handler)) {
-      $options = $display->handler->get_option('cache');
-      // Overlay incoming options on top of defaults
-      $this->unpack_options($this->options, $options);
+      // Note: The below is read only.
+      $this->options = $display->handler->get_option('cache');
     }
   }
+
+  /**
+   * Retrieve the default options when this is a new access
+   * control plugin
+   */
+  function option_defaults(&$options) { }
 
   /**
    * Return a string to display as the clickable title for the
@@ -68,7 +74,7 @@ class views_plugin_cache extends views_plugin {
         $data = array(
           'result' => $this->view->result,
           'total_rows' => $this->view->total_rows,
-          'current_page' => $this->view->get_current_page(),
+          'pager' => $this->view->pager,
         );
         cache_set($this->get_results_key(), $data, $this->table);
         break;
@@ -94,12 +100,12 @@ class views_plugin_cache extends views_plugin {
         return FALSE;
       case 'results':
         // Values to set: $view->result, $view->total_rows, $view->execute_time,
-        // $view->current_page.
+        // $view->pager['current_page'].
         if ($cache = cache_get($this->get_results_key(), $this->table)) {
           if (!$cutoff || $cache->created > $cutoff) {
             $this->view->result = $cache->data['result'];
             $this->view->total_rows = $cache->data['total_rows'];
-            $this->view->set_current_page = $cache->data['current_page'];
+            $this->view->pager = $cache->data['pager'];
             $this->view->execute_time = 0;
             return TRUE;
           }

@@ -1,5 +1,5 @@
 <?php
-// $Id: views_plugin_display_page.inc,v 1.5.2.11 2010/03/11 00:01:56 merlinofchaos Exp $
+// $Id: views_plugin_display_page.inc,v 1.8.2.4 2010/03/11 00:01:34 merlinofchaos Exp $
 /**
  * @file
  * Contains the page display plugin.
@@ -67,7 +67,7 @@ class views_plugin_display_page extends views_plugin_display {
 
     $path = implode('/', $bits);
 
-    $access_plugin = $this->get_plugin('access');
+    $access_plugin = $this->get_access_plugin();
     if (!isset($access_plugin)) {
       $access_plugin = views_get_plugin('access', 'none');
     }
@@ -466,7 +466,7 @@ class views_plugin_display_page extends views_plugin_display {
     }
   }
 
-  function options_submit($form, &$form_state) {
+  function options_submit(&$form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_submit($form, $form_state);
     switch ($form_state['section']) {

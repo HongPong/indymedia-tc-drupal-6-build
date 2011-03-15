@@ -1,5 +1,4 @@
 <?php
-// $Id: hidden.display-pages.inc,v 1.4 2008/12/18 15:29:07 ekes Exp $
 
 /**
  * @file

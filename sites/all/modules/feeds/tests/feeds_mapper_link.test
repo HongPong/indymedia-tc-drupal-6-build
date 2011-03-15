@@ -1,5 +1,10 @@
 <?php
-// $Id: feeds_mapper_link.test,v 1.1 2010/06/19 16:53:34 alexb Exp $
+// $Id: feeds_mapper_link.test,v 1.5 2010/09/15 19:27:42 alexb Exp $
+
+/**
+ * @file
+ * Test case for CCK link mapper mappers/date.inc.
+ */
 
 require_once(drupal_get_path('module', 'feeds') . '/tests/feeds_mapper_test.inc');
 
@@ -11,7 +16,7 @@ class FeedsMapperLinkTestCase extends FeedsMapperTestCase {
   public static function getInfo() {
     return array(
       'name' => t('Mapper: Link'),
-      'description' => t('Test Feeds Mapper support for Link CCK fields'),
+      'description' => t('Test Feeds Mapper support for Link CCK fields. <strong>Requires CCK and Link module</strong>.'),
       'group' => t('Feeds'),
     );
   }
@@ -22,7 +27,7 @@ class FeedsMapperLinkTestCase extends FeedsMapperTestCase {
   public function setUp() {
     // Call parent setup with the required module
     parent::setUp(
-      'devel', 'feeds', 'feeds_ui', 'ctools', 'content', 'link'
+      'feeds', 'feeds_ui', 'ctools', 'job_scheduler', 'content', 'link'
     );
 
     // Create user and login
@@ -32,7 +37,6 @@ class FeedsMapperLinkTestCase extends FeedsMapperTestCase {
           'administer feeds',
           'administer nodes',
           'administer site configuration',
-          'access devel information'
         )
     ));
   }
@@ -76,8 +80,8 @@ class FeedsMapperLinkTestCase extends FeedsMapperTestCase {
       ),
     ));
 
-    //Create importer configuration
-    $this->createFeedConfiguration(); //Create a default importer configuration
+    // Create importer configuration.
+    $this->createImporterConfiguration(); //Create a default importer configuration
     $this->setSettings('syndication', 'FeedsNodeProcessor', array('content_type' => $typename)); //Processor settings
     $this->addMappings('syndication', array(
       array(

@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsHTTPFetcher.inc,v 1.23 2010/07/01 14:19:18 alexb Exp $
+// $Id: FeedsHTTPFetcher.inc,v 1.25 2010/09/15 19:40:57 alexb Exp $
 
 /**
  * @file
@@ -19,9 +19,9 @@ class FeedsHTTPBatch extends FeedsImportBatch {
   /**
    * Constructor.
    */
-  public function __construct($url = NULL) {
+  public function __construct($url = NULL, $feed_nid) {
     $this->url = $url;
-    parent::__construct();
+    parent::__construct('', $feed_nid);
   }
 
   /**
@@ -48,9 +48,9 @@ class FeedsHTTPFetcher extends FeedsFetcher {
   public function fetch(FeedsSource $source) {
     $source_config = $source->getConfigFor($this);
     if ($this->config['use_pubsubhubbub'] && ($raw = $this->subscriber($source->feed_nid)->receive())) {
-      return new FeedsImportBatch($raw);
+      return new FeedsImportBatch($raw, $source->feed_nid);
     }
-    return new FeedsHTTPBatch($source_config['source']);
+    return new FeedsHTTPBatch($source_config['source'], $source->feed_nid);
   }
 
   /**
@@ -190,6 +190,15 @@ class FeedsHTTPFetcher extends FeedsFetcher {
   public function unsubscribe(FeedsSource $source) {
     $source_config = $source->getConfigFor($this);
     $this->subscriber($source->feed_nid)->unsubscribe($source_config['source'], url($this->path($source->feed_nid), array('absolute' => TRUE)));
+  }
+
+  /**
+   * Implement FeedsFetcher::importPeriod().
+   */
+  public function importPeriod(FeedsSource $source) {
+    if ($this->subscriber($source->feed_nid)->subscribed()) {
+      return 259200; // Delay for three days if there is a successful subscription.
+    }
   }
 
   /**

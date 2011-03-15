@@ -1,5 +1,5 @@
 <?php
-// $Id: views_handler_field_aggregator_item_description.inc,v 1.1.2.1 2010/01/05 01:16:58 merlinofchaos Exp $
+// $Id: views_handler_field_aggregator_item_description.inc,v 1.1.4.2 2010/01/05 01:17:02 merlinofchaos Exp $
 /**
  * @file
  *   Filters htmls tags from item description.

@@ -1,0 +1,12 @@
+; $Id: twitter_post.info,v 1.1.2.2 2010/10/20 16:37:30 walkah Exp $
+name = Twitter Post
+description = Enables posting to twitter
+core = 6.x
+dependencies[] = twitter
+dependencies[] = oauth
+; Information added by drupal.org packaging script on 2010-10-20
+version = "6.x-3.0-beta3"
+core = "6.x"
+project = "twitter"
+datestamp = "1287594086"
+

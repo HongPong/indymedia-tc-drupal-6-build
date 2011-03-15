@@ -1,5 +1,5 @@
 <?php
-// $Id: http_request.inc,v 1.6 2010/03/30 18:54:29 diggersf Exp $
+// $Id: http_request.inc,v 1.8.2.1 2010/10/28 20:44:12 alexb Exp $
 
 /**
  * @file
@@ -18,6 +18,11 @@ define('HTTP_REQUEST_PCRE_LINK_TAG', '/<link((?:[\x09\x0A\x0B\x0C\x0D\x20]+[^\x0
  * PCRE for matching all the attributes in a tag.
  */
 define('HTTP_REQUEST_PCRE_TAG_ATTRIBUTES', '/[\x09\x0A\x0B\x0C\x0D\x20]+([^\x09\x0A\x0B\x0C\x0D\x20\x2F\x3E][^\x09\x0A\x0B\x0C\x0D\x20\x2F\x3D\x3E]*)(?:[\x09\x0A\x0B\x0C\x0D\x20]*=[\x09\x0A\x0B\x0C\x0D\x20]*(?:"([^"]*)"|\'([^\']*)\'|([^\x09\x0A\x0B\x0C\x0D\x20\x22\x27\x3E][^\x09\x0A\x0B\x0C\x0D\x20\x3E]*)?))?/');
+
+/**
+ * For cUrl specific errors.
+ */
+class HRCurlException extends Exception {}
 
 /**
  * Discover RSS or atom feeds at the given URL. If document in given URL is an
@@ -140,11 +145,15 @@ function http_request_get($url, $username = NULL, $password = NULL, $accept_inva
       curl_setopt($download, CURLOPT_HEADER, TRUE);
       curl_setopt($download, CURLOPT_RETURNTRANSFER, TRUE);
       curl_setopt($download, CURLOPT_ENCODING, '');
+      curl_setopt($download, CURLOPT_TIMEOUT, variable_get('http_request_timeout', 15));
       if ($accept_invalid_cert) {
         curl_setopt($download, CURLOPT_SSL_VERIFYPEER, 0);
       }
       $header = '';
       $data = curl_exec($download);
+      if (curl_error($download)) {
+        throw new HRCurlException(t('cURL error (@code) @error for @url', array('@code' => curl_errno($download), '@error' => curl_error($download), '@url' => $url)), curl_errno($download));
+      }
       $header_size = curl_getinfo($download, CURLINFO_HEADER_SIZE);
       $header = substr($data, 0, $header_size - 1);
       $result->data = substr($data, $header_size);
@@ -209,6 +218,12 @@ function http_request_get($url, $username = NULL, $password = NULL, $accept_inva
  *   TRUE if curl is available, FALSE otherwise.
  */
 function http_request_use_curl() {
+  // Allow site administrators to choose to not use cURL.
+  if (variable_get('feeds_never_use_curl', FALSE)) {
+    return FALSE;
+  }
+
+  // Check availability of cURL on the system.
   $basedir = ini_get("open_basedir");
   return function_exists('curl_init') && !ini_get('safe_mode') && empty($basedir);
 }

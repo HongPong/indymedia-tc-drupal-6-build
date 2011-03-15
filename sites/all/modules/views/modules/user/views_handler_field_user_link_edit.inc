@@ -1,5 +1,5 @@
 <?php
-// $Id: views_handler_field_user_link_edit.inc,v 1.1.2.1 2010/03/19 22:59:06 merlinofchaos Exp $
+// $Id: views_handler_field_user_link_edit.inc,v 1.1.4.1 2010/03/19 22:59:10 merlinofchaos Exp $
 /**
  * Field handler to present a link to user edit.
  */

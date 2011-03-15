@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsFeedNodeProcessor.inc,v 1.13 2010/07/13 19:32:06 alexb Exp $
+// $Id: FeedsFeedNodeProcessor.inc,v 1.15 2010/09/07 17:29:36 alexb Exp $
 
 /**
  * @file
@@ -20,10 +20,10 @@ class FeedsFeedNodeProcessor extends FeedsProcessor {
 
       // If the target item does not exist OR if update_existing is enabled,
       // map and save.
-      if (!$nid = $this->existingItemId($item, $source) || $this->config['update_existing']) {
+      if (!$nid = $this->existingItemId($batch, $source) || $this->config['update_existing']) {
 
         // Map item to a node.
-        $node = $this->map($item);
+        $node = $this->map($batch);
 
         // If updating populate nid and vid avoiding an expensive node_load().
         if (!empty($nid)) {
@@ -53,8 +53,6 @@ class FeedsFeedNodeProcessor extends FeedsProcessor {
     else {
       drupal_set_message(t('There is no new content.'));
     }
-
-    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -70,7 +68,7 @@ class FeedsFeedNodeProcessor extends FeedsProcessor {
   /**
    * Execute mapping on an item.
    */
-  protected function map($source_item) {
+  protected function map(FeedsImportBatch $batch) {
 
     // Prepare node object.
     static $included;
@@ -96,7 +94,7 @@ class FeedsFeedNodeProcessor extends FeedsProcessor {
     $target_node->uid = $user->uid;
 
     // Have parent class do the iterating.
-    return parent::map($source_item, $target_node);
+    return parent::map($batch, $target_node);
   }
 
   /**
@@ -199,10 +197,10 @@ class FeedsFeedNodeProcessor extends FeedsProcessor {
   /**
    * Get nid of an existing feed item node if available.
    */
-  protected function existingItemId($source_item, FeedsSource $source) {
+  protected function existingItemId(FeedsImportBatch $batch, FeedsSource $source) {
 
     // We only support one unique target: source
-    foreach ($this->uniqueTargets($source_item) as $target => $value) {
+    foreach ($this->uniqueTargets($batch) as $target => $value) {
       if ($target == 'source') {
         return db_result(db_query("SELECT fs.feed_nid FROM {node} n JOIN {feeds_source} fs ON n.nid = fs.feed_nid WHERE fs.id = '%s' AND fs.source = '%s'", $this->feedNodeImporter()->id, $value));
       }

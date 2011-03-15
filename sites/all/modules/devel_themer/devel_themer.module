@@ -20,24 +20,48 @@ function devel_themer_menu() {
     'access callback' => 'devel_themer_user_access',
     'type' => MENU_CALLBACK,
   );
-  // @todo These are questionable, since how can a module enable itself if it
-  //   is disabled. Should these be removed, or implementation change to disable
-  //   somehow other than actually disabling the module?
-  $items['devel_themer/enable'] = array(
-    'title' => 'Devel Themer Enable',
+  $items['devel/devel_themer'] = array(
+    'title callback' => 'devel_themer_set_menu_text',
+    'description' => 'Quickly enable or disable theme developer module.',
     'page callback' => 'devel_themer_toggle',
-    'page arguments' => array(1),
-    'access callback' => 'devel_themer_user_access',
-    'type' => MENU_CALLBACK,
-  );
-  $items['devel_themer/disable'] = array(
-    'title' => 'Devel Themer Disable',
-    'page callback' => 'devel_themer_toggle',
-    'page arguments' => array(1),
-    'access callback' => 'devel_themer_user_access',
-    'type' => MENU_CALLBACK,
+    'access arguments' => array('access devel information'),
+    'menu_name' => 'devel',
+    // Have a weight other than zero here, so that the item does not flip around
+    // position depending on the text of the link. Most of the other links are weight zero.
+    // The link can easily be moved to another position via admin -> menu
+    'weight' => 5,
   );
   return $items;
+}
+
+/**
+ * Helper function to set the menu link text.
+ */
+function devel_themer_set_menu_text() {
+  return devel_themer_enabled() ? t('Disable Theme Developer') : t('Enable Theme Developer');
+}
+
+/**
+ * Implementation of hook_menu_link_alter().
+ * Flag this link as needing alter at display time. This is more robust than setting
+ * alter in hook_menu(). See devel_themer_translated_menu_link_alter().
+ *
+ */
+function devel_themer_menu_link_alter(&$item, $menu) {
+  if ($item['link_path'] == 'devel/devel_themer') {
+    $item['options']['alter'] = TRUE;
+  }
+}
+
+/**
+ * Implementation of hook_translated_menu_item_alter().
+ * Append dynamic querystring 'destination' to our own menu item.
+ *
+ */
+function devel_themer_translated_menu_link_alter(&$item) {
+  if ($item['href'] == 'devel/devel_themer') {
+    $item['localized_options']['query'] = drupal_get_destination();
+  }
 }
 
 /**
@@ -72,16 +96,38 @@ function devel_themer_ajax_variables($request_id, $call) {
 }
 
 /**
- * A menu callback. Usually called from the devel block. 
+ * Toggle the Devel Themer.
+ * This is called from the Devel menu link.
  * 
  * @return void
  */
-function devel_themer_toggle($action) {
-  $function = $action == 'enable' ? 'module_enable' : 'module_disable';
-  // @todo See the todo within hook_menu().
-  //$function(array('devel_themer'));
-  //drupal_set_message(t('Devel Themer module %action.', array('%action' => $action)));
+function devel_themer_toggle() {
+  if (devel_themer_enabled()) {
+    devel_themer_enabled(FALSE);
+    drupal_set_message(t('Devel Themer module is now disabled.'));
+  }
+  else {
+    devel_themer_enabled(TRUE);
+    drupal_set_message(t('Devel Themer module is now enabled. Tick the "themer info" box to display theme information.'));
+  }
   drupal_goto();
+}
+
+/**
+ * Set and/or return the status of Devel Themer.
+ * @param
+ *   $enable - TRUE to enable the themer.
+ *             FALSE to disable the themer.
+ *             NULL to leave it unchanged.
+ *
+ * @return
+ *   TRUE if themer is enabled, FALSE if not.
+ */
+function devel_themer_enabled($enable = NULL) {
+  if (!is_null($enable)) {
+    variable_set('devel_themer_enabled', (bool)$enable);
+  }
+  return variable_get('devel_themer_enabled', TRUE);
 }
 
 function devel_themer_admin_settings() {
@@ -101,7 +147,7 @@ function devel_themer_perm() {
 }
 
 function devel_themer_init() {
-  if (devel_themer_user_access()) {
+  if (devel_themer_enabled() && devel_themer_user_access()) {
     $path = drupal_get_path('module', 'devel_themer');
     $path_to_devel = drupal_get_path('module', 'devel');
     // we inject our HTML after page has loaded we have to add this manually.
@@ -116,7 +162,11 @@ function devel_themer_init() {
     if (module_exists('jquery_ui'))
     {
       jquery_ui_add('ui.core');
-      jquery_ui_add('ui.mouse');
+      // Early versions of jquery_ui still need ui.mouse included.
+      $jquery_version = explode(".",jquery_ui_get_version());
+      if ($jquery_version[0] < 1 || ($jquery_version[0] == 1 && $jquery_version[1] < 5)) {
+        jquery_ui_add('ui.mouse');
+      }
       jquery_ui_add('ui.draggable');
     }
     else
@@ -248,7 +298,7 @@ function devel_themer_catch_function() {
   $time = timer_stop($timer_name);
 
   $skip_calls = array('hidden', 'form_element', 'placeholder');
-  if (!empty($return) && !is_array($return) && !is_object($return) && devel_themer_user_access()) {
+  if (devel_themer_enabled() && !empty($return) && !is_array($return) && !is_object($return) && devel_themer_user_access()) {
     list($prefix, $suffix) = devel_theme_call_marker($hook, $counter, 'func');
     $start_return = substr($return, 0, 31);
     $start_prefix = substr($prefix, 0, 31);
@@ -276,7 +326,7 @@ function devel_themer_catch_function() {
         }
       }
       else {
-        $name = $meta['used']. devel_themer_get_extension();
+        $name = $hook; 
         if (empty($suggestions)) {
           array_unshift($meta['suggestions'], $meta['used']);
         }
@@ -564,7 +614,7 @@ function devel_themer_popup() {
       'toggle_throbber' => ' <img src="'. base_path() . drupal_get_path('module', 'devel'). '/loader-little.gif' .'" alt="'. t('loading') .'" class="throbber" width="16" height="16" style="display:none" />',
       'parents' => t('Parents: '),
       'function_called' => t('Function called: '),
-      'template_called' => t('Template called: '),
+      'template_called' => t('Theme hook called: '),
       'candidate_files' => t('Candidate template files: '),
       'preprocessors' => t('Preprocess functions: '),
       'candidate_functions' => t('Candidate function names: '),

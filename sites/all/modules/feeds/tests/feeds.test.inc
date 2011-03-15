@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds.test.inc,v 1.12 2010/07/18 16:56:54 alexb Exp $
+// $Id: feeds.test.inc,v 1.15 2010/09/15 19:27:42 alexb Exp $
 
 /**
  * @file
@@ -75,8 +75,6 @@ class FeedsWebTestCase extends DrupalWebTestCase {
   /**
    * Create an importer configuration.
    *
-   * @todo Rename to createImporterConfig()
-   *
    * @param $name
    *   The natural name of the feed.
    * @param $id
@@ -85,7 +83,7 @@ class FeedsWebTestCase extends DrupalWebTestCase {
    *   Optional array that defines the basic settings for the feed in a format
    *   that can be posted to the feed's basic settings form.
    */
-  public function createFeedConfiguration($name = 'Syndication', $id = 'syndication') {
+  public function createImporterConfiguration($name = 'Syndication', $id = 'syndication') {
     // Create new feed configuration.
     $this->drupalGet('admin/build/feeds');
     $this->clickLink('New importer');
@@ -145,8 +143,8 @@ class FeedsWebTestCase extends DrupalWebTestCase {
    * * create [type] content
    * * use feeds
    *
-   * Assumes that page content type has been configured with createFeedConfiguration()
-   * as a feed content type.
+   * Assumes that page content type has been configured with
+   * createImporterConfiguration() as a feed content type.
    *
    * @return
    *   The node id of the node created.
@@ -171,23 +169,13 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     $this->assertText('has been created.');
 
     // Get the node id from URL.
-    $url = $this->getUrl();
-    $matches = array();
-    preg_match('/node\/(\d+?)$/', $this->getUrl(), $matches);
-    $nid = $matches[1];
-    $this->assertTrue(is_numeric($nid), 'Found node id ('. $nid .').');
+    $nid = $this->getNid($this->getUrl());
 
     // Check whether feed got recorded in feeds_source table.
     $this->assertEqual(1, db_result(db_query("SELECT COUNT(*) FROM {feeds_source} WHERE id = '%s' AND feed_nid = %d", $id, $nid)));
     $source = db_fetch_object(db_query("SELECT * FROM {feeds_source} WHERE id = '%s' AND feed_nid = %d", $id, $nid));
     $config = unserialize($source->config);
     $this->assertEqual($config['FeedsHTTPFetcher']['source'], $feed_url, t('URL in DB correct.'));
-
-    // Check whether feed got properly added to scheduler.
-    $this->assertEqual(1, db_result(db_query("SELECT COUNT(*) FROM {feeds_schedule} WHERE id = '%s' AND feed_nid = %d AND callback = 'import' AND last_executed_time = 0 AND scheduled = 0", $id, $nid)));
-    // There must be only one entry for 'expire' - no matter how many actual feed nodes exist.
-    $this->assertEqual(1, db_result(db_query("SELECT COUNT(*) FROM {feeds_schedule} WHERE id = '%s' AND callback = 'expire' AND last_executed_time = 0 AND scheduled = 0", $id)));
-
     return $nid;
   }
 
@@ -250,9 +238,9 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     $this->assertEqual($config['FeedsHTTPFetcher']['source'], $feed_url, t('URL in DB correct.'));
 
     // Check whether feed got properly added to scheduler.
-    $this->assertEqual(1, db_result(db_query("SELECT COUNT(*) FROM {feeds_schedule} WHERE id = '%s' AND feed_nid = 0 AND callback = 'import' AND last_executed_time = 0 AND scheduled = 0", $id)));
+    $this->assertEqual(1, db_result(db_query("SELECT COUNT(*) FROM {job_schedule} WHERE type = '%s' AND id = 0 AND callback = 'feeds_source_import' AND last <> 0 AND scheduled = 0", $id)));
     // There must be only one entry for callback 'expire' - no matter what the feed_nid is.
-    $this->assertEqual(1, db_result(db_query("SELECT COUNT(*) FROM {feeds_schedule} WHERE id = '%s' AND callback = 'expire' AND last_executed_time = 0 AND scheduled = 0", $id)));
+    $this->assertEqual(0, db_result(db_query("SELECT COUNT(*) FROM {job_schedule} WHERE type = '%s' AND callback = 'feeds_importer_expire' AND last <> 0 AND scheduled = 0", $id)));
   }
 
   /**
@@ -314,5 +302,18 @@ class FeedsWebTestCase extends DrupalWebTestCase {
         $this->drupalPost($path, $edit, t('Save'));
       }
     }
+  }
+
+  /**
+   * Helper function, retrieves node id from a URL.
+   */
+  public function getNid($url) {
+    $matches = array();
+    preg_match('/node\/(\d+?)$/', $url, $matches);
+    $nid = $matches[1];
+    if (!is_numeric($nid)) {
+      $this->error(t('Could not find node id, found @nid instead.', array('@nid' => $nid)));
+    }
+    return $nid;
   }
 }

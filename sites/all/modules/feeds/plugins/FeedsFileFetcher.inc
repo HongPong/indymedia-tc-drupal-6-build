@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsFileFetcher.inc,v 1.11 2010/07/11 16:26:06 alexb Exp $
+// $Id: FeedsFileFetcher.inc,v 1.15.2.1 2010/10/28 20:06:18 alexb Exp $
 
 /**
  * @file
@@ -16,9 +16,9 @@ class FeedsFileBatch extends FeedsImportBatch {
   /**
    * Constructor.
    */
-  public function __construct($file_path) {
+  public function __construct($file_path, $feed_nid = 0) {
     $this->file_path = $file_path;
-    parent::__construct();
+    parent::__construct('', $feed_nid);
   }
 
   /**
@@ -32,6 +32,9 @@ class FeedsFileBatch extends FeedsImportBatch {
    * Implementation of FeedsImportBatch::getFilePath().
    */
   public function getFilePath() {
+    if (!file_exists($this->file_path)) {
+      throw new Exception(t('File @filepath is not accessible.', array('@filepath' => $this->file_path)));
+    }
     return $this->file_path;
   }
 }
@@ -46,7 +49,7 @@ class FeedsFileFetcher extends FeedsFetcher {
    */
   public function fetch(FeedsSource $source) {
     $source_config = $source->getConfigFor($this);
-    return new FeedsFileBatch($source_config['source']);
+    return new FeedsFileBatch($source_config['source'], $source->feed_nid);
   }
 
   /**
@@ -54,13 +57,15 @@ class FeedsFileFetcher extends FeedsFetcher {
    */
   public function sourceForm($source_config) {
     $form = $info = array();
-    if (!empty($source_config['source'])) {
+    if (!empty($source_config['source']) && file_exists($source_config['source'])) {
       $info = array(
         'path' => $source_config['source'],
         'size' => filesize(realpath($source_config['source'])),
       );
       if (module_exists('mimedetect')) {
-        $info['mime'] = mimedetect_mime(realpath($source_config['source']));
+        $file = new stdClass;
+        $file->filepath = realpath($source_config['source']);
+        $info['mime'] = mimedetect_mime($file);
       }
     }
     $form['source'] = array(
@@ -75,6 +80,7 @@ class FeedsFileFetcher extends FeedsFetcher {
       '#description' => empty($source_config['source']) ? t('Select the file to be imported from your local system.') : t('Select a different file to be imported from your local system.'),
       '#theme' => 'feeds_upload',
       '#file_info' => $info,
+      '#size' => 10,
     );
     return $form;
   }

@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds.pages.inc,v 1.19 2010/07/11 16:26:06 alexb Exp $
+// $Id: feeds.pages.inc,v 1.22.2.1 2010/10/25 22:14:58 alexb Exp $
 
 /**
  * @file
@@ -29,7 +29,7 @@ function feeds_page() {
       }
       $rows[] = array(
         l($title, $link),
-        $importer->config['description'],
+        check_plain($importer->config['description']),
       );
     }
   }
@@ -85,9 +85,9 @@ function feeds_import_form_submit($form, &$form_state) {
     feeds_batch_set(t('Importing'), 'import', $form['#importer_id']);
   }
 
-  // Add importer to schedule.
-  feeds_scheduler()->add($form['#importer_id'], 'import');
-  feeds_scheduler()->add($form['#importer_id'], 'expire');
+  // Add to schedule, make sure importer is scheduled, too.
+  $source->schedule();
+  $source->importer->schedule();
 }
 
 /**
@@ -133,14 +133,11 @@ function feeds_delete_tab_form(&$form_state, $importer_id, $node = NULL) {
 
 /**
  * Submit handler for feeds_delete_tab_form().
- *
- * Reset import schedule of given subscription to expedite refresh.
  */
 function feeds_delete_tab_form_submit($form, &$form_state) {
   $form_state['redirect'] = $form['#redirect'];
   $feed_nid = empty($form['#feed_nid']) ? 0 : $form['#feed_nid'];
   feeds_batch_set(t('Deleting'), 'clear', $form['#importer_id'], $feed_nid);
-  feeds_scheduler()->add($form['#importer_id'], 'import', $feed_nid);
 }
 
 /**
@@ -148,7 +145,10 @@ function feeds_delete_tab_form_submit($form, &$form_state) {
  */
 function feeds_fetcher_callback($importer, $feed_nid = 0) {
   if ($importer instanceof FeedsImporter) {
-    return $importer->fetcher->request($feed_nid);
+    try {
+      return $importer->fetcher->request($feed_nid);
+    }
+    catch(Exception $e) {}
   }
   drupal_access_denied();
 }
@@ -169,7 +169,7 @@ function theme_feeds_upload($element) {
     $output .= '<div class="file-size">';
     $output .= format_size($info['size']);
     $output .= '</div>';
-    if ($info['mime']) {
+    if (isset($info['mime'])) {
       $output .= '<div class="file-mime">';
       $output .= check_plain($info['mime']);
       $output .= '</div>';

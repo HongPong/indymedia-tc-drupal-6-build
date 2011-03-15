@@ -1,5 +1,5 @@
 <?php
-// $Id: views_handler_field.inc,v 1.14.2.32 2010/03/25 18:32:53 merlinofchaos Exp $
+// $Id: views_handler_field.inc,v 1.33.2.14 2010/06/16 19:15:53 merlinofchaos Exp $
 /**
  * @defgroup views_field_handlers Views' field handlers
  * @{
@@ -94,12 +94,12 @@ class views_handler_field extends views_handler {
           else {
             $table_alias = $this->table_alias;
           }
-          $params = array();
-          if (!empty($info['params'])) {
-            $params = $info['params'];
+          if (empty($table_alias)) {
+            vpr(t('Handler @handler tried to add additional_field @identifier but @table could not be added!', array('@handler' => $this->definition['handler'], '@identifier' => $identifier, '@table' => $info['table'])));
+            $this->aliases[$identifier] = 'broken';
+            continue;
           }
-
-          $this->aliases[$identifier] = $this->query->add_field($table_alias, $info['field'], NULL, $params);
+          $this->aliases[$identifier] = $this->query->add_field($table_alias, $info['field']);
         }
         else {
           $this->aliases[$info] = $this->query->add_field($this->table_alias, $info);
@@ -147,7 +147,6 @@ class views_handler_field extends views_handler {
     $options = parent::option_definition();
 
     $options['label'] = array('default' => $this->definition['title'], 'translatable' => TRUE);
-    $options['exclude'] = array('default' => FALSE, 'bool' => TRUE);
     $options['alter'] = array(
       'contains' => array(
         'alter_text' => array('default' => FALSE),
@@ -179,8 +178,6 @@ class views_handler_field extends views_handler {
    * should have.
    */
   function options_form(&$form, &$form_state) {
-    parent::options_form($form, $form_state);
-
     $form['label'] = array(
       '#type' => 'textfield',
       '#title' => t('Label'),
@@ -500,7 +497,7 @@ class views_handler_field extends views_handler {
       return '';
     }
 
-    if ($alter['alter_text'] !== '' && $alter['text'] !== '') {
+    if (!empty($alter['alter_text']) && $alter['text'] !== '') {
       $tokens = $this->get_render_tokens($alter);
       $value = $this->render_altered($alter, $tokens);
     }
@@ -566,10 +563,13 @@ class views_handler_field extends views_handler {
     // sanitize it ourselves.
     $path = $alter['path'];
 
-    // Use strip tags as there should never be HTML in the path.
-    // However, we need to preserve special characters like " that
-    // were removed by check_plain().
-    $path = strip_tags(html_entity_decode(strtr($path, $tokens)));
+    // html_entity_decode removes <front>, so check whether its different to front.
+    if ($path != '<front>') {
+      // Use strip tags as there should never be HTML in the path.
+      // However, we need to preserve special characters like " that
+      // were removed by check_plain().
+      $path = strip_tags(html_entity_decode(strtr($path, $tokens)));
+    }
 
     // If the path is empty do not build a link around the given text and return
     // it as is.

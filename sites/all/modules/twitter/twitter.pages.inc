@@ -1,5 +1,5 @@
 <?php
-// $Id: twitter.pages.inc,v 1.2.2.8 2009/07/02 13:23:44 eaton Exp $
+// $Id: twitter.pages.inc,v 1.4.2.9 2010/02/16 00:51:17 walkah Exp $
 
 /**
  *
@@ -7,25 +7,32 @@
 function twitter_admin_form() {
   $form = array();
 
-  $form['global_account'] = array(
+  $form['oauth'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Global account'),
-    '#description' => t('A site-wide Twitter account to use as the default when tweets are posted. This is useful for single-user blogs or sites where many users post to a single shared Twitter account.'),
+    '#title' => t('OAuth Settings'),
+    '#description' => t(''),
+    '#access' => module_exists('oauth'),
+    '#description' => t('To enable OAuth based access for twitter, you must <a href="@url">register your application</a> with twitter and add the provided keys here.', array('@url' => 'https://twitter.com/apps/new')),
   );
 
-  $form['global_account']['twitter_global_name'] = array(
+  $form['oauth']['callback_url'] = array(
+    '#type' => 'item',
+    '#title' => t('Callback URL'),
+    '#value' => url('twitter/oauth', array('absolute' => TRUE)),
+  );
+
+  $form['oauth']['twitter_consumer_key'] = array(
     '#type' => 'textfield',
-    '#title' => t('Twitter user name'),
-    '#default_value' => variable_get('twitter_global_name', NULL),
+    '#title' => t('OAuth Consumer key'),
+    '#default_value' => variable_get('twitter_consumer_key', NULL),
+  );
+
+  $form['oauth']['twitter_consumer_secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OAuth Consumer secret'),
+    '#default_value' => variable_get('twitter_consumer_secret', NULL),
   );
   
-  $form['global_account']['twitter_global_password'] = array(
-    '#type' => 'password',
-    '#title' => t('Password'),
-    '#description' => t("If your Twitter account is protected, or you wish to post to Twitter from Drupal, you must enter the Twitter account's password."),
-    '#default_value' => variable_get('twitter_global_password', NULL),
-  );
-
   $form['import'] = array(
     '#type' => 'fieldset',
     '#title' => t('Twitter import'),
@@ -43,43 +50,8 @@ function twitter_admin_form() {
   $form['import']['twitter_expire'] = array(
     '#type' => 'select',
     '#title' => t('Delete old statuses'),
-    '#default_value' => variable_get('amazon_refresh_schedule', 0),
+    '#default_value' => variable_get('twitter_expire', 0),
     '#options' => $periods
-  );
-
-  $form['posting'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Twitter posting'),
-    '#description' => t('Users with proper permissions will be given the option to post announcements to their Twitter accounts when they create new content.'),
-  );
-
-  $form['posting']['twitter_types'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Node types'),
-    '#options' => node_get_types('names'),
-    '#default_value' => variable_get('twitter_types', array('story' => 'story', 'blog' => 'blog')),
-  );
-
-  $form['posting']['twitter_default_format'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Default format string'),
-    '#maxlength' => 140,
-    '#description' => t('The given text will be posted to twitter.com. You can use !url, !url-alias, !tinyurl, !title, and !user as replacement text.'),
-    '#default_value' => variable_get('twitter_default_format', 'New post: !title !tinyurl'),
-  );
-
-  $form['twitter_api_url'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Alternate API URL'),
-    '#default_value' => variable_get('twitter_api_url', 'twitter.com'),
-    '#description' => t("A Twitter-compatible microblogging services like !identica can be used insted of Twitter.com by entering the service's API URL here.",
-      array('!identica' => l('Identi.ca', 'http://laconi.ca/trac/wiki/TwitterCompatibleAPI'))),
-  );
-
-  $form['twitter_set_source'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Set source to Drupal when updating Twitter status'),
-    '#default_value' => variable_get('twitter_set_source', TRUE),
   );
 
   return system_settings_form($form);
@@ -96,7 +68,7 @@ function twitter_user_settings($account) {
   if (!empty($twitter_accounts)) {
     $output .= drupal_get_form('twitter_account_list_form', $twitter_accounts);
   }
-  $output .= drupal_get_form('twitter_add_account', $account);
+  $output .= drupal_get_form('twitter_account_form', $account);
 
   return $output;
 }
@@ -122,61 +94,79 @@ function twitter_account_list_form($form_state, $twitter_accounts = array()) {
 function _twitter_account_list_row($account) {
   $form['#account'] = $account;
 
-  $form['uid'] = array(
+  $form['id'] = array(
     '#type' => 'value',
-    '#value' => $account['uid'],
+    '#value' => $account->id,
   );
 
+  $form['uid'] = array(
+    '#type' => 'value',
+    '#value' => $account->uid,
+  );
+  
   $form['screen_name'] = array(
     '#type' => 'value',
-    '#value' => $account['screen_name'],
+    '#value' => $account->screen_name,
   );
 
   $form['image'] = array(
     '#type' => 'markup',
-    '#value' => theme('image', $account['profile_image_url'], '', '', array(), FALSE),
+    '#value' => theme('image', $account->profile_image_url, '', '', array(), FALSE),
   );
 
   $form['visible_name'] = array(
     '#type' => 'markup',
-    '#value' => l($account['screen_name'], 'http://www.twitter.com/' . $account['screen_name']),
+    '#value' => l($account->screen_name, 'http://www.twitter.com/' . $account->screen_name),
   );
 
   $form['description'] = array(
     '#type' => 'markup',
-    '#value' => filter_xss($account['description']),
+    '#value' => filter_xss($account->description),
   );
 
   $form['protected'] = array(
     '#type' => 'markup',
-    '#value' => empty($account['protected']) ? t('No') : t('Yes'),
+    '#value' => empty($account->protected) ? t('No') : t('Yes'),
   );
 
   $form['import'] = array(
     '#type' => 'checkbox',
-    '#default_value' => $account['import'],
+    '#default_value' => $account->import,
   );
-
+  
   $form['delete'] = array(
     '#type' => 'checkbox',
   );
+
   return $form;
 }
 
 function theme_twitter_account_list_form($form) {
-  $header = array('', t('Name'), t('Description'), t('Private'), t('Import'), t('Delete'));
+  $header = array('', t('Name'), t('Description'), t('Private'), t('Import'), t('Delete')); 
+
+  if (user_access('make twitter accounts global')) {
+    $header[] = '';
+  }
+  
   $rows = array();
 
   foreach (element_children($form['accounts']) as $key) {
     $element = &$form['accounts'][$key];
-    $rows[] = array(
+    $row = array(
       drupal_render($element['image']),
-      drupal_render($element['uid']) . drupal_render($element['screen_name']) . drupal_render($element['visible_name']),
+      drupal_render($element['id']) . drupal_render($element['screen_name']) . drupal_render($element['visible_name']),
       drupal_render($element['description']),
       drupal_render($element['protected']),
       drupal_render($element['import']),
       drupal_render($element['delete']),
     );
+
+    if (user_access('make twitter accounts global')) {
+      $label = ($element['#account']->is_global) ? t('remove global') : t('make global');
+      $row[] = l($label, 'user/'. $element['#account']->uid .'/edit/twitter/global/'. $element['#account']->id);
+    }
+    
+    $rows[] = $row;
   }
 
   $output = theme('table', $header, $rows);
@@ -188,15 +178,50 @@ function twitter_account_list_form_submit($form, &$form_state) {
   $accounts = $form_state['values']['accounts'];
   foreach($accounts as $account) {
     if (empty($account['delete'])) {
-      twitter_user_save($account);
+      twitter_account_save($account);
     }
     else {
-      twitter_user_delete($account['uid'], $account['screen_name']);
+      twitter_user_delete($account['id'], $account['screen_name']);
     }
   }
 }
 
-function twitter_add_account($form_state, $account = NULL) {
+function twitter_user_make_global($form_state, $account, $twitter_uid) {
+  module_load_include('inc', 'twitter');
+
+  $twitter_account = twitter_account_load($twitter_uid);
+
+  $form = array();
+
+  $form['uid'] = array(
+    '#type' => 'value',
+    '#value' => $account->uid,
+  );
+
+  $form['twitter_uid'] = array(
+    '#type' => 'value',
+    '#value' => $twitter_uid,
+  );
+
+  if ($twitter_account->is_global) {
+    $text = t('Are you sure you want to remove %screen_name from the global accounts?', array('%screen_name' => $twitter_account->screen_name));
+    $description = t('This means other users will no longer be allowed to post using this account.');
+  }
+  else {
+    $text = t('Are you sure you want to allow other users to access the %screen_name account?', array('%screen_name' => $twitter_account->screen_name));
+    $description = t('This will allow other users to post using this account.');
+  }
+  
+  return confirm_form($form, $text, 'user/'. $account->uid .'/edit/twitter', $description);
+}
+
+function twitter_user_make_global_submit($form, &$form_state) {
+  db_query("UPDATE {twitter_account} SET is_global = (1 - is_global) WHERE twitter_uid = %d", $form_state['values']['twitter_uid']);
+
+  $form_state['redirect'] = 'user/'. $form_state['values']['uid'] .'/edit/twitter';
+}
+
+function twitter_account_form($form_state, $account = NULL) {
   if (empty($account)) {
     global $user;
     $account = $user;
@@ -207,33 +232,40 @@ function twitter_add_account($form_state, $account = NULL) {
     '#value' => $account->uid,
   );
 
-  $form['screen_name'] = array(
-    '#type' => 'textfield',
-    '#required' => TRUE,
-    '#title' => t('Twitter user name'),
-  );
-  $form['password'] = array(
-    '#type' => 'password',
-    '#title' => t('Password'),
-    '#description' => t("If your Twitter account is protected, or you wish to post to Twitter from Drupal, you must enter the Twitter account's password.")
-  );
-
-  $form['import'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Import statuses from this account'),
-    '#default_value' => TRUE,
-    '#access' => FALSE,
-  );
+  if (_twitter_use_oauth()) {
+    $form['#validate'] = array('twitter_account_oauth_validate');
+  }
+  else {
+    $form['screen_name'] = array(
+      '#type' => 'textfield',
+      '#required' => TRUE,
+      '#title' => t('Twitter user name'),
+    );
+    $form['password'] = array(
+      '#type' => 'password',
+      '#title' => t('Password'),
+      '#description' => t("If your Twitter account is protected, or you wish to post to Twitter from Drupal, you must enter the Twitter account's password.")
+    );
+    
+    $form['import'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Import statuses from this account'),
+      '#default_value' => TRUE,
+      '#access' => FALSE,
+    );
+    
+  }
 
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Add account'),
   );
-
+  
   return $form;
 }
 
-function twitter_add_account_validate($form, &$form_state) {
+function twitter_account_form_validate($form, &$form_state) {
+  module_load_include('lib.php', 'twitter');
   module_load_include('inc', 'twitter');
 
   $verify = FALSE;
@@ -246,17 +278,85 @@ function twitter_add_account_validate($form, &$form_state) {
   }
 
   if ($verify) {
-    $valid = twitter_authenticate($name, $pass);
-    if (!$valid) {
+    $twitter = new Twitter($name, $pass);
+    $account = $twitter->verify_credentials();
+    if (!$account) {
       form_set_error("password", t('Twitter authentication failed. Please check your account name and try again.'));
     }
+    $form_state['twitter_account'] = $account;
   }
 }
 
-function twitter_add_account_submit($form, &$form_state) {
+function twitter_account_form_submit($form, &$form_state) {
   module_load_include('inc', 'twitter');
 
   if (!empty($form_state['values']['screen_name'])) {
-    twitter_user_save($form_state['values'], TRUE);
+    $account = $form_state['twitter_account'];
+    $account->set_auth($form_state['values']);
+    twitter_account_save($account, TRUE);
   }
+}
+
+function twitter_account_oauth_validate($form, &$form_state) {
+  module_load_include('lib.php', 'oauth');
+  module_load_include('lib.php', 'twitter');
+  
+  $key = variable_get('twitter_consumer_key', '');
+  $secret = variable_get('twitter_consumer_secret', '');
+  $twitter = new TwitterOAuth($key, $secret);
+  $token = $twitter->get_request_token();
+
+  $_SESSION['twitter_oauth']['token'] = $token;
+  $_SESSION['twitter_oauth']['destination'] = $_GET['q'];
+  drupal_goto($twitter->get_authorize_url($token));
+}
+
+
+function twitter_oauth_callback(&$form_state) {
+  $form['#post']['oauth_token'] = $_GET['oauth_token'];
+
+  $form['oauth_token'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $_GET['oauth_token'],
+  );
+  
+  return $form;
+}
+
+function twitter_oauth_callback_validate($form, &$form_state) {
+  $key = variable_get('twitter_consumer_key', '');
+  $secret = variable_get('twitter_consumer_secret', '');
+
+  $form_state['twitter_oauth'] = $_SESSION['twitter_oauth'];
+  unset($_SESSION['twitter_oauth']);
+
+  $token = $form_state['twitter_oauth']['token'];
+  if (!is_array($token) || !$key || !$secret) {
+    form_set_error('oauth_token', t('Invalid Twitter OAuth request'));
+  }
+
+  if ($token['oauth_token'] != $form_state['values']['oauth_token']) {
+    form_set_error('oauth_token', t('Invalid OAuth token.'));
+  }
+
+  module_load_include('lib.php', 'oauth');
+  module_load_include('lib.php', 'twitter');
+  module_load_include('inc', 'twitter');
+
+  $twitter = new TwitterOAuth($key, $secret, $token['oauth_token'], $token['oauth_token_secret']);  
+  $response = $twitter->get_access_token();
+  $form_state['twitter_oauth']['response'] = $response;
+}
+
+function twitter_oauth_callback_submit(&$form, &$form_state) {
+  $key = variable_get('twitter_consumer_key', '');
+  $secret = variable_get('twitter_consumer_secret', '');
+  $response = $form_state['twitter_oauth']['response'];
+  
+  $twitter = new TwitterOAuth($key, $secret, $response['oauth_token'], $response['oauth_token_secret']);  
+  $account = $twitter->users_show($response['screen_name']);
+  $account->set_auth($response);
+  twitter_account_save($account, TRUE);
+  $form_state['redirect'] = $form_state['twitter_oauth']['destination'];
+  $form['#programmed'] = FALSE;
 }

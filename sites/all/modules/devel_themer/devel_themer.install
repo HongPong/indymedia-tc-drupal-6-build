@@ -19,6 +19,22 @@ function devel_themer_requirements($phase) {
   return isset($requirements) ? $requirements : array();
 }
 
+/**
+ * Implementation of hook_install.
+ */
+function devel_themer_install() {
+  drupal_rebuild_theme_registry();
+}
+/**
+ * Implementation of hook_uninstall.
+ */
+function devel_themer_uninstall() {
+  variable_del('devel_themer_enabled');
+  variable_del('devel_themer_log');
+  variable_del('devel_themer_no_whitespace');
+  drupal_rebuild_theme_registry();
+}
+
 function devel_themer_update_6000() {
   $ret = array();
   drupal_install_schema('devel_themer');
